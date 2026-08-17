@@ -5,15 +5,32 @@ using namespace System.Collections.Immutable
 
 Set-StrictMode -Version Latest
 
+#### <h1 style="color: #DCA657;">🎆 PSSecurity</h1>
+####
+#### > Loads the security toolkit into a PowerShell session.
+####
+#### The loader runs once each time the module is imported. It performs five phases in order:
+####
+#### 1. Read `PSSecuritySettings.json` from the module directory.
+#### 2. Create the module-scoped settings used by the imported functions.
+#### 3. Detect whether the host can safely ask interactive questions.
+#### 4. Load private helpers, load public commands, and export only the public commands.
+#### 5. Offer dependency installation to a person, or report missing dependencies to an agent or build.
+####
+#### ---
+####
+#### <h2 style="color: #DCA657;">1. Read the module settings</h2>
+####
+#### Every path starts from the loader's own directory. The caller's current directory does
+#### not affect the import.
+####
+#### The settings file is read once as a hashtable. This preserves each dependency entry as
+#### a hashtable, which is the shape expected by the dependency commands.
+####
+
 $env:POWERSHELL_TELEMETRY_OPTOUT = 'true'
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
-#### Resolved against the module root, not the caller's location. A relative path here
-#### makes the import work only when the shell happens to be sitting in the repo.
-####
-#### `-AsHashtable` is what keeps the shape the rest of the file already expects. Without
-#### it every entry arrives as a `PSCustomObject`, which will not bind to a `[hashtable]`
-#### parameter. On PowerShell 7.3 and later it returns an ordered hashtable, so a rewrite
-#### preserves key order rather than scrambling the file.
+
 $script:SettingsPath = Join-Path -Path $root -ChildPath 'PSSecuritySettings.json'
 $psSecuritySettings = Get-Content -LiteralPath $script:SettingsPath -Raw | ConvertFrom-Json -AsHashtable
 
@@ -23,46 +40,47 @@ $script:HashIndexExclude = $psSecuritySettings.HashIndexExclude
 $script:PSSecurityRuntimeModules = $psSecuritySettings.PSSecurityRuntimeModules
 $script:PSSecurityBuildtimeModules = $psSecuritySettings.PSSecurityBuildtimeModules
 
-#### <h1 style="color: #DCA657;">🎆 PSSecurity</h1>
+#### <h2 style="color: #DCA657;">2. Create shared module state</h2>
 ####
-#### > Module loader for the security toolkit.
+#### Values copied into `$script:` scope are available to every file loaded into the module.
 ####
-#### ---
-####
-#### Sets strict mode, opts out of telemetry, and fixes the hash index policy at module scope.
-#### Dot-sources `Private` then `Public`, then exports every function the load added.
-####
-#### ---
-####
-#### <h2 style="color: #DCA657;">Module Scope State Variables</h2>
-####
-#### | Variable | Purpose |
+#### | State | Purpose |
 #### | --- | --- |
-#### | `OutputEncoding` | UTF-8 in and out, so terminal characters parse accurately. |
-#### | `IsInteractive` | False for an agent or a build, so interactive-only paths stay off. |
-#### | `HasConsole` | False when either stream is redirected. |
-#### | `HashIndexAlgorithm` | Hash algorithm for the directory index. |
-#### | `HashIndexInclude` | File patterns the index covers. |
-#### | `HashIndexExclude` | Directory names the walk refuses to descend into. |
-#### | `SettingsPath` | `PSSecuritySettings.json`, read at load and rewritten when the dependency prompt is answered. |
+#### | `SettingsPath` | Locates the settings file that was read during import. |
+#### | `HashIndexAlgorithm` | Selects the algorithm used to hash repository files. |
+#### | `HashIndexInclude` | Lists the file patterns included in a hash index. |
+#### | `HashIndexExclude` | Lists the directories excluded from a hash index. |
+#### | `PSSecurityRuntimeModules` | Defines modules needed while using PSSecurity. |
+#### | `PSSecurityBuildtimeModules` | Defines modules needed to build and test PSSecurity. |
+#### | `OutputEncoding` | Sets console input and output to UTF-8. |
 ####
-
-#### Output encoding ensures accurate terminal character parsing.
 $script:OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 
-#### IsInteractive keeps the shell from executing interactive-only functions,
-#### so an AI agent can execute the script normally.
+#### <h2 style="color: #DCA657;">3. Detect the host</h2>
+####
+#### Dependency questions are allowed only when PowerShell is running interactively with an
+#### attached console. Agents, pipelines, redirected shells, and build runners take the
+#### non-interactive path and are never asked to answer a prompt.
+####
+#### | Check | True when |
+#### | --- | --- |
+#### | `IsInteractive` | The host is `ConsoleHost`, exposes its UI, and belongs to an interactive user. |
+#### | `HasConsole` | Standard input and standard output are both attached to the console. |
+####
 $script:IsInteractive = $Host.Name -eq 'ConsoleHost' -and $Host.UI -and $Host.UI.RawUI -and [Environment]::UserInteractive
 
-#### HasConsole confirms a console is actually attached.
 $script:HasConsole = -not [Console]::IsInputRedirected -and -not [Console]::IsOutputRedirected
 
 ####
-#### <h2 style="color: #DCA657;">Load order</h2>
+#### <h2 style="color: #DCA657;">4. Load and export the commands</h2>
 ####
-#### Private loads first so Public can call the helpers.
-#### The function table is captured between the two passes, so only what Public
-#### added gets exported and the private helpers stay private.
+#### The loader dot-sources every `.ps1` file directly inside `Private`, then records the
+#### current function table. It next dot-sources every `.ps1` file directly inside `Public`.
+#### The functions added by the second pass are the public commands exported by the module.
+####
+#### This order lets public commands call private helpers without exposing those helpers to
+#### the caller. Adding a function file to `Public` is enough to export it; the loader does
+#### not maintain a separate function-name list.
 ####
 Get-ChildItem -Path "$(Join-Path -Path $root -ChildPath 'Private')" -Filter '*.ps1' | Resolve-Path | ForEach-Object { . $_ }
 $sysFuncs = Get-ChildItem Function:
@@ -72,7 +90,7 @@ $funcs = Get-ChildItem Function: | Where-Object { $sysFuncs -notcontains $_ }
 ####
 #### <b style="color: #C22514;">Throws</b>
 ####
-#### - When the Public pass added no functions, which means the load failed.
+#### - When loading `Public` adds no functions.
 ####
 if ($funcs) {
     Export-ModuleMember -Function $funcs.Name
@@ -83,23 +101,30 @@ else {
 ####
 #### ---
 ####
-#### <h2 style="color: #DCA657;">Dependencies</h2>
-
-#### Prompt once, tracked by `DependencyPromptAnswered` in the settings file. A module
-#### scope variable cannot carry this. `Import-Module -Force` re-runs the file in a fresh
-#### module scope, and every new shell starts empty, so the question would come back
-#### forever. Settings on disk survive both. Set the flag back to false to be asked again.
+#### <h2 style="color: #DCA657;">5. Handle module dependencies</h2>
+####
+#### Dependency handling happens after the commands are loaded because it uses the public
+#### dependency commands from the previous phase.
+####
+#### | Host | Loader behavior |
+#### | --- | --- |
+#### | Interactive console | Ask whether to install missing runtime and build-time modules for the current user. |
+#### | Agent, build, or redirected shell | Skip every prompt and write one warning that names the missing modules. |
+####
+#### `DependencyPromptAnswered` persists the interactive answer in
+#### `PSSecuritySettings.json`, so importing again does not repeat the questions. Set it to
+#### `false` to ask again. The flag is written only after both prompts finish. If the module
+#### directory is read-only, the loader warns that it could not save the answer and continues.
+####
+#### Missing dependencies do not stop the module from loading. The loader installs a missing
+#### module only when an interactive user accepts the prompt; otherwise it reports what is
+#### absent and leaves installation to the caller.
+####
 if ($script:IsInteractive -and $script:HasConsole) {
     if (-not $psSecuritySettings.DependencyPromptAnswered) {
         Request-DependencyInstall -Label 'runtime' -Dependency $script:PSSecurityRuntimeModules
         Request-DependencyInstall -Label 'build time' -Dependency $script:PSSecurityBuildtimeModules
 
-        #### Written after the prompts, not before. If a prompt fails the question is
-        #### asked again next load, which is the better failure. Writing first would
-        #### silently retire the prompt on an install that never happened.
-        ####
-        #### The write itself is guarded: a module installed to a read only location
-        #### must still load. Losing the flag only costs a repeated question.
         try {
             $psSecuritySettings.DependencyPromptAnswered = $true
             $psSecuritySettings |
@@ -112,11 +137,6 @@ if ($script:IsInteractive -and $script:HasConsole) {
     }
 }
 else {
-    #### Non interactive hosts get told, not asked. An agent or a build cannot
-    #### answer a prompt, and blocking on one would hang the session.
-    ####
-    #### The notice goes to the warning stream. `Import-Module` discards whatever a module
-    #### writes to the success stream while it loads, so `Write-Output` here reached nobody.
     $absentRuntime = @(Get-Dependency -Dependency $script:PSSecurityRuntimeModules)
     $absentBuild = @(Get-Dependency -Dependency $script:PSSecurityBuildtimeModules)
 
@@ -127,4 +147,13 @@ else {
 }
 ####
 #### ---
+####
+#### <h2 style="color: #DCA657;">Import result</h2>
+####
+#### After a successful import:
+####
+#### - Functions loaded from `Public` are available to the caller.
+#### - Functions loaded from `Private` remain available only inside the module.
+#### - Hash-index settings and dependency definitions are shared in module scope.
+#### - Non-interactive hosts complete without a prompt, even when dependencies are missing.
 ####

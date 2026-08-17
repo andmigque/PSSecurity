@@ -45,7 +45,7 @@ Import-Module .\PSSecurity.psm1
 
 - Each record contains the file and it's corresponding `SHA-256` to ensure tamper resistant checkouts.
 
-- In the `HashIndex.json`, find a function such as `Write-DirectoryHash`. Follow the path to find and read the [Sharpdown](https://github.com/andmigque/Sharpdown) generated documentation.
+- In the `HashIndex.json`, find a function such as `Write-DirectoryHash`.
 
 ```powershell
 Get-Command -Module PSSecurity -Syntax

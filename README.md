@@ -54,7 +54,6 @@ Import-Module '.\PSSecurity.psm1'
 Basic usage is outlined in the [Skill.md](./Skill/ps-security/SKILL.md) file.
 
 - For more in depth usage, read the documentation starting at [PSSecurity.md](./Doc/PSSecurity.md)
-- All documentation is generated using [Sharpdown](https://github.com/andmigque/Sharpdown)
 
 ## 📄 License
 

@@ -1,85 +1,97 @@
  <h1 style="color: #DCA657;">🎆 PSSecurity</h1>
 
- > Module loader for the security toolkit.
+ > Loads the security toolkit into a PowerShell session.
+
+ The loader runs once each time the module is imported. It performs five phases in order:
+
+ 1. Read `PSSecuritySettings.json` from the module directory.
+ 2. Create the module-scoped settings used by the imported functions.
+ 3. Detect whether the host can safely ask interactive questions.
+ 4. Load private helpers, load public commands, and export only the public commands.
+ 5. Offer dependency installation to a person, or report missing dependencies to an agent or build.
 
  ---
 
- Sets strict mode, opts out of telemetry, and fixes the hash index policy at module scope.
- Dot-sources `Private` then `Public`, then exports every function the load added.
+ <h2 style="color: #DCA657;">1. Read the module settings</h2>
 
- ---
+ Every path starts from the loader's own directory. The caller's current directory does
+ not affect the import.
 
- <h2 style="color: #DCA657;">Module Scope State Variables</h2>
+ The settings file is read once as a hashtable. This preserves each dependency entry as
+ a hashtable, which is the shape expected by the dependency commands.
 
- | Variable | Purpose |
+ <h2 style="color: #DCA657;">2. Create shared module state</h2>
+
+ Values copied into `$script:` scope are available to every file loaded into the module.
+
+ | State | Purpose |
  | --- | --- |
- | `OutputEncoding` | UTF-8 in and out, so terminal characters parse accurately. |
- | `IsInteractive` | False for an agent or a build, so interactive-only paths stay off. |
- | `HasConsole` | False when either stream is redirected. |
- | `HashIndexAlgorithm` | Hash algorithm for the directory index. |
- | `HashIndexInclude` | File patterns the index covers. |
- | `HashIndexExclude` | Directory names the walk refuses to descend into. |
+ | `SettingsPath` | Locates the settings file that was read during import. |
+ | `HashIndexAlgorithm` | Selects the algorithm used to hash repository files. |
+ | `HashIndexInclude` | Lists the file patterns included in a hash index. |
+ | `HashIndexExclude` | Lists the directories excluded from a hash index. |
+ | `PSSecurityRuntimeModules` | Defines modules needed while using PSSecurity. |
+ | `PSSecurityBuildtimeModules` | Defines modules needed to build and test PSSecurity. |
+ | `OutputEncoding` | Sets console input and output to UTF-8. |
 
- Output encoding ensures accurate terminal character parsing.
- IsInteractive keeps the shell from executing interactive-only functions,
- so an AI agent can execute the script normally.
- HasConsole confirms a console is actually attached.
+ <h2 style="color: #DCA657;">3. Detect the host</h2>
 
- <h2 style="color: #DCA657;">Load order</h2>
+ Dependency questions are allowed only when PowerShell is running interactively with an
+ attached console. Agents, pipelines, redirected shells, and build runners take the
+ non-interactive path and are never asked to answer a prompt.
 
- Private loads first so Public can call the helpers.
- The function table is captured between the two passes, so only what Public
- added gets exported and the private helpers stay private.
+ | Check | True when |
+ | --- | --- |
+ | `IsInteractive` | The host is `ConsoleHost`, exposes its UI, and belongs to an interactive user. |
+ | `HasConsole` | Standard input and standard output are both attached to the console. |
+
+
+ <h2 style="color: #DCA657;">4. Load and export the commands</h2>
+
+ The loader dot-sources every `.ps1` file directly inside `Private`, then records the
+ current function table. It next dot-sources every `.ps1` file directly inside `Public`.
+ The functions added by the second pass are the public commands exported by the module.
+
+ This order lets public commands call private helpers without exposing those helpers to
+ the caller. Adding a function file to `Public` is enough to export it; the loader does
+ not maintain a separate function-name list.
 
 
  <b style="color: #C22514;">Throws</b>
 
- - When the Public pass added no functions, which means the load failed.
+ - When loading `Public` adds no functions.
 
 
  ---
 
- <h2 style="color: #DCA657;">Dependencies</h2>
+ <h2 style="color: #DCA657;">5. Handle module dependencies</h2>
 
- | Set | Needed for |
+ Dependency handling happens after the commands are loaded because it uses the public
+ dependency commands from the previous phase.
+
+ | Host | Loader behavior |
  | --- | --- |
- | Runtime | `Show-DesktopNotification`. The module loads and every other function works without it. |
- | Build time | `Invoke-Build` tasks: the suite, the analyzer, the doc build. |
+ | Interactive console | Ask whether to install missing runtime and build-time modules for the current user. |
+ | Agent, build, or redirected shell | Skip every prompt and write one warning that names the missing modules. |
 
- These are deliberately not in the manifest. A `RequiredModules` entry makes the
- whole module unloadable when a dependency is absent or a pinned version does not
- match, which would take the encryption and hashing surface down over a toast.
+ `DependencyPromptAnswered` persists the interactive answer in
+ `PSSecuritySettings.json`, so importing again does not repeat the questions. Set it to
+ `false` to ask again. The flag is written only after both prompts finish. If the module
+ directory is read-only, the loader warns that it could not save the answer and continues.
 
- Defined after `Export-ModuleMember`, so the two helpers below stay module private
- without needing to be excluded from the export set.
+ Missing dependencies do not stop the module from loading. The loader installs a missing
+ module only when an interactive user accepts the prompt; otherwise it reports what is
+ absent and leaves installation to the caller.
 
-```powershell
-function Test-DependencySatisfied
-```
- Any installed version at or above the floor satisfies it. `ModuleVersion`
- is a minimum, matching how the manifest keyword of the same name behaves.
-```powershell
-function Get-AbsentDependency
-```
-```powershell
-function Request-DependencyInstall
-```
- Wrapped in @() because PowerShell unrolls a collection on output. An empty
- result would arrive as $null, and reading .Count on it throws under strict mode.
- Guideline SD04: talk to the user through the host interface, never the
- System.Console API.
- Prompt once, tracked by a marker file under `Generated`, which is gitignored.
- A variable cannot carry this. `Import-Module -Force` re-runs the file in a fresh
- module scope, and every new shell starts empty, so the question would come back
- forever. The marker survives both.
- Written after the prompts, not before. If a prompt fails the question is
- asked again next load, which is the better failure. Writing first would
- silently retire the prompt on an install that never happened.
-
- The write itself is guarded: a module installed to a read only location
- must still load. Losing the marker only costs a repeated question.
- Non interactive hosts get told, not asked. An agent or a build cannot
- answer a prompt, and blocking on one would hang the session.
 
  ---
+
+ <h2 style="color: #DCA657;">Import result</h2>
+
+ After a successful import:
+
+ - Functions loaded from `Public` are available to the caller.
+ - Functions loaded from `Private` remain available only inside the module.
+ - Hash-index settings and dependency definitions are shared in module scope.
+ - Non-interactive hosts complete without a prompt, even when dependencies are missing.
 
