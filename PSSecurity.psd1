@@ -1,9 +1,9 @@
 ﻿
 @{
     RootModule           = 'PSSecurity.psm1'
-    ModuleVersion        = '1.4.0'
+    ModuleVersion        = '1.5.0'
     CompatiblePSEditions = 'Core'
-    GUID                 = '1f60f975-319a-4e4f-94cc-dd33d510085a'
+    GUID                 = '01a0121d-ee0e-7b97-b54f-7d7a978cf8fc'
     Author               = 'Andres Quesada'
     CompanyName          = 'Quesada Works'
     Copyright            = '(c) 2026 Andres Quesada. Released under the MIT License.'
