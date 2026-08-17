@@ -1,7 +1,7 @@
 ﻿
 @{
     RootModule           = 'PSSecurity.psm1'
-    ModuleVersion        = '1.3.0'
+    ModuleVersion        = '1.4.0'
     CompatiblePSEditions = 'Core'
     GUID                 = '1f60f975-319a-4e4f-94cc-dd33d510085a'
     Author               = 'Andres Quesada'
@@ -17,7 +17,7 @@
             'Authenticode', 'Windows', 'PSEdition_Core'
             LicenseUri   = 'https://github.com/andmigque/PSSecurity/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/andmigque/PSSecurity'
-            ReleaseNotes = 'Initial Release'
+            ReleaseNotes = 'Updated AGENTS.md'
         }
     }
 }
