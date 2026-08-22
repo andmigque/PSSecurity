@@ -32,8 +32,6 @@ Do not read every function, test, or generated document. Use `HashIndex.json` to
 
 Generated files under `Doc` are read-first documentation. Change the Sharpdown comments in source, then regenerate the documentation.
 
-#### Figure 2.1.1
-
 | Task | Read next |
 | --- | --- |
 | Use or explain a function | Its file under `Doc/Public`. |
@@ -41,3 +39,11 @@ Generated files under `Doc` are read-first documentation. Change the Sharpdown c
 | Change a private helper | Its `Doc/Private`, `Private`, and related `Test` files. |
 | Change module loading | `PSSecurity.psm1` after reading `Doc/PSSecurity.md`. |
 | Change build behavior | `os.build.ps1` after reading `Doc/os.build.md`. |
+
+## 3. Build, Test, Document
+
+To build, test, and document, just run invoke build from the root to execute the entire suite:
+
+```powershell
+Invoke-Build
+```

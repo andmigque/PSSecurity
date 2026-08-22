@@ -4,7 +4,7 @@
 
  The loader runs once each time the module is imported. It performs five phases in order:
 
- 1. Read `PSSecuritySettings.json` from the module directory.
+ 1. Read `Setting.psd1` from the module configuration directory.
  2. Create the module-scoped settings used by the imported functions.
  3. Detect whether the host can safely ask interactive questions.
  4. Load private helpers, load public commands, and export only the public commands.
@@ -75,8 +75,8 @@
  | Agent, build, or redirected shell | Skip every prompt and write one warning that names the missing modules. |
 
  `DependencyPromptAnswered` persists the interactive answer in
- `PSSecuritySettings.json`, so importing again does not repeat the questions. Set it to
- `false` to ask again. The flag is written only after both prompts finish. If the module
+ `Setting.psd1`, so importing again does not repeat the questions. Set it to
+ `$false` to ask again. The flag is written only after both prompts finish. If the module
  directory is read-only, the loader warns that it could not save the answer and continues.
 
  Missing dependencies do not stop the module from loading. The loader installs a missing

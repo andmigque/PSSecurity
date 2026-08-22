@@ -39,7 +39,7 @@ Install-PSResource -Name PSSecurity
 ## Install Dependencies
 
 To run the build, test, and linting phases, you will need to install the dependencies 
-listed in [PSSecuritySettings.json](./PSSecuritySettings.json)
+listed in [Setting.psd1](./Config/Setting.psd1)
 
 - On first import of the module, you will be asked to install run time and build time dependencies.
 - You will not be able to develop on the project without these dependencies.

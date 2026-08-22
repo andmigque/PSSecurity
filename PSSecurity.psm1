@@ -11,7 +11,7 @@ Set-StrictMode -Version Latest
 ####
 #### The loader runs once each time the module is imported. It performs five phases in order:
 ####
-#### 1. Read `PSSecuritySettings.json` from the module directory.
+#### 1. Read `Setting.psd1` from the module configuration directory.
 #### 2. Create the module-scoped settings used by the imported functions.
 #### 3. Detect whether the host can safely ask interactive questions.
 #### 4. Load private helpers, load public commands, and export only the public commands.
@@ -31,8 +31,8 @@ Set-StrictMode -Version Latest
 $env:POWERSHELL_TELEMETRY_OPTOUT = 'true'
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
 
-$script:SettingsPath = Join-Path -Path $root -ChildPath 'Config' -AdditionalChildPath 'PSSecuritySettings.json'
-$psSecuritySettings = Get-Content -LiteralPath $script:SettingsPath -Raw | ConvertFrom-Json -AsHashtable
+$script:SettingsPath = Join-Path -Path $root -ChildPath 'Config' -AdditionalChildPath 'Setting.psd1'
+$psSecuritySettings = Import-PowerShellDataFile -LiteralPath $script:SettingsPath
 
 $script:HashIndexAlgorithm = $psSecuritySettings.HashIndexAlgorithm
 $script:HashIndexInclude = $psSecuritySettings.HashIndexInclude
@@ -112,8 +112,8 @@ else {
 #### | Agent, build, or redirected shell | Skip every prompt and write one warning that names the missing modules. |
 ####
 #### `DependencyPromptAnswered` persists the interactive answer in
-#### `PSSecuritySettings.json`, so importing again does not repeat the questions. Set it to
-#### `false` to ask again. The flag is written only after both prompts finish. If the module
+#### `Setting.psd1`, so importing again does not repeat the questions. Set it to
+#### `$false` to ask again. The flag is written only after both prompts finish. If the module
 #### directory is read-only, the loader warns that it could not save the answer and continues.
 ####
 #### Missing dependencies do not stop the module from loading. The loader installs a missing
@@ -126,10 +126,16 @@ if ($script:IsInteractive -and $script:HasConsole) {
         Request-DependencyInstall -Label 'build time' -Dependency $script:PSSecurityBuildtimeModules
 
         try {
+            $settingsContent = Get-Content -LiteralPath $script:SettingsPath -Raw
+            $settingPattern = '(\bDependencyPromptAnswered\s*=\s*)\$false\b'
+            $updatedSettingsContent = $settingsContent -replace $settingPattern, '${1}$$true'
+
+            if ($updatedSettingsContent -ceq $settingsContent) {
+                throw 'Could not locate DependencyPromptAnswered = $false in Setting.psd1.'
+            }
+
+            Set-Content -LiteralPath $script:SettingsPath -Value $updatedSettingsContent -Encoding utf8NoBOM -NoNewline
             $psSecuritySettings.DependencyPromptAnswered = $true
-            $psSecuritySettings |
-                ConvertTo-Json -Depth 5 |
-                Set-Content -LiteralPath $script:SettingsPath -Encoding utf8
         }
         catch {
             Write-Warning "Could not record the dependency prompt answer: $($_.Exception.Message)"

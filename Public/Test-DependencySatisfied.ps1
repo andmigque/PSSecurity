@@ -14,7 +14,7 @@ function Test-DependencySatisfied {
     param(
         #### - `[hashtable]`: __Dependency__
         ####     - *One requirement, with `ModuleName` and `ModuleVersion` keys.*
-        ####     - *Shaped like an entry in `PSSecuritySettings.json`.*
+        ####     - *Shaped like an entry in `Setting.psd1`.*
         [hashtable]$Dependency
     )
 
