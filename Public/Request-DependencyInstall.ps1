@@ -54,7 +54,7 @@ function Request-DependencyInstall {
     ####
     #### - *Nothing. `Install-Module` writes its own progress.*
     foreach ($item in $absent) {
-        Install-Module -Name $item.ModuleName -MinimumVersion $item.ModuleVersion -Scope CurrentUser -Force
+        Install-PSResource -Name $item.ModuleName -Version $item.ModuleVersion -Scope CurrentUser -TrustRepository
     }
 }
 ####

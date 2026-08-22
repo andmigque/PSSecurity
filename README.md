@@ -4,7 +4,7 @@ PSSecurity
 
 <p align="center">
   A PowerShell security toolkit.<br />
-  File integrity indexing, AES-256 encryption,<br />
+  File integrity indexing, Windows EFS encryption,<br />
   Windows ACL and UAC management, local-admin provisioning,<br />
   and Authenticode auditing.
 </p>
@@ -30,20 +30,16 @@ Install from the
 [PowerShell Gallery](https://www.powershellgallery.com/packages/PSSecurity).
 
 
-## Install the Module
+## Install the Resource
 
 ```powershell
-Install-Module -Name PSSecurity
+Install-PSResource -Name PSSecurity
 ```
 
 ## Install Dependencies
 
 To run the build, test, and linting phases, you will need to install the dependencies 
 listed in [PSSecuritySettings.json](./PSSecuritySettings.json)
-
-```powershell
-Import-Module '.\PSSecurity.psm1'
-```
 
 - On first import of the module, you will be asked to install run time and build time dependencies.
 - You will not be able to develop on the project without these dependencies.

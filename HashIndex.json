@@ -1,5 +1,10 @@
 [
   {
+    "File": "PSSecuritySettings.json",
+    "Hash": "18F7EF08DF44AFDE641395F66117E5F29F9B1255AE2D50581C118DA5AD3F0A5D",
+    "Path": "Config\\PSSecuritySettings.json"
+  },
+  {
     "File": "Assert-Administrator.md",
     "Hash": "C8ECD92ACE3646A9DF54182434433E932C98A61D47AE97029148E3CE2E7F0F91",
     "Path": "Doc\\Private\\Assert-Administrator.md"
@@ -65,9 +70,9 @@
     "Path": "Doc\\Public\\New-SecurityCertificate.md"
   },
   {
-    "File": "Protect-FileWithEncryption.md",
-    "Hash": "94D7501B2F939FCAA6D07E8EFFB32C85ABF412374A5DFE013456A7E4235460AE",
-    "Path": "Doc\\Public\\Protect-FileWithEncryption.md"
+    "File": "Protect-Item.md",
+    "Hash": "C76ED71894D7782530FA5F5CAFFBE2A6D5E3DD851E71A5ED62EA0B19B3FF1383",
+    "Path": "Doc\\Public\\Protect-Item.md"
   },
   {
     "File": "Request-DependencyInstall.md",
@@ -120,9 +125,9 @@
     "Path": "Doc\\Public\\Test-DependencySatisfied.md"
   },
   {
-    "File": "Unprotect-EncryptedFile.md",
-    "Hash": "74DFE5008FC400E55D148FABC9B595206640659F1C5D7DA6509424D051163CC4",
-    "Path": "Doc\\Public\\Unprotect-EncryptedFile.md"
+    "File": "Unprotect-Item.md",
+    "Hash": "5B4DFFA0078B2793A70876115EF1F181D6AFC3DD2EDEC9CEBF0FCA7CB06B3C44",
+    "Path": "Doc\\Public\\Unprotect-Item.md"
   },
   {
     "File": "Write-DirectoryHash.md",
@@ -175,9 +180,9 @@
     "Path": "Doc\\Test\\New-LocalAdminUser.Tests.md"
   },
   {
-    "File": "Protect-FileWithEncryption.Tests.md",
-    "Hash": "6EA864EBA15FD5EA96495BDE5D5B4C5DE80CDA2D93324718097CF2B63D0EA087",
-    "Path": "Doc\\Test\\Protect-FileWithEncryption.Tests.md"
+    "File": "Protect-Item.Tests.md",
+    "Hash": "FD402E70CE5D8818845A7C34499392FFD7444BB21AF8D932625524D26754DFFA",
+    "Path": "Doc\\Test\\Protect-Item.Tests.md"
   },
   {
     "File": "Search-PatternInFile.Tests.md",
@@ -200,9 +205,9 @@
     "Path": "Doc\\Test\\Set-UacRequirePassword.Tests.md"
   },
   {
-    "File": "Unprotect-EncryptedFile.Tests.md",
-    "Hash": "219B65871E034618B2105A84B0C85D4409805EF862BDBA993B54005C697B75A0",
-    "Path": "Doc\\Test\\Unprotect-EncryptedFile.Tests.md"
+    "File": "Unprotect-Item.Tests.md",
+    "Hash": "1169F26B996421C2891A163FFB20357D28DFB2B6C4CE3EA84BED597453FE7105",
+    "Path": "Doc\\Test\\Unprotect-Item.Tests.md"
   },
   {
     "File": "Write-DirectoryHash.Tests.md",
@@ -285,13 +290,23 @@
     "Path": "Public\\New-SecurityCertificate.ps1"
   },
   {
-    "File": "Protect-FileWithEncryption.ps1",
-    "Hash": "7C898DEBF39B882254F23774B369C278A8C3ECFEC1857A5A3FDFE69ADC998151",
-    "Path": "Public\\Protect-FileWithEncryption.ps1"
+    "File": "Protect-Item.ps1",
+    "Hash": "6BDDE5F1D8048B0AC3817B9834FB8CF69F1FBE9D424182DE8ADD5CEE28DA8B39",
+    "Path": "Public\\Protect-Item.ps1"
+  },
+  {
+    "File": "Remove-App.ps1",
+    "Hash": "87A4DC4E22ED4E34FD5ED116A6B732C564912EC049DD294E079082BEEAE58FA8",
+    "Path": "Public\\Remove-App.ps1"
+  },
+  {
+    "File": "Remove-ProvisionedApp.ps1",
+    "Hash": "1C69113911EB8CE0293569FFD6BF3B463A082403852D759CB62C32BE7A2EFF7D",
+    "Path": "Public\\Remove-ProvisionedApp.ps1"
   },
   {
     "File": "Request-DependencyInstall.ps1",
-    "Hash": "3CB785744C8D200D27ECB98F2A3E7862E499F4D611F15A98EF4352DB8A676E64",
+    "Hash": "D75ED68E3798FC0FDDE8975676E48502F3B006DD768F58671656A03EEC90763C",
     "Path": "Public\\Request-DependencyInstall.ps1"
   },
   {
@@ -340,9 +355,9 @@
     "Path": "Public\\Test-DependencySatisfied.ps1"
   },
   {
-    "File": "Unprotect-EncryptedFile.ps1",
-    "Hash": "1932A8524711E14E21F1E5205D9EFCE14BB9358BC46F2C0A4BECBF53FA8F9B10",
-    "Path": "Public\\Unprotect-EncryptedFile.ps1"
+    "File": "Unprotect-Item.ps1",
+    "Hash": "1D9ED6DA77B9586EDB9CB6AA32F139B1016708195419ED45854B138DBDFAE897",
+    "Path": "Public\\Unprotect-Item.ps1"
   },
   {
     "File": "Write-DirectoryHash.ps1",
@@ -351,97 +366,102 @@
   },
   {
     "File": "SKILL.md",
-    "Hash": "7BD34B2EE7BFA69447ADF3F426B5743A98790AA043613386A67E69911B428F43",
+    "Hash": "7F2ABC93B40E0DDE7FEEA37BEA5CB54649CBB3B4AB37FD2CFFEEC79D6A6A7864",
     "Path": "Skill\\ps-security\\SKILL.md"
   },
   {
+    "File": "PSFunction.ps1",
+    "Hash": "0AC4E47AA4D22EADB1C70EC18913AC755795D9267859FE3E3F8B28C52725E480",
+    "Path": "Template\\PSFunction.ps1"
+  },
+  {
     "File": "Assert-Administrator.Tests.ps1",
-    "Hash": "D99BF1D998980963EA73F9024EF65A434D2C8364549D662E55BA38527325D4C2",
+    "Hash": "C758BDFCFEA56FA860A0F8B9D2F7594833036F256B85DA1987B9D13762C74EE5",
     "Path": "Test\\Assert-Administrator.Tests.ps1"
   },
   {
     "File": "Backup-FileParallel.Tests.ps1",
-    "Hash": "9B5EF252A6563C826B453EC9DFAAE644DB99533C53B16A0F8CFF27E844365999",
+    "Hash": "5CB1B12440666E1199D31CD907D69F7A5F5992A1E463CA841777974F0D71DB02",
     "Path": "Test\\Backup-FileParallel.Tests.ps1"
   },
   {
     "File": "Get-AclItem.Tests.ps1",
-    "Hash": "F18C9F638C804ADDC53B5748A71A84EAEE09C99E11458047A6ADB8EA5CFE1BBA",
+    "Hash": "4C4FA64BAE9778EB5F183DBFF47C1B88042380BA283097265982A7D1CA538275",
     "Path": "Test\\Get-AclItem.Tests.ps1"
   },
   {
     "File": "Get-ApplicationSignatureAudit.Tests.ps1",
-    "Hash": "33FD80E9DBA31A97DC347B0D7F5250EFF43AE62A86352095AA1A83DBBC3CC2D9",
+    "Hash": "90649103D5E1027C0410CFAB93115E703A7D4460C38C8C6E8FBFE2AA2CB43E7B",
     "Path": "Test\\Get-ApplicationSignatureAudit.Tests.ps1"
   },
   {
     "File": "Get-ScheduledTaskAudit.Tests.ps1",
-    "Hash": "10B3FF25D76E572FE71246D91BBBC43792F266882D625B47A33441476F864426",
+    "Hash": "BBD2DE874DB84F02AFAA402C1F23595DC167C5366B0BE113F652D3DBEE897409",
     "Path": "Test\\Get-ScheduledTaskAudit.Tests.ps1"
   },
   {
     "File": "Get-SecureRandom32.Tests.ps1",
-    "Hash": "FF69B5BCCADA87EACDF8D722370A091119299B06250E57AC6F9069562AD7C872",
+    "Hash": "12B879DAC0DB737AF3F65FDB6DC7430BBF84A5182105B0F37F3721F74F51B303",
     "Path": "Test\\Get-SecureRandom32.Tests.ps1"
   },
   {
     "File": "Get-UacConfiguration.Tests.ps1",
-    "Hash": "767229C19C07F80A668C2702BDE14A8A2EB3272BB620769BC3ACFDEB5BE831E7",
+    "Hash": "DCFEB61DFA3EAB91E354C2FFC1B3470D6E7A9D636A115EB82A5CA5BFE94D2726",
     "Path": "Test\\Get-UacConfiguration.Tests.ps1"
   },
   {
     "File": "Measure-OwnerAnomaly.Tests.ps1",
-    "Hash": "D4A3A7EEC1CC06352DF31FC6D233E2AF6464C43512196295A4849045E3B2F646",
+    "Hash": "CAA1B159ED4F0FD7B25EA6B596F0A0D07ACE9E162ECC59A92A83B5B662678401",
     "Path": "Test\\Measure-OwnerAnomaly.Tests.ps1"
   },
   {
     "File": "New-LocalAdminUser.Tests.ps1",
-    "Hash": "6E01BFADC3756589257B80305A14EED6440BC4A008528CCD89D7B33B18574868",
+    "Hash": "5F7A19846666B0BC22693D307DB0BAA98193F50E3B7DF092FDEBFF9825F21E5F",
     "Path": "Test\\New-LocalAdminUser.Tests.ps1"
   },
   {
-    "File": "Protect-FileWithEncryption.Tests.ps1",
-    "Hash": "FC2D8EC8153D57FF4A5EF3201B18CA21A640ADC50201D39A8A94C65BF477C29B",
-    "Path": "Test\\Protect-FileWithEncryption.Tests.ps1"
+    "File": "Protect-Item.Tests.ps1",
+    "Hash": "25898AE790D3FD1D6124578800F55D39570D65B016380C3214B7B853F807E739",
+    "Path": "Test\\Protect-Item.Tests.ps1"
   },
   {
     "File": "Search-PatternInFile.Tests.ps1",
-    "Hash": "16C85DF230906B814B94AE2E31FE121D718F9A783EBB3A9AF019FD13BAD9E098",
+    "Hash": "9326827AB868098186AF29AC62C83AA63D97E5E7F4B62E25826DFE470B9A0E2A",
     "Path": "Test\\Search-PatternInFile.Tests.ps1"
   },
   {
     "File": "Set-AclItemOwner.Tests.ps1",
-    "Hash": "E3DF05F5748E709F4B0033A07DCAFB614971CBF169D6F7C13480D0AA3A7C3A81",
+    "Hash": "4465C47DAC59BC1FD63FB2EA96617CD736AE298B47F6113CB481E605C067F520",
     "Path": "Test\\Set-AclItemOwner.Tests.ps1"
   },
   {
     "File": "Set-UacConsentOnly.Tests.ps1",
-    "Hash": "D377F8B695B15CF21DADAF97687323700E85D3B62880ED9789C6511352C7934E",
+    "Hash": "ABD4DAA55BCD7E3578230028AD8EDD7ABD74CBF4531B7A6865DD0CCE81A43BDE",
     "Path": "Test\\Set-UacConsentOnly.Tests.ps1"
   },
   {
     "File": "Set-UacRequirePassword.Tests.ps1",
-    "Hash": "933BF4BDDEBE5BD1D35E856E5099D779C11A63A6CD1F9C2348A14AF6E110AE95",
+    "Hash": "4BCB682CCFB42BF87223A0197DB44511BDC739B064D615F1B29BE77D2C237286",
     "Path": "Test\\Set-UacRequirePassword.Tests.ps1"
   },
   {
-    "File": "Unprotect-EncryptedFile.Tests.ps1",
-    "Hash": "9BCF7952687E50FE476E7A8951E3A74194F84CFE499363D7D431C04CBA09B443",
-    "Path": "Test\\Unprotect-EncryptedFile.Tests.ps1"
+    "File": "Unprotect-Item.Tests.ps1",
+    "Hash": "541D8629111CEA6795541421377089141FDA78B7D89C972BFD53A5059DD5BDCF",
+    "Path": "Test\\Unprotect-Item.Tests.ps1"
   },
   {
     "File": "Write-DirectoryHash.Tests.ps1",
-    "Hash": "94279BA63E21EF9D6632C8409708269FFC9A99041B9D88176EE08AE37A6F2214",
+    "Hash": "D18E8694BF76A037339B3048296F94A5CCAB51A7C8A8762DAA9CB0FBF1F3D817",
     "Path": "Test\\Write-DirectoryHash.Tests.ps1"
   },
   {
     "File": "AGENTS.md",
-    "Hash": "438C92AD5B59097DE5DA6DF292A0B74A34ED982679AAA866CC2B6001235A32E4",
+    "Hash": "221B806DDAC11797C29665D73770DCAA402A0AC86994DDA1DE6B0B6641E9BDCD",
     "Path": "AGENTS.md"
   },
   {
     "File": "os.build.ps1",
-    "Hash": "33C77B699E5A6C4F470FB6FFBACF6B9C9C7838029F5694B993ECB5B4C8A029EF",
+    "Hash": "C53A134BCC1111ECE8A96CFBA04B5679D4B8060E1A9F79C1B449A1FBB80F51FA",
     "Path": "os.build.ps1"
   },
   {
@@ -451,22 +471,17 @@
   },
   {
     "File": "PSSecurity.psd1",
-    "Hash": "095AAED87DBD9A8F237D53046C611C8E7E1E88F6333A3AE33109057E835EEEEB",
+    "Hash": "681CF5403782FD61E0BC29100FBB050052F10D43B42C6B9EAFC2506BD45D3379",
     "Path": "PSSecurity.psd1"
   },
   {
     "File": "PSSecurity.psm1",
-    "Hash": "460B5E53B2DE09F29CEFCF284F80DB67CBB0FE1C71E39C054C0F1A98341B2304",
+    "Hash": "17AB69443ADBDB049917CFA568DD13FCA8579E11242A1D5C9E4C1BF03AE3F4C1",
     "Path": "PSSecurity.psm1"
   },
   {
-    "File": "PSSecuritySettings.json",
-    "Hash": "C5E45148759423F092F3E978A2877DD163F12D6FC727B24DBF6F537086A40AF8",
-    "Path": "PSSecuritySettings.json"
-  },
-  {
     "File": "README.md",
-    "Hash": "1AA734D6294D4E352A2FE7B56F3FE32B00199E322B136EF20D344F495891DBB0",
+    "Hash": "DC6F804EF3BD127C8511D1208BE0A786936FB959C900C405F829C2E1EE4CF32D",
     "Path": "README.md"
   }
 ]

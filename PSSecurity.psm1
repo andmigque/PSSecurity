@@ -31,7 +31,7 @@ Set-StrictMode -Version Latest
 $env:POWERSHELL_TELEMETRY_OPTOUT = 'true'
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
 
-$script:SettingsPath = Join-Path -Path $root -ChildPath 'PSSecuritySettings.json'
+$script:SettingsPath = Join-Path -Path $root -ChildPath 'Config' -AdditionalChildPath 'PSSecuritySettings.json'
 $psSecuritySettings = Get-Content -LiteralPath $script:SettingsPath -Raw | ConvertFrom-Json -AsHashtable
 
 $script:HashIndexAlgorithm = $psSecuritySettings.HashIndexAlgorithm
@@ -96,7 +96,7 @@ if ($funcs) {
     Export-ModuleMember -Function $funcs.Name
 }
 else {
-    throw 'PSSecurity function load failed. Check module .psm1'
+    throw 'PSSecurity function load failed. Check module .psd1'
 }
 ####
 #### ---

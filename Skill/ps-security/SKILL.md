@@ -35,10 +35,10 @@ git clone https://github.com/andmigque/PSSecurity.git .
 
 > This file does not document the functions. The repository documents itself. Every answer about a function comes from the repository, never from this file and never from memory.
 
-First, from the root of the repo, import the module:
+First, from the root of the repo, register, then install the ps resource
 
 ```powershell
-Import-Module .\PSSecurity.psm1
+Install-PSResource -Name PSSecurity -Scope CurrentUser -TrustRepository
 ```
 
 🛡️Next, go to the root of the repo and become familiar with the `HashIndex.json`. This file is an index of the entire repository.
