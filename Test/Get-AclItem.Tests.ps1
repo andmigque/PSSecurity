@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 
 BeforeAll {
     $moduleRoot = Split-Path -Path $PSScriptRoot -Parent
-    Import-Module (Join-Path -Path $moduleRoot -ChildPath 'PSSecurity.psm1') -Force
+    Import-Module (Join-Path -Path $moduleRoot -ChildPath 'PSSecurity.psd1') -Force
 }
 AfterAll {
     Remove-Module PSSecurity -Force -ErrorAction SilentlyContinue

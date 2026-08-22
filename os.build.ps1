@@ -101,7 +101,7 @@ Add-BuildTask test_ps_script_analyzer {
 #### previous index.
 ####
 Add-BuildTask write_directory_hashes {
-    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psm1'
+    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psd1'
     Import-Module $moduleFile
     Write-DirectoryHash $PSScriptRoot
 }
@@ -128,7 +128,7 @@ Add-BuildTask confirm_hash_index_integrity {
     }
     New-Item -Path 'Generated' -ItemType Directory -ErrorAction SilentlyContinue
     Move-Item -Path .\HashIndex.json -Destination "$($env:TEMP)" -Force
-    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psm1'
+    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psd1'
     Import-Module $moduleFile
     Write-DirectoryHash $PSScriptRoot
     $difference = Compare-Object (Get-Content "$($env:TEMP)\HashIndex.json") (Get-Content .\HashIndex.json)
@@ -157,7 +157,7 @@ Add-BuildTask convert_to_sharpdown {
 #### `Generated/AppSigAudit.csv`. This task is on demand and is not part of the default pipeline.
 ####
 Add-BuildTask get_application_authenticode_audit {
-    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psm1'
+    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psd1'
     Import-Module $moduleFile
 
     Get-ApplicationSignatureAudit | ConvertTo-Csv | Out-File -FilePath .\Generated\AppSigAudit.csv
@@ -171,7 +171,7 @@ Add-BuildTask get_application_authenticode_audit {
 #### is not part of the default pipeline.
 ####
 Add-BuildTask get_acl_item_owner_anomaly_audit {
-    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psm1'
+    $moduleFile = Join-Path -Path "$PSScriptRoot" -ChildPath 'PSSecurity.psd1'
     Import-Module $moduleFile
     Get-ChildItem -Path (Resolve-Path '~') -Recurse -Force |
         ForEach-Object { $_.FullName | Get-AclItem } |
