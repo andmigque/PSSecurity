@@ -1,0 +1,3 @@
+```powershell
+function Add-Behavior
+```

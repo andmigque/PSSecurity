@@ -13,7 +13,7 @@ function Test-DependencySatisfied
 
  - `[hashtable]`: __Dependency__
      - *One requirement, with `ModuleName` and `ModuleVersion` keys.*
-     - *Shaped like an entry in `PSSecuritySettings.json`.*
+     - *Shaped like an entry in `Setting.psd1`.*
  Any installed version at or above the floor satisfies it. `ModuleVersion`
  is a minimum, matching how the manifest keyword of the same name behaves.
 
