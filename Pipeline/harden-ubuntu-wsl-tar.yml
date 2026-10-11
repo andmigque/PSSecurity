@@ -2,8 +2,6 @@ trigger: none
 
 variables:
 - group: wsl-ubuntu-tar-group
-- name: psSecurityPath
-  value: 'C:\Users\Ondrezz\Develop\PSSecurity'
 
 pool:
   name: Default
@@ -11,7 +9,7 @@ pool:
   - Agent.Name -equals DESKTOP-MHDOKOL
 
 steps:
-- checkout: none
+- checkout: self
 
 - task: PowerShell@2
   displayName: Install Ubuntu
@@ -27,8 +25,8 @@ steps:
       if (-not $env:WSL_SUDOER -or $env:WSL_SUDOER -eq ('$' + '(wslSudoer)')) {
           throw 'wslSudoer is missing from the referenced Key Vault variable group.'
       }
-      if (-not (Test-Path -LiteralPath '$(psSecurityPath)\PSSecurity.psd1')) {
-          throw 'PSSecurity module not found at $(psSecurityPath).'
+      if (-not (Test-Path -LiteralPath '$(Build.SourcesDirectory)\PSSecurity.psd1')) {
+          throw 'PSSecurity module not found in the checked-out sources.'
       }
 
       $distro = "Ubuntu-$(Build.BuildId)-$(System.JobAttempt)"
@@ -95,26 +93,13 @@ steps:
     targetType: inline
     script: |
       $distro = "Ubuntu-$(Build.BuildId)-$(System.JobAttempt)"
-      $mountPath = '/mnt/' + '$(psSecurityPath)'.Substring(0, 1).ToLowerInvariant() + '$(psSecurityPath)'.Substring(2).Replace('\', '/')
 
       # Runs the module's Linux hardening functions inside the distribution as root, so
-      # the exported image already carries them and no sudo password is needed. Stopping
-      # on the first error keeps a partially hardened image from ever being exported;
-      # Set-SysctlHardening still reports kernel keys it does not know as Missing and
-      # skips them, which stays non-fatal by design. -Persist writes the sysctl table to
-      # /etc/sysctl.d because runtime values do not survive the export. The command is
-      # base64-encoded so PowerShell quoting survives the wsl.exe boundary, the same
-      # technique Invoke-SudoCommand uses for sudo.
-      $hardening = @'
-      $ErrorActionPreference = 'Stop'
-      Import-Module '{0}/PSSecurity.psd1'
-      Set-CronPermission
-      Set-SysctlHardening -Persist
-      Set-HomeDirectoryPermission
-      '@ -f $mountPath
-
-      $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($hardening))
-      wsl.exe -d $distro -u root -- pwsh -NoLogo -NoProfile -EncodedCommand $encoded
+      # the exported image already carries them and no sudo password is needed. -Persist
+      # writes the sysctl table to /etc/sysctl.d because runtime values do not survive
+      # the export. Stopping on the first error keeps a partially hardened image from
+      # ever being exported; unknown kernel keys stay non-fatal as Missing.
+      wsl.exe -d $distro -u root --cd "$(Build.SourcesDirectory)" -- pwsh -NoLogo -NoProfile -Command "`$ErrorActionPreference = 'Stop'; Import-Module ./PSSecurity.psd1; Set-CronPermission; Set-SysctlHardening -Persist; Set-HomeDirectoryPermission"
       if ($LASTEXITCODE -ne 0) { throw 'Hardening failed.' }
 
 - task: PowerShell@2
