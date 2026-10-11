@@ -6,7 +6,7 @@ variables:
 pool:
   name: Default
   demands:
-  - Agent.Name -equals $(wslUbuntuTarAgent)
+  - Agent.Name -equals DESKTOP-MHDOKOL
 
 steps:
 - checkout: none
