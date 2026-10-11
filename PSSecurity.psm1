@@ -15,8 +15,12 @@ $script:WorldWritableExcludePath = $psSecuritySettings.WorldWritableExcludePath
 $script:SuidIncludePath = $psSecuritySettings.SuidIncludePath
 $script:SuidExcludePath = $psSecuritySettings.SuidExcludePath
 $script:SuidKnownGoodPath = $psSecuritySettings.SuidKnownGoodPath
-$script:SshdBinary = $psSecuritySettings.SshdBinary
-$script:SshdConfigPath = $psSecuritySettings.SshdConfigPath
+$script:SudoersFilePath = $psSecuritySettings.SudoersFilePath
+$script:SudoersIncludeDirPath = $psSecuritySettings.SudoersIncludeDirPath
+$script:SudoersKnownGoodSpec = $psSecuritySettings.SudoersKnownGoodSpec
+$script:SshdPlatform = if ($IsWindows) { 'Windows' } elseif ($IsMacOS) { 'MacOS' } else { 'Linux' }
+$script:SshdBinary = $psSecuritySettings.SshdBinary[$script:SshdPlatform]
+$script:SshdConfigPath = $psSecuritySettings.SshdConfigPath[$script:SshdPlatform]
 $script:SysctlHardening = $psSecuritySettings.SysctlHardening
 
 $script:OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()

@@ -1,0 +1,18 @@
+
+********************************************************************************
+                   CONTROLLED UNCLASSIFIED INFORMATION (CUI)
+
+This system processes, stores, or transmits Controlled Unclassified Information.
+
+Access is restricted to authorized users for authorized purposes. Activity on
+this system may be monitored, recorded, and audited.
+
+Protect CUI from unauthorized access and disclosure. Store and transfer CUI only
+through approved systems and methods, consistent with applicable requirements.
+
+Unauthorized access, use, or disclosure is prohibited. Report suspected
+incidents to your designated security contact.
+
+By proceeding, you acknowledge this notice.
+********************************************************************************
+

@@ -1,7 +1,7 @@
 
 @{
     RootModule           = 'PSSecurity.psm1'
-    ModuleVersion        = '1.8.0'
+    ModuleVersion        = '1.9.0'
     CompatiblePSEditions = 'Core'
     GUID                 = '01a0121d-ee0e-7b97-b54f-7d7a978cf8fc'
     Author               = 'Andres Quesada'
@@ -18,7 +18,8 @@
             LicenseUri   = 'https://github.com/andmigque/PSSecurity/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/andmigque/PSSecurity'
             ReleaseNotes = @'
-- Added Get-SshdConfiguration to parse the effective sshd -T dump into one record per keyword.
+- Added Get-SudoersAudit to audit /etc/sudoers and sudoers.d includes for passwordless and wildcard grants.
+- Added Get-SshdConfiguration to parse the effective sshd -T dump into one record per keyword on Windows, Linux, and macOS.
 - Replaced the custom encryption commands with Protect-Item and Unprotect-Item, backed by Windows EFS.
 - Added Remove-App and Remove-ProvisionedApp for administrator-approved Windows AppX removal.
 - Moved module settings to Config/Setting.psd1 and expanded hash-index configuration.

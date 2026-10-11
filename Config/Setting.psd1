@@ -67,9 +67,26 @@
         '/usr/bin/newgidmap'
     )
 
-    SshdBinary     = 'sshd'
+    SudoersFilePath            = '/etc/sudoers'
 
-    SshdConfigPath = '/etc/ssh/sshd_config'
+    SudoersIncludeDirPath      = '/etc/sudoers.d'
+
+    SudoersKnownGoodSpec       = @(
+        'root ALL=(ALL:ALL) ALL'
+        'root ALL=(ALL) ALL'
+    )
+
+    SshdBinary = @{
+        Linux   = 'sshd'
+        MacOS   = 'sshd'
+        Windows = 'sshd.exe'
+    }
+
+    SshdConfigPath = @{
+        Linux   = '/etc/ssh/sshd_config'
+        MacOS   = '/etc/ssh/sshd_config'
+        Windows = 'C:\ProgramData\ssh\sshd_config'
+    }
 
     SysctlHardening            = @(
         @{ Key = 'net.ipv4.conf.all.rp_filter'; Value = '1'; Purpose = 'Enable strict reverse path filtering to drop spoofed packets.' }
@@ -79,5 +96,32 @@
         @{ Key = 'kernel.randomize_va_space'; Value = '2'; Purpose = 'Enable full address space layout randomization.' }
         @{ Key = 'kernel.kptr_restrict'; Value = '2'; Purpose = 'Hide kernel pointers from unprivileged memory reads.' }
         @{ Key = 'kernel.dmesg_restrict'; Value = '1'; Purpose = 'Restrict the kernel ring buffer to privileged users.' }
+
+        # Additional process hardening
+        @{ Key = 'fs.suid_dumpable'; Value = '0'; Purpose = 'Forbid core dumps from SUID processes.' }
+        @{ Key = 'kernel.sysrq'; Value = '0'; Purpose = 'Disable magic SysRq kernel commands.' }
+        @{ Key = 'kernel.yama.ptrace_scope'; Value = '1'; Purpose = 'Limit ptrace to descendant processes.' }
+        @{ Key = 'kernel.unprivileged_bpf_disabled'; Value = '2'; Purpose = 'Deny BPF to unprivileged users until reboot.' }
+        @{ Key = 'net.core.bpf_jit_harden'; Value = '2'; Purpose = 'Harden the BPF JIT for all users.' }
+        @{ Key = 'fs.protected_hardlinks'; Value = '1'; Purpose = 'Prevent hard links to files the caller does not own.' }
+        @{ Key = 'fs.protected_symlinks'; Value = '1'; Purpose = 'Restrict symlink follows in sticky world-writable directories.' }
+        @{ Key = 'fs.protected_fifos'; Value = '2'; Purpose = 'Guard FIFO creation in shared directories.' }
+        @{ Key = 'fs.protected_regular'; Value = '2'; Purpose = 'Guard regular-file creation in shared directories.' }
+
+        # Additional network hardening
+        @{ Key = 'net.ipv4.conf.all.accept_source_route'; Value = '0'; Purpose = 'Drop packets that name their own route.' }
+        @{ Key = 'net.ipv4.conf.default.accept_source_route'; Value = '0'; Purpose = 'Apply source route rejection to interfaces created later.' }
+        @{ Key = 'net.ipv4.conf.all.accept_redirects'; Value = '0'; Purpose = 'Ignore ICMP redirects that can rewrite routes.' }
+        @{ Key = 'net.ipv4.conf.default.accept_redirects'; Value = '0'; Purpose = 'Apply redirect rejection to interfaces created later.' }
+        @{ Key = 'net.ipv4.conf.all.secure_redirects'; Value = '0'; Purpose = 'Ignore redirects even toward known gateways.' }
+        @{ Key = 'net.ipv4.conf.default.secure_redirects'; Value = '0'; Purpose = 'Apply secure redirect rejection to interfaces created later.' }
+        @{ Key = 'net.ipv4.conf.all.send_redirects'; Value = '0'; Purpose = 'Do not send ICMP redirects.' }
+        @{ Key = 'net.ipv4.conf.default.send_redirects'; Value = '0'; Purpose = 'Apply send redirect silence to interfaces created later.' }
+        @{ Key = 'net.ipv4.conf.all.log_martians'; Value = '1'; Purpose = 'Log packets with impossible source addresses.' }
+        @{ Key = 'net.ipv4.conf.default.log_martians'; Value = '1'; Purpose = 'Apply martian logging to interfaces created later.' }
+        @{ Key = 'net.ipv4.icmp_echo_ignore_broadcasts'; Value = '1'; Purpose = 'Ignore broadcast pings to blunt smurf attacks.' }
+        @{ Key = 'net.ipv4.icmp_ignore_bogus_error_responses'; Value = '1'; Purpose = 'Ignore invalid ICMP error replies.' }
+        @{ Key = 'net.ipv6.conf.all.accept_redirects'; Value = '0'; Purpose = 'Ignore IPv6 ICMP redirects.' }
+        @{ Key = 'net.ipv6.conf.default.accept_redirects'; Value = '0'; Purpose = 'Apply IPv6 redirect rejection to interfaces created later.' }
     )
 }

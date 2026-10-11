@@ -1,4 +1,4 @@
-if ($IsLinux) {
+if (-not $IsWindows) {
     Set-StrictMode -Version Latest
 
     function Invoke-SudoCommand {
