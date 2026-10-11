@@ -66,4 +66,18 @@
         '/usr/bin/newuidmap'
         '/usr/bin/newgidmap'
     )
+
+    SshdBinary     = 'sshd'
+
+    SshdConfigPath = '/etc/ssh/sshd_config'
+
+    SysctlHardening            = @(
+        @{ Key = 'net.ipv4.conf.all.rp_filter'; Value = '1'; Purpose = 'Enable strict reverse path filtering to drop spoofed packets.' }
+        @{ Key = 'net.ipv4.conf.default.rp_filter'; Value = '1'; Purpose = 'Apply reverse path filtering to interfaces created later.' }
+        @{ Key = 'net.ipv4.ip_forward'; Value = '0'; Purpose = 'Disable packet forwarding between interfaces.' }
+        @{ Key = 'net.ipv4.tcp_syncookies'; Value = '1'; Purpose = 'Enable SYN cookies to survive SYN flood attacks.' }
+        @{ Key = 'kernel.randomize_va_space'; Value = '2'; Purpose = 'Enable full address space layout randomization.' }
+        @{ Key = 'kernel.kptr_restrict'; Value = '2'; Purpose = 'Hide kernel pointers from unprivileged memory reads.' }
+        @{ Key = 'kernel.dmesg_restrict'; Value = '1'; Purpose = 'Restrict the kernel ring buffer to privileged users.' }
+    )
 }

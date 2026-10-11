@@ -1,4 +1,4 @@
-function Enable-PsProfile {
+function Enable-PwshProfile {
     [CmdletBinding()]
     param()
 
@@ -9,7 +9,7 @@ function Enable-PsProfile {
         touch $PROFILE
         $parentDirectory = Split-Path -Path "$PSScriptRoot" -Parent
 
-        $windowsProfile = Join-Path -Path $parentDirectory -ChildPath 'Config' -AdditionalChildPath 'WindowsProfile.ps1'
+        $windowsProfile = Join-Path -Path $parentDirectory -ChildPath 'Config' -AdditionalChildPath 'PwshProfile.ps1'
 
         Copy-Item $windowsProfile $PROFILE
 
@@ -21,7 +21,7 @@ function Enable-PsProfile {
         $profileDirectory = Split-Path -Path $PROFILE -Parent
         New-Item -Path $profileDirectory -ItemType Directory -Force
 
-        $windowsProfile = Join-Path -Path $parentDirectory -ChildPath 'Config' -AdditionalChildPath 'WindowsProfile.ps1'
+        $windowsProfile = Join-Path -Path $parentDirectory -ChildPath 'Config' -AdditionalChildPath 'PwshProfile.ps1'
 
         Copy-Item $windowsProfile $PROFILE
 

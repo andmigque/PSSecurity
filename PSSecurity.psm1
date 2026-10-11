@@ -15,6 +15,9 @@ $script:WorldWritableExcludePath = $psSecuritySettings.WorldWritableExcludePath
 $script:SuidIncludePath = $psSecuritySettings.SuidIncludePath
 $script:SuidExcludePath = $psSecuritySettings.SuidExcludePath
 $script:SuidKnownGoodPath = $psSecuritySettings.SuidKnownGoodPath
+$script:SshdBinary = $psSecuritySettings.SshdBinary
+$script:SshdConfigPath = $psSecuritySettings.SshdConfigPath
+$script:SysctlHardening = $psSecuritySettings.SysctlHardening
 
 $script:OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 

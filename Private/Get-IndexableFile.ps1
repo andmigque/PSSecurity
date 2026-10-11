@@ -26,22 +26,3 @@ function Get-IndexableFile {
     }
 }
 
-function Find-FileInDirectory {
-    [CmdletBinding()]
-    [OutputType([System.IO.FileInfo])]
-    param(
-        [Parameter(Mandatory)][System.IO.DirectoryInfo]$LiteralPath
-    )
-
-    foreach ($subDir in $LiteralPath.EnumerateDirectories()) {
-        if ($subDir.Name -in $Exclude) { continue }
-        Find-FileInDirectory -Directory $subDir
-    }
-
-    foreach ($file in $LiteralPath.EnumerateFiles()) {
-        $file
-        break
-    }
-}
-
-
