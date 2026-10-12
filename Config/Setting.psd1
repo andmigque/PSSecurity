@@ -31,6 +31,8 @@
 
     WorldWritableIncludePath   = @('/')
 
+    StickyBitExcludePath       = @('/proc', '/sys', '/dev', '/run')
+
     WorldWritableExcludePath   = @(
         '/tmp/*'
         '/var/tmp/*'

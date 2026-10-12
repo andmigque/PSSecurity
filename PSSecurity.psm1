@@ -12,6 +12,7 @@ $script:HashIndexInclude = $psSecuritySettings.HashIndexInclude
 $script:HashIndexExclude = $psSecuritySettings.HashIndexExclude
 $script:WorldWritableIncludePath = $psSecuritySettings.WorldWritableIncludePath
 $script:WorldWritableExcludePath = $psSecuritySettings.WorldWritableExcludePath
+$script:StickyBitExcludePath = $psSecuritySettings.StickyBitExcludePath
 $script:SuidIncludePath = $psSecuritySettings.SuidIncludePath
 $script:SuidExcludePath = $psSecuritySettings.SuidExcludePath
 $script:SuidKnownGoodPath = $psSecuritySettings.SuidKnownGoodPath

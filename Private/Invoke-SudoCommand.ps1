@@ -10,8 +10,9 @@ if (-not $IsWindows) {
         A PowerShell function cannot be invoked through sudo directly, so the public audit
         functions rebuild their invocation and hand it here. This imports the module in the
         child process, runs the given command under sudo pwsh, and returns the rehydrated
-        result. The child emits CLIXML (-OutputFormat xml), which PowerShell deserializes
-        back into objects on the success stream. sudo may prompt for a password.
+        result. Progress records are relayed to Write-Progress in the calling session.
+        The result is exported to a temporary CLIXML file, imported by the caller,
+        and the file is removed. sudo may prompt for a password.
 
     .PARAMETER Command
         The function invocation to run as root, for example Get-SuidBinary -Path '/'.
@@ -38,13 +39,45 @@ if (-not $IsWindows) {
         # Import the module in the child so the re-invoked function and its settings reload.
         $modulePath = $MyInvocation.MyCommand.Module.Path
         $pwshPath = Join-Path -Path $PSHOME -ChildPath 'pwsh'
-        $fullCommand = "Import-Module '$($modulePath.Replace("'", "''"))'; $Command"
-        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($fullCommand))
+        $resultPath = [System.IO.Path]::GetTempFileName()
+        try {
+            # Emit progress as individual lines so the caller can render it immediately.
+            $progressRelay = @'
+function Write-Progress {
+    param(
+        [int]$Id, [int]$ParentId, [string]$Activity, [string]$Status,
+        [string]$CurrentOperation, [int]$PercentComplete, [switch]$Completed
+    )
+    $progress = @{} + $PSBoundParameters
+    if ($progress.ContainsKey('Completed')) { $progress.Completed = [bool]$Completed }
+    [Console]::WriteLine('PSSecurityProgress:' + ($progress | ConvertTo-Json -Compress))
+}
+'@
+            $fullCommand = @"
+`$ErrorActionPreference = 'Stop'
+Import-Module '$($modulePath.Replace("'", "''"))'
+$progressRelay
+`$result = @(& { $Command })
+Export-Clixml -LiteralPath '$($resultPath.Replace("'", "''"))' -InputObject `$result -Depth 20
+"@
+            $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($fullCommand))
 
-        $sudoOutput = & sudo $pwshPath -NoLogo -NoProfile -OutputFormat xml -EncodedCommand $encoded
-        if ($LASTEXITCODE -ne 0) {
-            throw "sudo exited with code $LASTEXITCODE."
+            & sudo $pwshPath -NoLogo -NoProfile -OutputFormat Text -EncodedCommand $encoded | ForEach-Object {
+                if ($_.StartsWith('PSSecurityProgress:', [StringComparison]::Ordinal)) {
+                    $progress = $_.Substring('PSSecurityProgress:'.Length) | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+                    Write-Progress @progress
+                }
+                else {
+                    $_ | Out-Host
+                }
+            }
+            if ($LASTEXITCODE -ne 0) {
+                throw "sudo exited with code $LASTEXITCODE."
+            }
+            Import-Clixml -LiteralPath $resultPath -ErrorAction Stop
         }
-        $sudoOutput
+        finally {
+            [System.IO.File]::Delete($resultPath)
+        }
     }
 }
