@@ -84,7 +84,7 @@ steps:
 
       wsl.exe -d $distro -u root -- rm -f "/tmp/$debName"
 
-      wsl.exe -d $distro -u root -- pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+      wsl.exe -d $distro -u root -- pwsh
       if ($LASTEXITCODE -ne 0) { throw 'PowerShell is not runnable.' }
 
 - task: PowerShell@2
