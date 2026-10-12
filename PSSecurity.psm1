@@ -22,6 +22,10 @@ $script:SshdPlatform = if ($IsWindows) { 'Windows' } elseif ($IsMacOS) { 'MacOS'
 $script:SshdBinary = $psSecuritySettings.SshdBinary[$script:SshdPlatform]
 $script:SshdConfigPath = $psSecuritySettings.SshdConfigPath[$script:SshdPlatform]
 $script:SysctlHardening = $psSecuritySettings.SysctlHardening
+$script:ModprobeBlacklist = $psSecuritySettings.ModprobeBlacklist
+$script:LinuxFilePermissions = $psSecuritySettings.LinuxFilePermissions
+$script:LoginDefPolicy = $psSecuritySettings.LoginDefPolicy
+$script:LoginDefsPath = $psSecuritySettings.LoginDefsPath
 
 $script:OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 

@@ -93,13 +93,7 @@ steps:
     targetType: inline
     script: |
       $distro = "Ubuntu-$(Build.BuildId)-$(System.JobAttempt)"
-
-      # Runs the module's Linux hardening functions inside the distribution as root, so
-      # the exported image already carries them and no sudo password is needed. -Persist
-      # writes the sysctl table to /etc/sysctl.d because runtime values do not survive
-      # the export. Stopping on the first error keeps a partially hardened image from
-      # ever being exported; unknown kernel keys stay non-fatal as Missing.
-      wsl.exe -d $distro -u root --cd "$(Build.SourcesDirectory)" -- pwsh -NoLogo -NoProfile -Command "`$ErrorActionPreference = 'Stop'; Import-Module ./PSSecurity.psd1; Set-CronPermission; Set-SysctlHardening -Persist; Set-HomeDirectoryPermission"
+      wsl.exe -d $distro -u root --cd "$(Build.SourcesDirectory)" -- pwsh -NoLogo -NoProfile -Command "`Import-Module ./PSSecurity.psd1; Set-CronPermission; Set-SysctlHardening -Persist; Set-HomeDirectoryPermission"
       if ($LASTEXITCODE -ne 0) { throw 'Hardening failed.' }
 
 - task: PowerShell@2

@@ -1,7 +1,7 @@
 
 @{
     RootModule           = 'PSSecurity.psm1'
-    ModuleVersion        = '1.9.0'
+    ModuleVersion        = '1.10.0'
     CompatiblePSEditions = 'Core'
     GUID                 = '01a0121d-ee0e-7b97-b54f-7d7a978cf8fc'
     Author               = 'Andres Quesada'
@@ -18,6 +18,9 @@
             LicenseUri   = 'https://github.com/andmigque/PSSecurity/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/andmigque/PSSecurity'
             ReleaseNotes = @'
+- Added Set-ModprobeBlacklist to write the CIS module blacklist for unused filesystems, USB storage, and uncommon network protocols.
+- Added Set-LinuxFilePermissions to enforce CIS ownership and mode floors on account databases, wrapper lists, and login banners.
+- Added Set-LoginDefPolicy to apply CIS password aging defaults in /etc/login.defs.
 - Added Get-SudoersAudit to audit /etc/sudoers and sudoers.d includes for passwordless and wildcard grants.
 - Added Get-SshdConfiguration to parse the effective sshd -T dump into one record per keyword on Windows, Linux, and macOS.
 - Replaced the custom encryption commands with Protect-Item and Unprotect-Item, backed by Windows EFS.

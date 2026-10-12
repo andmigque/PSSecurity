@@ -124,4 +124,49 @@
         @{ Key = 'net.ipv6.conf.all.accept_redirects'; Value = '0'; Purpose = 'Ignore IPv6 ICMP redirects.' }
         @{ Key = 'net.ipv6.conf.default.accept_redirects'; Value = '0'; Purpose = 'Apply IPv6 redirect rejection to interfaces created later.' }
     )
+
+    ModprobeBlacklist          = @(
+        # Unused filesystems, CIS 1.1.1.1 through 1.1.1.7
+        @{ Module = 'cramfs'; Purpose = 'Disable the compressed ROM filesystem from embedded devices.' }
+        @{ Module = 'freevxfs'; Purpose = 'Disable the Veritas VxFS driver.' }
+        @{ Module = 'jffs2'; Purpose = 'Disable the flash filesystem for embedded devices.' }
+        @{ Module = 'hfs'; Purpose = 'Disable the Hierarchical File System driver.' }
+        @{ Module = 'hfsplus'; Purpose = 'Disable the Mac HFS+ filesystem driver.' }
+        @{ Module = 'squashfs'; Purpose = 'Disable the compressed read-only filesystem used by live media.' }
+        @{ Module = 'udf'; Purpose = 'Disable the filesystem used by DVD media.' }
+
+        # Removable media and uncommon network protocols, CIS 1.1.23 and 3.4.1 through 3.4.4
+        @{ Module = 'usb-storage'; Purpose = 'Block USB mass storage devices at the module level.' }
+        @{ Module = 'dccp'; Purpose = 'Disable the Datagram Congestion Control Protocol.' }
+        @{ Module = 'sctp'; Purpose = 'Disable the Stream Control Transmission Protocol.' }
+        @{ Module = 'rds'; Purpose = 'Disable the Reliable Datagram Sockets protocol.' }
+        @{ Module = 'tipc'; Purpose = 'Disable the Transparent Inter-Process Communication protocol.' }
+    )
+
+    LinuxFilePermissions       = @(
+        # Account databases and their backups, CIS 6.1.2 through 6.1.9
+        @{ Path = '/etc/passwd'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the account list root-writable only.' }
+        @{ Path = '/etc/shadow'; Owner = 'root'; Group = 'shadow'; Mode = '640'; Purpose = 'Restrict password hashes to root or the shadow group.' }
+        @{ Path = '/etc/group'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the group list root-writable only.' }
+        @{ Path = '/etc/gshadow'; Owner = 'root'; Group = 'shadow'; Mode = '640'; Purpose = 'Restrict secure group data to root or the shadow group.' }
+        @{ Path = '/etc/passwd-'; Owner = 'root'; Group = 'root'; Mode = '600'; Purpose = 'Restrict the passwd backup file to root.' }
+        @{ Path = '/etc/shadow-'; Owner = 'root'; Group = 'shadow'; Mode = '640'; Purpose = 'Restrict the shadow backup file to root or the shadow group.' }
+        @{ Path = '/etc/group-'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the group backup file root-writable only.' }
+        @{ Path = '/etc/gshadow-'; Owner = 'root'; Group = 'shadow'; Mode = '640'; Purpose = 'Restrict the gshadow backup file to root or the shadow group.' }
+
+        # TCP wrapper lists and login banners, CIS 3.3.4, 3.3.5, and 1.7.1.4 through 1.7.1.6
+        @{ Path = '/etc/hosts.allow'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the wrapper allow list root-writable only.' }
+        @{ Path = '/etc/hosts.deny'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the wrapper deny list root-writable only.' }
+        @{ Path = '/etc/motd'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the message of the day root-writable only.' }
+        @{ Path = '/etc/issue'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the local login banner root-writable only.' }
+        @{ Path = '/etc/issue.net'; Owner = 'root'; Group = 'root'; Mode = '644'; Purpose = 'Keep the network login banner root-writable only.' }
+    )
+
+    LoginDefPolicy             = @(
+        @{ Key = 'PASS_MAX_DAYS'; Value = '365'; Purpose = 'Force passwords to expire after at most 365 days.' }
+        @{ Key = 'PASS_MIN_DAYS'; Value = '7'; Purpose = 'Require at least seven days between password changes.' }
+        @{ Key = 'PASS_WARN_AGE'; Value = '7'; Purpose = 'Warn users seven days before their password expires.' }
+    )
+
+    LoginDefsPath              = '/etc/login.defs'
 }
