@@ -1,208 +1,173 @@
-if ($IsLinux) {
-    Set-StrictMode -Version Latest
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
 
+if ($IsLinux) {
     function Set-LoginDefPolicy {
         <#
-    .SYNOPSIS
-        Applies the module's CIS login.defs table on Linux.
+        .SYNOPSIS
+            Applies the CIS login.defs table on Linux.
 
-    .DESCRIPTION
-        Rewrites the shadow login defaults in /etc/login.defs so password aging follows
-        the CIS Distribution Independent Linux benchmark: every active parameter in the
-        table gets the configured value, duplicate active definitions are removed so one
-        value cannot shadow another, and parameters missing from the file are appended.
-        Commented lines and everything else in the file are preserved.
+        .DESCRIPTION
+            Sets every key in the table to its configured value in /etc/login.defs. The
+            first active definition of each key takes the configured value, later duplicates
+            are removed so no second definition can override it, and keys the file never
+            defined are appended. Comments and every other line are kept. The file is
+            written only when at least one key changes, then read back to verify each key.
 
-        The change affects accounts created or updated afterwards. Existing users keep
-        their current aging until an administrator updates them with chage, which this
-        function deliberately does not do.
+            The change applies to accounts created or updated afterwards. Existing accounts
+            keep their password aging until an administrator updates them with chage.
 
-        A non-root session writes the file through sudo, which may prompt for a password.
+        .PARAMETER Table
+            The login.defs keys to apply, each a hashtable with Key and Value. Defaults to
+            the module's LoginDefPolicy setting.
 
-    .PARAMETER Table
-        The login.defs parameters to apply, each entry a hashtable with Key and Value.
-        Defaults to the module's LoginDefPolicy setting from Config/Setting.psd1.
+        .PARAMETER Path
+            The login.defs file to edit. Defaults to the module's LoginDefsPath setting.
 
-    .PARAMETER Path
-        The login.defs file to edit. Defaults to the module's LoginDefsPath setting.
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-    .INPUTS
-        None. This function does not accept pipeline input.
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. Key, Before, After, and Status for
+            each key. Before is the value in effect, or Absent. Status is Compliant, Preview,
+            Hardened, or Failed.
 
-    .OUTPUTS
-        One PSCustomObject per parameter with Key, Before, After, and Status. Before is
-        the first active value in the file or Absent when the parameter is not set.
-        Status is Compliant when the file already carries exactly the configured value,
-        Preview under -WhatIf, Hardened when the edit was applied and verified, and
-        Failed when the write or the verification failed. When the file is written, one
-        string summarizes the run with the file it edited and how many parameters changed.
+        .EXAMPLE
+            Set-LoginDefPolicy -WhatIf
 
-    .EXAMPLE
-        Set-LoginDefPolicy -WhatIf
+            Previews the password aging changes to /etc/login.defs.
 
-        Previews the password aging edits the table would make to /etc/login.defs.
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Set-LoginDefPolicy }
 
-    .EXAMPLE
-        Set-LoginDefPolicy
+            Applies the password aging table as root.
 
-        Applies the configured password aging defaults to /etc/login.defs.
-
-    .NOTES
-        Runs on Linux only; in WSL, run it inside the target distribution. The default
-        table comes from the LoginDefPolicy key in Config/Setting.psd1. Per-user limits
-        set with chage are a separate benchmark control and stay untouched.
-    #>
+        .NOTES
+            Run as root. Per-account aging set with chage is a separate benchmark control.
+        #>
         [CmdletBinding(SupportsShouldProcess)]
-        [OutputType([pscustomobject], [string])]
-        param (
-            # Parameters to apply. Defaults to the module's LoginDefPolicy setting.
-            [Parameter(HelpMessage = 'Enter a table of Key and Value entries. Defaults to the LoginDefPolicy setting.')]
+        [OutputType([pscustomobject])]
+        param(
+            [Parameter(HelpMessage = 'Enter a table of Key and Value entries.')]
             [ValidateNotNullOrEmpty()]
             [hashtable[]]$Table = $script:LoginDefPolicy,
 
-            # The login.defs file to edit.
             [Parameter(HelpMessage = 'Enter the login.defs file to edit.')]
             [ValidateNotNullOrEmpty()]
             [string]$Path = $script:LoginDefsPath
         )
 
-        $sessionIsRoot = (& id -u) -eq 0
+        $lines = @(Get-Content -LiteralPath $Path -ErrorAction Stop)
 
-        if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-            throw "login.defs was not found at $Path."
-        }
+        $entries = @(foreach ($entry in $Table) {
+                $key = [string]$entry['Key']
+                $value = [string]$entry['Value']
 
-        if (-not $sessionIsRoot -and -not $WhatIfPreference -and -not (Get-Command -Name sudo -ErrorAction SilentlyContinue)) {
-            throw 'sudo was not found on this system. Run as root instead.'
-        }
-
-        $lines = [System.Collections.Generic.List[string]]::new()
-        foreach ($line in @(Get-Content -LiteralPath $Path)) {
-            [void]$lines.Add($line)
-        }
-
-        $plans = [System.Collections.Generic.List[pscustomobject]]::new()
-
-        foreach ($entry in $Table) {
-            $key = [string]$entry['Key']
-            $value = [string]$entry['Value']
-
-            if (-not $key -or -not $value -or
-                $key -notmatch '^[A-Z][A-Z0-9_]*$' -or $value -notmatch '^[A-Za-z0-9._-]+$') {
-                Write-Error -Message "Invalid table entry: '$key' = '$value'."
-                continue
-            }
-
-            $pattern = '^\s*{0}\s+(\S+)\s*$' -f [regex]::Escape($key)
-            $activeIndexes = @()
-            for ($i = 0; $i -lt $lines.Count; $i++) {
-                if ($lines[$i] -match $pattern) {
-                    $activeIndexes += $i
+                # Keys and values land in a root-owned file read by login, useradd, and
+                # passwd, so both are limited to the characters login.defs uses. This also
+                # blocks a newline that would smuggle in a second setting.
+                if ($key -cnotmatch '^[A-Z][A-Z0-9_]*$' -or $value -notmatch '^[A-Za-z0-9._-]+$') {
+                    Write-Error -Message "Invalid table entry: '$key' = '$value'."
+                    continue
                 }
-            }
 
-            $before = 'Absent'
-            if ($activeIndexes.Count -gt 0) {
-                $before = $lines[$activeIndexes[0]] -replace $pattern, '$1'
-            }
+                # An active definition is the key and one value on an uncommented line.
+                # Keys are case-sensitive in login.defs.
+                $pattern = '^\s*{0}\s+(\S+)\s*$' -f [regex]::Escape($key)
+                $active = @($lines -cmatch $pattern)
 
-            $plan = [PSCustomObject]@{
-                Key        = $key
-                Value      = $value
-                Before     = $before
-                Indexes    = $activeIndexes
-                AlreadySet = ($before -eq $value -and $activeIndexes.Count -eq 1)
-            }
+                # When a key is defined more than once, the shadow tools keep the last
+                # definition, so the last match is the value currently in effect.
+                $before = if ($active) { $active[-1] -creplace $pattern, '$1' } else { 'Absent' }
 
-            [void]$plans.Add($plan)
-        }
+                [pscustomobject]@{
+                    Key       = $key
+                    Value     = $value
+                    Pattern   = $pattern
+                    Before    = $before
+                    Compliant = $active.Count -eq 1 -and $before -ceq $value
+                }
+            })
 
-        foreach ($plan in $plans) {
-            if ($plan.AlreadySet) {
+        # Rebuild the file in one pass: the first active definition of each key becomes the
+        # configured value, later duplicates are dropped, and every other line is kept.
+        # Editing a line list in place by saved index shifts the remaining indexes after the
+        # first removal and overwrites the wrong lines.
+        $placed = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        $newLines = [System.Collections.Generic.List[string]]::new()
+
+        foreach ($line in $lines) {
+            $definition = $entries.Where({ $line -cmatch $_.Pattern }, 'First')
+            if ($definition.Count -eq 0) {
+                $newLines.Add($line)
                 continue
             }
 
-            if ($plan.Indexes.Count -gt 0) {
-                $lines[$plan.Indexes[0]] = "$($plan.Key) $($plan.Value)"
+            if ($placed.Add($definition[0].Key)) {
+                $newLines.Add(('{0} {1}' -f $definition[0].Key, $definition[0].Value))
+            }
+        }
 
-                for ($i = $plan.Indexes.Count - 1; $i -ge 1; $i--) {
-                    [void]$lines.RemoveAt($plan.Indexes[$i])
+        # Keys the file never defined go at the end.
+        foreach ($entry in $entries) {
+            if ($placed.Add($entry.Key)) {
+                $newLines.Add(('{0} {1}' -f $entry.Key, $entry.Value))
+            }
+        }
+
+        $state = 'Unchanged'
+        $writeError = $null
+        $verifiedLines = @()
+
+        if ($entries.Where({ -not $_.Compliant }).Count -gt 0) {
+            if ($PSCmdlet.ShouldProcess($Path, 'Set login.defs keys')) {
+                try {
+                    # Set-Content truncates and rewrites the existing file, so its owner,
+                    # mode, and SELinux label stay as they were.
+                    Set-Content -LiteralPath $Path -Value $newLines -ErrorAction Stop
+                    $verifiedLines = @(Get-Content -LiteralPath $Path -ErrorAction Stop)
+                    $state = 'Written'
+                }
+                catch {
+                    $writeError = $_
+                    $state = 'Failed'
                 }
             }
             else {
-                [void]$lines.Add("$($plan.Key) $($plan.Value)")
+                $state = 'Preview'
             }
         }
 
-        $applied = $false
-        $declined = $false
+        foreach ($entry in $entries) {
+            $after = $entry.Before
+            $status = 'Failed'
 
-        if ($PSCmdlet.ShouldProcess($Path, 'Set login.defs parameters')) {
-            try {
-                if ($sessionIsRoot) {
-                    $lines | Set-Content -LiteralPath $Path -ErrorAction Stop
-                    $applied = $true
-                }
-                else {
-                    $lines | sudo tee -- $Path | Out-Null
-                    $applied = ($LASTEXITCODE -eq 0)
-                }
-            }
-            catch {
-                $applied = $false
-            }
-
-            if (-not $applied) {
-                Write-Error -Message "Could not write $Path."
-            }
-        }
-        else {
-            $declined = $true
-        }
-
-        $verifiedLines = @()
-        if ($applied) {
-            $verifiedLines = @(Get-Content -LiteralPath $Path -ErrorAction SilentlyContinue)
-        }
-
-        $hardenedCount = 0
-
-        foreach ($plan in $plans) {
-            $verifyPattern = '^\s*{0}\s+{1}\s*$' -f [regex]::Escape($plan.Key), [regex]::Escape($plan.Value)
-            $activeAfter = @($verifiedLines | Where-Object { $_ -match $verifyPattern })
-            $isConfigured = ($activeAfter.Count -eq 1)
-
-            if ($plan.AlreadySet) {
+            if ($entry.Compliant) {
                 $status = 'Compliant'
             }
-            elseif ($declined) {
+            elseif ($state -eq 'Preview') {
+                $after = $entry.Value
                 $status = 'Preview'
             }
-            elseif ($applied -and $isConfigured) {
-                $status = 'Hardened'
-            }
-            else {
-                $status = 'Failed'
+            elseif ($state -eq 'Written') {
+                # Verify against the file on disk: exactly one active definition, holding
+                # the configured value.
+                $activeAfter = @($verifiedLines -cmatch $entry.Pattern)
+                $after = if ($activeAfter) { $activeAfter[-1] -creplace $entry.Pattern, '$1' } else { 'Absent' }
+                if ($activeAfter.Count -eq 1 -and $after -ceq $entry.Value) {
+                    $status = 'Hardened'
+                }
             }
 
-            if ($status -eq 'Hardened') {
-                $hardenedCount++
+            [pscustomobject]@{ Key = $entry.Key; Before = $entry.Before; After = $after; Status = $status }
+
+            if ($status -eq 'Failed' -and $state -eq 'Written') {
+                Write-Error -Message "$($entry.Key) reads '$after' in $Path after writing."
             }
-
-            $after = if ($applied -or $declined) { $plan.Value } else { $plan.Before }
-
-            [PSCustomObject]@{ Key = $plan.Key; Before = $plan.Before; After = $after; Status = $status }
         }
 
-        if ($applied) {
-            $summary = if ($hardenedCount -gt 0) {
-                "Set $hardenedCount of $($plans.Count) parameters in $Path."
-            }
-            else {
-                "All $($plans.Count) parameters were already set in $Path."
-            }
-
-            Write-Output $summary
+        if ($writeError) {
+            Write-Error -ErrorRecord $writeError
         }
     }
 }

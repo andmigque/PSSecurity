@@ -1,341 +1,184 @@
-if ($IsLinux) {
-    Set-StrictMode -Version Latest
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
 
+if ($IsLinux) {
     function Get-WorldWritableFile {
         <#
-    .SYNOPSIS
-        Finds world-writable files on Linux.
+        .SYNOPSIS
+            Finds world-writable files on Linux.
 
-    .DESCRIPTION
-        Returns one report describing world-writable files under the scan roots. The
-        roots are walked with an explicit directory stack, matching the module's
-        Compress-FileTree traversal. With -IncludeDirectories, the report also includes
-        world-writable directories that lack the sticky bit; sticky world-writable
-        directories follow the /tmp convention and are treated as acceptable. Hidden
-        dotfiles are included, which matters for audits because user settings such as
-        .ssh are exactly where loose modes cause damage. Symlinks are skipped. Mount
-        points parsed from /proc/mounts are not traversed, so each scan stays on the
-        filesystems of its roots and pseudo filesystems such as /proc, plus WSL's
-        /mnt/* drives, are excluded; a mount can still be scanned by passing it as a
-        root. Excluded paths are not traversed at all.
+        .DESCRIPTION
+            Walks each path and returns one report listing every file that any account can
+            write. With -IncludeDirectories, the report also lists world-writable directories
+            that lack the sticky bit. The walk stays on the filesystem of each root, skips
+            symlinks, and uses no external tools. Directories that cannot be read land in
+            Errors, so a partial scan reports itself. -Verbose writes the mode, owner, and
+            group of each finding.
 
-        The report is always one object carrying coverage counters and an AuditStatus, so
-        a run with zero findings is never mistaken for a clean result. AuditStatus is
-        Complete only when every directory was enumerated and no errors were recorded;
-        otherwise it is Incomplete, and SkippedDirectories, SkippedDirectoryPaths, and
-        Errors explain the gap. A non-root session cannot enumerate root-only directories,
-        so those are skipped with verbose notes and counted at the end. Pass -Elevate to
-        re-run the scan as root through sudo and return the complete report; a PowerShell
-        function cannot be run through sudo directly, so -Elevate reconstructs the
-        invocation and runs it under sudo pwsh. Results retains individual findings
-        sorted by path; Errors retains enumeration failures only.
+        .PARAMETER Path
+            The root directories to scan.
 
-    .PARAMETER Path
-        Root directories to scan. Defaults to the module's WorldWritableIncludePath setting
-        from Config/Setting.psd1.
+        .PARAMETER IncludeDirectories
+            Also checks directories and lists the world-writable ones without the sticky bit.
 
-    .PARAMETER ExcludePath
-        Path patterns to skip, for example /tmp/*. Wildcards are allowed. Matching
-        directories are not traversed. Defaults to the module's WorldWritableExcludePath
-        setting from Config/Setting.psd1; passing this parameter replaces the default list,
-        so @() disables all exclusions.
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-    .PARAMETER IncludeDirectories
-        Also reports world-writable directories without the sticky bit.
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. One object with these properties:
 
-    .PARAMETER Elevate
-        Re-runs the audit as root through sudo when the current session is not root, so
-        root-only directories are enumerated and the report can be Complete. A PowerShell
-        function cannot be run through sudo directly, so this reconstructs the invocation
-        and runs it under sudo pwsh; sudo may prompt for a password. Ignored when the
-        session is already root.
+            Path   [string[]] The roots that were scanned.
+            Count  [int]      The number of entries checked: every file, plus every
+                              directory under -IncludeDirectories.
+            Found  [string[]] The world-writable entries.
+            Errors [object[]] One Path and Message per directory that could not be read.
 
-    .INPUTS
-        None. This function does not accept pipeline input.
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Get-WorldWritableFile | ConvertTo-Json } | ConvertFrom-Json
 
-    .OUTPUTS
-        One PSCustomObject with AuditStatus, ScannedRoots, ExcludedPatterns, ScannedFiles,
-        ScannedDirectories, WorldWritableFiles, WorldWritableDirectories, SkippedDirectories,
-        SkippedDirectoryPaths, ByOwner, Results, and Errors. Results contains the individual
-        findings with Path, Kind, Mode, Owner, SizeBytes, and LastWriteTime; Owner is
-        Unknown when it cannot be read. Errors contains Path and Message for enumeration
-        failures outside the non-root permission skips. ExcludedPatterns shows the effective
-        exclusion list, and ExcludedPatterns with the coverage counters explain an empty
-        result. An empty scan returns zero counts and empty arrays.
+            Scans the root filesystem as root. Invoke-Sudo returns text, so the report goes
+            through JSON to come back as an object.
 
-    .EXAMPLE
-        $report = Get-WorldWritableFile
-        $report.AuditStatus
-        $report.Results | Format-Table Path, Kind, Mode, Owner
+        .EXAMPLE
+            (Invoke-Sudo { Import-Module PSSecurity;
+            Get-WorldWritableFile -Path '/', '/home', '/var' -IncludeDirectories | ConvertTo-Json } | ConvertFrom-Json).Found
 
-        Audits the whole root filesystem using the include and exclude lists from the
-        module settings and inspects the findings.
+            Lists world-writable files and non-sticky world-writable directories on the root
+            filesystem and the separate /home and /var partitions.
 
-    .EXAMPLE
-        $report = Get-WorldWritableFile -Path /etc, /usr -IncludeDirectories
-        $report.ByOwner
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Get-WorldWritableFile -Path /etc -Verbose }
 
-        Audits the configuration and binary trees, flags world-writable directories
-        missing the sticky bit, and reviews which accounts own the findings.
+            Prints the report and the mode, owner, and group of each finding as text.
 
-    .EXAMPLE
-        $report = Get-WorldWritableFile -Elevate
-        $report.Results
+        .NOTES
+            Requires PowerShell 7.3 or later for the UnixStat property. Run as root: a
+            non-root scan cannot read root-only directories, so they land in Errors.
 
-        Re-runs the scan as root through sudo so root-only directories are enumerated,
-        returning the complete report.
+            The walk does not descend into mount points listed in /proc/self/mounts, the
+            same as find -xdev. Separate partitions such as /home or /var are scanned only
+            when passed as roots. Pseudo filesystems such as /proc and tmpfs mounts such as
+            /tmp are mount points, so the walk skips them. Bind mounts are skipped as well.
 
-    .NOTES
-        Runs on Linux only; in WSL, run it inside the target distribution. Requires
-        PowerShell 7.4 for File.GetUnixFileMode; the module manifest already enforces
-        this. Default scan roots and exclusion patterns come from the WorldWritableIncludePath
-        and WorldWritableExcludePath keys in Config/Setting.psd1. Owner names come from one
-        batched GNU stat call per chunk of findings. A non-root audit skips directories it
-        cannot enumerate with verbose notes and reports the skipped count as a single warning
-        at the end; other enumeration failures are collected in Errors. A full root scan
-        reads every file's metadata and can take a while on large filesystems.
-    #>
+            Files include every non-directory entry, so a world-writable socket or FIFO is
+            listed along with regular files.
+        #>
         [CmdletBinding()]
         [OutputType([pscustomobject])]
         param(
-            # Root directories to scan. Defaults to the module's WorldWritableIncludePath setting.
-            [Parameter(HelpMessage = 'Enter the root directories to scan. Defaults to the WorldWritableIncludePath setting.')]
+            [Parameter(HelpMessage = 'Enter the root directories to scan.')]
             [ValidateNotNullOrEmpty()]
-            [string[]]$Path = $script:WorldWritableIncludePath,
+            [string[]]$Path = '/',
 
-            # Path patterns to skip. Defaults to the module's WorldWritableExcludePath setting.
-            [Parameter(HelpMessage = 'Enter path patterns to exclude. Defaults to the WorldWritableExcludePath setting.')]
-            [string[]]$ExcludePath = $script:WorldWritableExcludePath,
-
-            # Also audit world-writable directories without the sticky bit.
-            [Parameter(HelpMessage = 'Also audit world-writable directories without the sticky bit.')]
-            [switch]$IncludeDirectories,
-
-            # Re-run the audit as root through sudo when the current session is not root.
-            [Parameter(HelpMessage = 'Re-run the audit as root through sudo for a complete scan.')]
-            [switch]$Elevate
+            [Parameter(HelpMessage = 'Also list world-writable directories without the sticky bit.')]
+            [switch]$IncludeDirectories
         )
 
-        $sessionIsRoot = (& id -u) -eq 0
+        $otherWrite = [System.IO.UnixFileMode]::OtherWrite
+        $stickyBit = [System.IO.UnixFileMode]::StickyBit
 
-        if ($Elevate -and -not $sessionIsRoot) {
-            # Array parameters bind as one comma-separated value (PowerShell rejects a
-            # repeated parameter), so rebuild the invocation for the sudo child process.
-            $pathArg = ($Path | ForEach-Object { "'$($_.Replace("'", "''"))'" }) -join ','
-            $call = "Get-WorldWritableFile -Path $pathArg"
-
-            if ($ExcludePath.Count -eq 0) {
-                $call += ' -ExcludePath @()'
-            }
-            else {
-                $excludeArg = ($ExcludePath | ForEach-Object { "'$($_.Replace("'", "''"))'" }) -join ','
-                $call += " -ExcludePath $excludeArg"
-            }
-
-            if ($IncludeDirectories) {
-                $call += ' -IncludeDirectories'
-            }
-
-            Invoke-SudoCommand -Command $call
-            return
-        }
-
-        $scanRoots = @()
-        foreach ($rootPath in $Path) {
-            $scanRoots += (Resolve-Path -LiteralPath $rootPath -ErrorAction Stop).Path
-        }
-
-        # Mount points parsed from /proc/mounts prune the walk at filesystem boundaries: the
-        # pure PowerShell stand-in for find -xdev. Root directories are pushed unconditionally,
-        # so a mount can still be scanned by passing it as a root.
-        $mountPoints = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-        try {
-            foreach ($mountLine in Get-Content -LiteralPath '/proc/mounts' -ErrorAction Stop) {
-                $mountFields = $mountLine -split ' '
-                if ($mountFields.Count -ge 2) {
-                    $mountPoint = $mountFields[1].Replace('\040', ' ').Replace('\011', "`t").Replace('\012', "`n").Replace('\134', '\')
-                    [void]$mountPoints.Add($mountPoint)
-                }
-            }
-        }
-        catch {
-            Write-Warning -Message 'Could not read /proc/mounts; other filesystems will not be pruned from the scan.'
-        }
-
-        $records = [System.Collections.Generic.List[PSCustomObject]]::new()
+        $roots = [System.Collections.Generic.List[string]]::new()
+        $found = [System.Collections.Generic.List[string]]::new()
         $errors = [System.Collections.Generic.List[object]]::new()
-        $skippedDirectoryCount = 0
-        $skippedDirectoryPaths = [System.Collections.Generic.List[string]]::new()
-        $scannedFiles = 0
-        $scannedDirectories = 0
-        $directories = [System.Collections.Generic.Stack[System.IO.DirectoryInfo]]::new()
-        foreach ($scanRoot in $scanRoots) {
-            $directories.Push([System.IO.DirectoryInfo]::new($scanRoot))
+        $count = 0
+
+        # Writes one verbose line per finding. Objects from .NET enumeration have no
+        # UnixStat, so the finding is read again through Get-Item, which costs one call
+        # per finding instead of one per entry. User and Group are empty when the ID has
+        # no account, so the numeric ID stands in.
+        $writeFinding = {
+            param([System.IO.FileSystemInfo]$Entry)
+            $item = Get-Item -LiteralPath $Entry.FullName -Force
+            $owner = if ($item.User) { $item.User } else { $item.UnixStat.UserId }
+            $group = if ($item.Group) { $item.Group } else { $item.UnixStat.GroupId }
+            Write-Verbose -Message ('{0} {1}:{2} {3}' -f [Convert]::ToString([int]$Entry.UnixFileMode, 8), $owner, $group, $Entry.FullName)
         }
 
-        while ($directories.Count -gt 0) {
-            $directory = $directories.Pop()
+        # Every mount point on the host, read from the kernel's own mount table. A
+        # directory in this set is the root of another filesystem, so the walk does not
+        # descend into it, the same as find -xdev. The kernel writes space, tab, newline,
+        # and backslash in mount paths as octal escapes, which are decoded here.
+        # Checking the set costs nothing per directory; reading each directory's device
+        # ID instead would take one Get-Item call per directory, about 15 times slower.
+        # A bind mount is a mount point too, so the walk skips it even when it repeats
+        # the root's filesystem.
+        $mountPoints = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        foreach ($mountLine in Get-Content -LiteralPath '/proc/self/mounts' -ErrorAction Stop) {
+            $mountPoint = ($mountLine -split ' ')[1]
+            $mountPoint = $mountPoint.Replace('\040', ' ').Replace('\011', "`t").Replace('\012', "`n").Replace('\134', '\')
+            [void]$mountPoints.Add($mountPoint)
+        }
 
-            try {
-                foreach ($entry in $directory.EnumerateFileSystemInfos()) {
-                    if ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
-                        continue
+        foreach ($root in $Path) {
+            $rootDirectory = Get-Item -LiteralPath $root -Force -ErrorAction Stop
+            if (-not $rootDirectory.PSIsContainer) {
+                throw "$root is not a directory."
+            }
+
+            $roots.Add($rootDirectory.FullName)
+
+            # The root goes on the stack even when it is a mount point, so a separate
+            # partition is scanned by passing it as a root.
+            $directories = [System.Collections.Generic.Stack[System.IO.DirectoryInfo]]::new()
+            $directories.Push([System.IO.DirectoryInfo]::new($rootDirectory.FullName))
+
+            while ($directories.Count -gt 0) {
+                $directory = $directories.Pop()
+
+                # A world-writable directory with the sticky bit is the /tmp convention:
+                # anyone can create files, and only the owner can delete or rename them.
+                # Without the sticky bit, any account can delete or replace another
+                # account's files.
+                if ($IncludeDirectories) {
+                    $count++
+                    $directoryMode = $directory.UnixFileMode
+                    if (($directoryMode -band $otherWrite) -and -not ($directoryMode -band $stickyBit)) {
+                        $found.Add($directory.FullName)
+                        & $writeFinding $directory
                     }
+                }
 
-                    $isExcluded = $false
-                    foreach ($pattern in $ExcludePath) {
-                        if ($entry.FullName -like $pattern) {
-                            $isExcluded = $true
-                            break
-                        }
-                    }
-
-                    if ($isExcluded) {
-                        Write-Verbose -Message "Skipping excluded path: $($entry.FullName)"
-                        continue
-                    }
-
-                    if ($entry -is [System.IO.DirectoryInfo]) {
-                        if ($mountPoints.Contains($entry.FullName)) {
-                            Write-Verbose -Message "Skipping other filesystem: $($entry.FullName)"
+                try {
+                    foreach ($entry in $directory.EnumerateFileSystemInfos()) {
+                        # A symlink's own mode is always 777 and says nothing about its
+                        # target, and following it could leave the root's filesystem.
+                        if ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
                             continue
                         }
 
-                        $directories.Push($entry)
+                        if ($entry -is [System.IO.DirectoryInfo]) {
+                            if ($mountPoints.Contains($entry.FullName)) {
+                                Write-Verbose -Message "Skipping other filesystem: $($entry.FullName)"
+                            }
+                            else {
+                                $directories.Push($entry)
+                            }
 
-                        if (-not $IncludeDirectories) {
                             continue
                         }
 
-                        $unixMode = [System.IO.File]::GetUnixFileMode($entry.FullName)
-                        $isWorldWritable = [bool]($unixMode -band [System.IO.UnixFileMode]::OtherWrite)
-                        $hasStickyBit = [bool]($unixMode -band [System.IO.UnixFileMode]::StickyBit)
-
-                        if ($isWorldWritable -and -not $hasStickyBit) {
-                            $record = [PSCustomObject]@{
-                                Path          = $entry.FullName
-                                Kind          = 'Directory'
-                                Mode          = [Convert]::ToString([int]$unixMode, 8)
-                                Owner         = 'Unknown'
-                                SizeBytes     = 0
-                                LastWriteTime = $entry.LastWriteTime
-                            }
-
-                            $records.Add($record)
-                        }
-                    }
-                    else {
-                        $unixMode = [System.IO.File]::GetUnixFileMode($entry.FullName)
-                        $scannedFiles++
-
-                        if ($unixMode -band [System.IO.UnixFileMode]::OtherWrite) {
-                            $record = [PSCustomObject]@{
-                                Path          = $entry.FullName
-                                Kind          = 'File'
-                                Mode          = [Convert]::ToString([int]$unixMode, 8)
-                                Owner         = 'Unknown'
-                                SizeBytes     = $entry.Length
-                                LastWriteTime = $entry.LastWriteTime
-                            }
-
-                            $records.Add($record)
+                        # UnixFileMode comes from the metadata the enumeration already read,
+                        # so checking a file costs no extra system call.
+                        $count++
+                        if ($entry.UnixFileMode -band $otherWrite) {
+                            $found.Add($entry.FullName)
+                            & $writeFinding $entry
                         }
                     }
                 }
-
-                $scannedDirectories++
-            }
-            catch {
-                $enumerationError = $_.Exception
-                $accessDenied = $enumerationError -is [System.UnauthorizedAccessException]
-                $accessDenied = $accessDenied -or $enumerationError.InnerException -is [System.UnauthorizedAccessException]
-
-                if ($accessDenied -and -not $sessionIsRoot) {
-                    Write-Verbose -Message "Skipping inaccessible directory: $($directory.FullName)"
-                    $skippedDirectoryCount++
-                    $skippedDirectoryPaths.Add($directory.FullName)
-                }
-                else {
-                    $enumerationFailure = [pscustomobject]@{
-                        Path    = $directory.FullName
-                        Message = $enumerationError.Message
-                    }
-
-                    $errors.Add($enumerationFailure)
+                catch {
+                    # GetBaseException unwraps PowerShell's 'Exception calling ...' wrapper
+                    # down to the .NET message, such as 'Access to the path ... is denied.'
+                    $errors.Add([pscustomobject]@{ Path = $directory.FullName; Message = $_.Exception.GetBaseException().Message })
                 }
             }
-        }
-
-        $rows = @($records | Sort-Object -Property Path)
-
-        # FileSystemInfo exposes modes and times but not owning accounts, so owner names are
-        # enriched from one batched stat call per chunk of findings.
-        $ownerByPath = @{}
-        if ($rows.Count -gt 0) {
-            $findingPaths = @($rows.Path)
-
-            for ($chunkStart = 0; $chunkStart -lt $findingPaths.Count; $chunkStart += 256) {
-                $chunkEnd = [Math]::Min($chunkStart + 255, $findingPaths.Count - 1)
-                $chunkPaths = @($findingPaths[$chunkStart..$chunkEnd])
-                $chunkOwners = @(& stat -c '%U:%G' -- $chunkPaths)
-
-                if ($LASTEXITCODE -ne 0 -or $chunkOwners.Count -ne $chunkPaths.Count) {
-                    $ownerFailure = [pscustomobject]@{
-                        Path    = $chunkPaths[0]
-                        Message = 'Could not read the owners for this chunk of findings.'
-                    }
-
-                    $errors.Add($ownerFailure)
-                    continue
-                }
-
-                for ($chunkIndex = 0; $chunkIndex -lt $chunkPaths.Count; $chunkIndex++) {
-                    $ownerByPath[$chunkPaths[$chunkIndex]] = $chunkOwners[$chunkIndex]
-                }
-            }
-        }
-
-        foreach ($row in $rows) {
-            if ($ownerByPath.ContainsKey($row.Path)) {
-                $row.Owner = $ownerByPath[$row.Path]
-            }
-        }
-
-        # ByOwner counts findings per owning account, most frequent first.
-        $byOwner = [System.Collections.Generic.List[object]]::new()
-        foreach ($ownerGroup in ($rows | Group-Object -Property Owner | Sort-Object -Property Count -Descending)) {
-            $ownerCount = [pscustomobject]@{
-                Name  = $ownerGroup.Name
-                Count = $ownerGroup.Count
-            }
-
-            $byOwner.Add($ownerCount)
-        }
-
-        $auditStatus = 'Complete'
-        if ($skippedDirectoryCount -gt 0 -or $errors.Count -gt 0) {
-            $auditStatus = 'Incomplete'
-        }
-
-        if ($skippedDirectoryCount -gt 0) {
-            $skipSummary = 'Skipped {0} directories due to insufficient permissions.' -f $skippedDirectoryCount
-            $skipSummary += ' Re-run with -Elevate for a complete audit.'
-            Write-Warning -Message $skipSummary
         }
 
         [pscustomobject]@{
-            AuditStatus              = $auditStatus
-            ScannedRoots             = $scanRoots
-            ExcludedPatterns         = $ExcludePath
-            ScannedFiles             = $scannedFiles
-            ScannedDirectories       = $scannedDirectories
-            WorldWritableFiles       = @($rows | Where-Object { $_.Kind -eq 'File' }).Count
-            WorldWritableDirectories = @($rows | Where-Object { $_.Kind -eq 'Directory' }).Count
-            SkippedDirectories       = $skippedDirectoryCount
-            SkippedDirectoryPaths    = $skippedDirectoryPaths.ToArray()
-            ByOwner                  = $byOwner.ToArray()
-            Results                  = $rows
-            Errors                   = $errors.ToArray()
+            Path   = $roots.ToArray()
+            Count  = $count
+            Found  = $found.ToArray()
+            Errors = $errors.ToArray()
         }
     }
 }

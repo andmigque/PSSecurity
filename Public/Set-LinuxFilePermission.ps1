@@ -1,73 +1,79 @@
-if ($IsLinux) {
-    Set-StrictMode -Version Latest
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
 
+if ($IsLinux) {
     function Set-LinuxFilePermission {
         <#
-    .SYNOPSIS
-        Applies the module's CIS ownership and mode table to Linux system files.
+        .SYNOPSIS
+            Applies the CIS ownership and mode table to Linux system files.
 
-    .DESCRIPTION
-        Reads the current owner, group, and mode of every file in the table and repairs it
-        toward the CIS Distribution Independent Linux floor. The floor is intentionally
-        permissive where the benchmark allows it: a file whose mode is already more
-        restrictive than the floor is reported as Compliant and left alone, and a group
-        the benchmark accepts as an alternative, such as root or shadow on the shadow
-        files, is kept instead of being rewritten. Only files granting more access than
-        the floor are changed with chown and chmod, and the result is verified with stat.
+        .DESCRIPTION
+            Reads the owner, group, and mode of every path in the table and tightens it to
+            the table's floor. The mode is a floor: a path already more restrictive keeps its
+            mode, and a path granting more access loses only the excess bits, so a repair
+            never grants access the path did not already have. The table group and the
+            table owner are both accepted as the group, which covers the shadow files that
+            CIS allows as root or shadow. Every change is read back to verify it. The only
+            external tools are the POSIX chown and chgrp.
 
-        Files listed in the table but absent from the system, such as the account database
-        backups, are reported as Missing and skipped so one table survives across
-        distributions.
+            Owner and Group are optional per entry. An entry without them changes the mode
+            only and leaves ownership alone.
 
-        A non-root session applies changes through sudo, which may prompt for a password.
+        .PARAMETER Table
+            The paths to repair, each a hashtable with Path, Mode, and optional Owner and
+            Group. Defaults to the module's LinuxFilePermissions setting.
 
-    .PARAMETER Table
-        The files to repair, each entry a hashtable with Path, Owner, Group, and Mode.
-        Defaults to the module's LinuxFilePermissions setting from Config/Setting.psd1.
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-    .INPUTS
-        None. This function does not accept pipeline input.
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. Path, Before, After, and Status for
+            each entry. Before and After read like root:shadow 0640. Status is Compliant,
+            Preview, Hardened, Failed, or Missing.
 
-    .OUTPUTS
-        One PSCustomObject per file with Path, Before, After, and Status. Before and After
-        carry the owner, group, and four digit mode, for example root:shadow 0640. Status
-        is Compliant when the file already meets the floor, Preview under -WhatIf,
-        Hardened when the change was applied and verified, Failed when chown, chmod, or
-        the verification failed, and Missing when the file does not exist.
+        .EXAMPLE
+            Set-LinuxFilePermission -WhatIf
 
-    .EXAMPLE
-        Set-LinuxFilePermission -WhatIf
+            Previews the repairs for every path in the table.
 
-        Previews the ownership and mode repairs for every file in the table.
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Set-LinuxFilePermission }
 
-    .EXAMPLE
-        Set-LinuxFilePermission
+            Repairs every path in the table as root.
 
-        Repairs the account databases, wrapper lists, and login banners to the CIS floor.
-
-    .NOTES
-        Runs on Linux only; in WSL, run it inside the target distribution. The default
-        table comes from the LinuxFilePermissions key in Config/Setting.psd1. Pass a
-        custom -Table to add distribution-specific targets such as the bootloader
-        configuration.
-    #>
+        .NOTES
+            Run as root. Requires PowerShell 7.3 or later for the UnixStat property. Paths in
+            the table that do not exist on this distribution report Missing, so one table
+            works across distributions. An owner or group with no account name reports its
+            numeric ID.
+        #>
         [CmdletBinding(SupportsShouldProcess)]
         [OutputType([pscustomobject])]
-        param (
-            # Files to repair. Defaults to the module's LinuxFilePermissions setting.
-            [Parameter(HelpMessage = 'Enter Path, Owner, Group, and Mode entries. Defaults to the LinuxFilePermissions setting.')]
+        param(
+            [Parameter(HelpMessage = 'Enter Path, Mode, and optional Owner and Group entries.')]
             [ValidateNotNullOrEmpty()]
             [hashtable[]]$Table = $script:LinuxFilePermissions
         )
 
-        $sessionIsRoot = (& id -u) -eq 0
-
-        if (-not $sessionIsRoot -and -not $WhatIfPreference -and -not (Get-Command -Name sudo -ErrorAction SilentlyContinue)) {
-            throw 'sudo was not found on this system. Run as root instead.'
+        # UnixStat is PowerShell's own lstat data, so reading owner, group, and mode needs
+        # no stat binary, whose flags differ between GNU coreutils and BusyBox. User and
+        # Group are empty when the ID has no account, so the numeric ID stands in.
+        # 4095 is octal 7777: the permission bits plus SUID, SGID, and sticky, without the
+        # file type bits.
+        $readState = {
+            param([string]$StatPath)
+            $statItem = Get-Item -LiteralPath $StatPath -Force -ErrorAction Stop
+            [pscustomobject]@{
+                Owner = if ($statItem.User) { $statItem.User } else { [string]$statItem.UnixStat.UserId }
+                Group = if ($statItem.Group) { $statItem.Group } else { [string]$statItem.UnixStat.GroupId }
+                Mode  = $statItem.UnixStat.Mode -band 4095
+            }
         }
 
-        # 07777 covers the permission bits plus setuid, setgid, and sticky.
-        $modeMask = [Convert]::ToInt32('7777', 8)
+        $formatState = {
+            param($State)
+            '{0}:{1} {2}' -f $State.Owner, $State.Group, [Convert]::ToString($State.Mode, 8).PadLeft(4, '0')
+        }
 
         foreach ($entry in $Table) {
             $targetPath = [string]$entry['Path']
@@ -75,109 +81,89 @@ if ($IsLinux) {
             $group = [string]$entry['Group']
             $mode = [string]$entry['Mode']
 
-            if (-not $targetPath -or -not $owner -or -not $group -or $mode -notmatch '^[0-7]{3,4}$') {
+            if (-not $targetPath -or $mode -notmatch '^[0-7]{3,4}$') {
                 Write-Error -Message "Invalid table entry for '$targetPath'."
                 continue
             }
 
-            if (-not (Test-Path -LiteralPath $targetPath)) {
-                Write-Verbose -Message "$targetPath does not exist on this system."
-                [PSCustomObject]@{ Path = $targetPath; Before = $null; After = $null; Status = 'Missing' }
-                continue
-            }
+            $result = [pscustomobject]@{ Path = $targetPath; Before = $null; After = $null; Status = 'Missing' }
 
-            $statOutput = (& stat -c '%a %U %G' -- $targetPath 2>$null)
-
-            if ($LASTEXITCODE -ne 0 -or -not $statOutput) {
-                Write-Error -Message "stat failed for $targetPath."
-                [PSCustomObject]@{ Path = $targetPath; Before = $null; After = $null; Status = 'Failed' }
-                continue
-            }
-
-            $statParts = "$statOutput" -split '\s+'
-            $currentMode = [Convert]::ToInt32($statParts[0], 8)
-            $beforeOwner = $statParts[1]
-            $beforeGroup = $statParts[2]
-            $beforeMode = [Convert]::ToString($currentMode, 8).PadLeft(4, '0')
-            $before = "$beforeOwner`:$beforeGroup $beforeMode"
-
-            $floor = [Convert]::ToInt32($mode, 8)
-            $modeCompliant = ((($currentMode -band (-bnot $floor)) -band $modeMask) -eq 0)
-
-            # The benchmark accepts the configured group and, on the shadow files, root.
-            $acceptableGroups = @($owner, $group) | Select-Object -Unique
-            $needsOwner = $beforeOwner -ne $owner
-            $needsGroup = -not ($acceptableGroups -contains $beforeGroup)
-            $needsMode = -not $modeCompliant
-
-            $afterOwner = if ($needsOwner) { $owner } else { $beforeOwner }
-            $afterGroup = if ($needsGroup) { $group } else { $beforeGroup }
-            $afterMode = if ($needsMode) { $floor } else { $currentMode }
-            $afterModeText = [Convert]::ToString($afterMode, 8).PadLeft(4, '0')
-            $after = "$afterOwner`:$afterGroup $afterModeText"
-
-            if (-not ($needsOwner -or $needsGroup -or $needsMode)) {
-                [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $before; Status = 'Compliant' }
-                continue
-            }
-
-            if (-not $PSCmdlet.ShouldProcess($targetPath, "Set owner, group, and mode to $after")) {
-                [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $after; Status = 'Preview' }
-                continue
-            }
-
-            if ($needsOwner -or $needsGroup) {
-                $chownSpec = if ($needsGroup) { "${owner}:$group" } else { $owner }
-
-                if ($sessionIsRoot) {
-                    & chown -- $chownSpec $targetPath
-                }
-                else {
-                    & sudo chown -- $chownSpec $targetPath
-                }
-
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Error -Message "chown failed for $targetPath."
-                    [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $before; Status = 'Failed' }
+            try {
+                $item = Get-Item -LiteralPath $targetPath -Force -ErrorAction Ignore
+                if (-not $item) {
+                    $result
                     continue
                 }
-            }
 
-            if ($needsMode) {
-                if ($sessionIsRoot) {
-                    & chmod -- $mode $targetPath
-                }
-                else {
-                    & sudo chmod -- $mode $targetPath
+                # chown and chmod follow symlinks, so a link in the table would hand root's
+                # repair to whatever file the link points at.
+                if ($item.LinkType) {
+                    throw "$targetPath is a symbolic link."
                 }
 
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Error -Message "chmod failed for $targetPath."
-                    [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $before; Status = 'Failed' }
+                $current = & $readState $targetPath
+                $result.Before = & $formatState $current
+
+                # current AND floor keeps only the bits the floor allows. Setting the floor
+                # directly would add bits: a 0602 file with a 0640 floor would gain group read.
+                $floor = [Convert]::ToInt32($mode, 8)
+                $planned = [pscustomobject]@{
+                    Owner = if ($owner) { $owner } else { $current.Owner }
+                    Group = $current.Group
+                    Mode  = $current.Mode -band $floor
+                }
+
+                $needsOwner = $owner -and $current.Owner -ne $owner
+                $needsGroup = $group -and $current.Group -notin @($owner, $group)
+                $needsMode = $planned.Mode -ne $current.Mode
+                if ($needsGroup) { $planned.Group = $group }
+
+                $result.After = & $formatState $planned
+
+                if (-not ($needsOwner -or $needsGroup -or $needsMode)) {
+                    $result.Status = 'Compliant'
+                    $result
                     continue
                 }
+
+                if (-not $PSCmdlet.ShouldProcess($targetPath, "Set owner, group, and mode to $($result.After)")) {
+                    $result.Status = 'Preview'
+                    $result
+                    continue
+                }
+
+                # Ownership changes run before the mode change because chown and chgrp clear
+                # the setuid and setgid bits, which would undo a mode set first. chown
+                # owner:group and chgrp group are both POSIX; the ':group' shorthand for
+                # chown is not, so a group-only change goes through chgrp.
+                if ($needsOwner) {
+                    $chownSpec = if ($needsGroup) { "${owner}:$group" } else { $owner }
+                    chown -- $chownSpec $targetPath
+                    if ($LASTEXITCODE -ne 0) { throw "chown failed for $targetPath." }
+                }
+                elseif ($needsGroup) {
+                    chgrp -- $group $targetPath
+                    if ($LASTEXITCODE -ne 0) { throw "chgrp failed for $targetPath." }
+                }
+
+                if ($needsMode) {
+                    [System.IO.File]::SetUnixFileMode($targetPath, [System.IO.UnixFileMode]$planned.Mode)
+                }
+
+                $verified = & $formatState (& $readState $targetPath)
+                if ($verified -ne $result.After) {
+                    $result.After = $verified
+                    throw "$targetPath reads $verified after the change."
+                }
+
+                $result.Status = 'Hardened'
+                $result
             }
-
-            $verifyOutput = (& stat -c '%a %U %G' -- $targetPath 2>$null)
-
-            if ($LASTEXITCODE -ne 0 -or -not $verifyOutput) {
-                Write-Error -Message "stat failed for $targetPath after the change."
-                [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $before; Status = 'Failed' }
-                continue
+            catch {
+                $result.Status = 'Failed'
+                $result
+                Write-Error -ErrorRecord $_
             }
-
-            $verifyParts = "$verifyOutput" -split '\s+'
-            $verifiedMode = [Convert]::ToInt32($verifyParts[0], 8)
-            $verifiedModeText = [Convert]::ToString($verifiedMode, 8).PadLeft(4, '0')
-            $verified = "$($verifyParts[1]):$($verifyParts[2]) $verifiedModeText"
-            $verifiedCompliant = (
-                $verifyParts[1] -eq $owner -and
-                $acceptableGroups -contains $verifyParts[2] -and
-                ((($verifiedMode -band (-bnot $floor)) -band $modeMask) -eq 0)
-            )
-            $status = if ($verifiedCompliant) { 'Hardened' } else { 'Failed' }
-
-            [PSCustomObject]@{ Path = $targetPath; Before = $before; After = $verified; Status = $status }
         }
     }
 }

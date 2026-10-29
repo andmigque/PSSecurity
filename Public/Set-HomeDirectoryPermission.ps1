@@ -1,180 +1,95 @@
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
+
 if ($IsLinux) {
-    Set-StrictMode -Version Latest
     function Set-HomeDirectoryPermission {
         <#
-    .SYNOPSIS
-        Restricts permissions on user home directories and the root account home.
+        .SYNOPSIS
+            Restricts the modes of user home directories and /root.
 
-    .DESCRIPTION
-        Applies the requested octal mode to every immediate subdirectory of /home (default 750)
-        and to /root (default 700). Only the top-level directory mode changes; files inside each
-        home keep their current modes, so per-user settings such as .ssh stay untouched. Ownership
-        is never modified. Directories already at the target mode are reported as compliant and
-        skipped without invoking chmod. Symlinks are skipped so a mode change cannot escape the
-        home root through a link. When the session is not root, chmod runs through sudo.
+        .DESCRIPTION
+            Tightens every directory directly under HomePath to Mode and /root to RootMode
+            through Set-LinuxFilePermission. Both modes are floors: a home already more
+            restrictive keeps its mode, and a looser home loses only the excess bits.
+            Ownership never changes, and files inside each home keep their modes.
+            Implements CIS 6.2.x home directory permissions.
 
-    .PARAMETER Mode
-        Octal mode for /home subdirectories, such as 750 or 0750.
+        .PARAMETER Mode
+            The octal floor for directories under HomePath.
 
-    .PARAMETER RootMode
-        Octal mode for /root. The default is 700.
+        .PARAMETER RootMode
+            The octal floor for /root.
 
-    .PARAMETER HomePath
-        Parent directory of user home directories. The default is /home.
+        .PARAMETER HomePath
+            The parent directory of user home directories.
 
-    .PARAMETER Exclude
-        Home directory names to skip. Wildcards are allowed, for example shared*.
+        .PARAMETER Exclude
+            Home directory names to skip. Wildcards are allowed, for example shared*.
 
-    .EXAMPLE
-        Set-HomeDirectoryPermission -WhatIf
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-        Previews the mode change for every /home subdirectory and /root without applying it.
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. Path, Before, After, and Status for
+            each directory, as returned by Set-LinuxFilePermission.
 
-    .EXAMPLE
-        Set-HomeDirectoryPermission -Mode 750 -Exclude @('shared*')
+        .EXAMPLE
+            Set-HomeDirectoryPermission -WhatIf
 
-        Applies 750 to every /home subdirectory except those matching shared*, and 700 to /root.
-        Returns a before and after report for each directory.
+            Previews the changes for every home directory and /root.
 
-    .NOTES
-        Runs on Linux only; in WSL, run it inside the target distribution. A non-root session
-        needs sudo rights for directories outside the caller's ownership.
-    #>
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Set-HomeDirectoryPermission -Exclude 'shared*' }
+
+            Tightens every home directory except those matching shared*, and /root, as root.
+
+        .NOTES
+            Run as root.
+        #>
         [CmdletBinding(SupportsShouldProcess)]
-        param (
-            [Parameter(HelpMessage = 'Enter the octal mode for /home subdirectories, such as 750.')]
+        [OutputType([pscustomobject])]
+        param(
+            [Parameter(HelpMessage = 'Enter the octal floor for home directories, such as 0750.')]
             [ValidatePattern('^[0-7]{3,4}$', ErrorMessage = 'Mode must be an octal value such as 750 or 0750.')]
-            [string]$Mode = '750',
+            [string]$Mode = '0750',
 
-            [Parameter(HelpMessage = 'Enter the octal mode for /root, such as 700.')]
+            [Parameter(HelpMessage = 'Enter the octal floor for /root, such as 0700.')]
             [ValidatePattern('^[0-7]{3,4}$', ErrorMessage = 'RootMode must be an octal value such as 700 or 0700.')]
-            [string]$RootMode = '700',
+            [string]$RootMode = '0700',
 
             [Parameter(HelpMessage = 'Enter the parent directory of user home directories.')]
             [ValidateNotNullOrEmpty()]
             [string]$HomePath = '/home',
 
             [Parameter(HelpMessage = 'Enter home directory names to skip. Wildcards are allowed.')]
-            [string[]]$Exclude
+            [string[]]$Exclude = @()
         )
 
-        $targetHomeMode = $Mode
-        $targetRootMode = $RootMode
+        $table = [System.Collections.Generic.List[hashtable]]::new()
 
-        if ($targetHomeMode.Length -eq 4 -and $targetHomeMode.StartsWith('0')) {
-            $targetHomeMode = $targetHomeMode.Substring(1)
-        }
-
-        if ($targetRootMode.Length -eq 4 -and $targetRootMode.StartsWith('0')) {
-            $targetRootMode = $targetRootMode.Substring(1)
-        }
-
-        $sessionIsRoot = (& id -u) -eq 0
-
-        $targets = [System.Collections.Generic.List[PSCustomObject]]::new()
-
-        if (Test-Path -LiteralPath $HomePath -PathType Container) {
-            $homeDirectories = Get-ChildItem -LiteralPath $HomePath -Directory | Where-Object -FilterScript { $null -eq $_.LinkType }
-
-            if (-not $homeDirectories) {
-                Write-Verbose -Message "No home directories found under $HomePath."
-            }
-
-            foreach ($homeDirectory in $homeDirectories) {
-                $isExcluded = $false
-
-                foreach ($pattern in $Exclude) {
-                    if ($homeDirectory.Name -like $pattern) {
-                        $isExcluded = $true
-                        break
-                    }
-                }
-
-                if ($isExcluded) {
-                    Write-Verbose -Message "Skipping excluded home directory: $($homeDirectory.FullName)"
-                }
-                else {
-                    $homeTarget = [PSCustomObject]@{
-                        Path = $homeDirectory.FullName
-                        Mode = $targetHomeMode
-                    }
-
-                    $targets.Add($homeTarget)
-                }
-            }
-        }
-        else {
-            Write-Warning -Message "Home path not found: $HomePath"
-        }
-
-        if (Test-Path -LiteralPath '/root' -PathType Container) {
-            $rootTarget = [PSCustomObject]@{
-                Path = '/root'
-                Mode = $targetRootMode
-            }
-
-            $targets.Add($rootTarget)
-        }
-        else {
-            Write-Warning -Message 'Root home not found: /root'
-        }
-
-        foreach ($target in $targets) {
-            $beforeMode = & stat -c '%a' -- $target.Path
-
-            if ($LASTEXITCODE -ne 0) {
-                Write-Error -Message "Could not read the current mode of $($target.Path)."
+        # -Force includes home directories whose names start with a dot.
+        foreach ($homeDirectory in Get-ChildItem -LiteralPath $HomePath -Directory -Force -ErrorAction Stop) {
+            # A symlink here points outside HomePath, and chmod follows symlinks, so the
+            # change would land on the link's target.
+            if ($homeDirectory.LinkType) {
+                Write-Verbose -Message "Skipping symbolic link: $($homeDirectory.FullName)"
                 continue
             }
 
-            if ($beforeMode -eq $target.Mode) {
-                [PSCustomObject]@{
-                    Path   = $target.Path
-                    Before = $beforeMode
-                    After  = $beforeMode
-                    Status = 'Compliant'
-                }
+            if (@($Exclude).Where({ $homeDirectory.Name -like $_ })) {
+                Write-Verbose -Message "Skipping excluded home directory: $($homeDirectory.FullName)"
                 continue
             }
 
-            if (-not $PSCmdlet.ShouldProcess($target.Path, "Set mode to $($target.Mode)")) {
-                [PSCustomObject]@{
-                    Path   = $target.Path
-                    Before = $beforeMode
-                    After  = $target.Mode
-                    Status = 'Preview'
-                }
-                continue
-            }
-
-            if ($sessionIsRoot) {
-                & chmod $target.Mode -- $target.Path
-            }
-            else {
-                & sudo chmod $target.Mode -- $target.Path
-            }
-
-            if ($LASTEXITCODE -ne 0) {
-                Write-Error -Message "chmod failed on $($target.Path)."
-
-                [PSCustomObject]@{
-                    Path   = $target.Path
-                    Before = $beforeMode
-                    After  = $beforeMode
-                    Status = 'Failed'
-                }
-                continue
-            }
-
-            $afterMode = & stat -c '%a' -- $target.Path
-            $status = if ($afterMode -eq $target.Mode) { 'Hardened' } else { 'Failed' }
-
-            [PSCustomObject]@{
-                Path   = $target.Path
-                Before = $beforeMode
-                After  = $afterMode
-                Status = $status
-            }
+            # No Owner or Group, so Set-LinuxFilePermission leaves ownership alone. Each home
+            # belongs to its user, and this function only tightens the mode.
+            $table.Add(@{ Path = $homeDirectory.FullName; Mode = $Mode })
         }
+
+        $table.Add(@{ Path = '/root'; Mode = $RootMode })
+
+        # -WhatIf and -Confirm reach Set-LinuxFilePermission through $WhatIfPreference and
+        # $ConfirmPreference, which a function in the same module inherits from this scope.
+        Set-LinuxFilePermission -Table $table.ToArray()
     }
 }

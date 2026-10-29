@@ -1,37 +1,57 @@
-
-
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Set-CronPermission {
-    <#
-    .SYNOPSIS
-        Applies mode 700 recursively to standard cron directories.
+if ($IsLinux) {
+    function Set-CronPermission {
+        <#
+        .SYNOPSIS
+            Restricts the standard cron directories to root.
 
-    .EXAMPLE
-        Set-CronPermission -WhatIf
+        .DESCRIPTION
+            Sets each cron directory to owner root, group root, and mode 0700 or stricter
+            through Set-LinuxFilePermission. Only the directories change; the scripts inside
+            keep their modes. Implements CIS 5.1.3 through 5.1.7.
 
-        Previews permission changes for existing cron.d, daily, hourly, weekly, and monthly directories under /etc. Actual changes use sudo chmod.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
+        .PARAMETER Path
+            The cron directories to restrict.
 
-    $CronDirectories = @('/etc/cron.d', '/etc/cron.daily', '/etc/cron.hourly', '/etc/cron.weekly', '/etc/cron.monthly')
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-    foreach ($Directory in $CronDirectories) {
-        try {
-            if (Test-Path -Path $Directory -PathType Container) {
-                if ($PSCmdlet.ShouldProcess($Directory, 'Set permissions to 700 recursively')) {
-                    & sudo chmod -R 700 -- $Directory
-                    Write-Output "Successfully set permissions to 700 for: $Directory"
-                }
-            }
-            else {
-                Write-Warning "Directory not found: $Directory"
-            }
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. Path, Before, After, and Status for
+            each directory, as returned by Set-LinuxFilePermission.
+
+        .EXAMPLE
+            Set-CronPermission -WhatIf
+
+            Previews the changes to cron.d, cron.daily, cron.hourly, cron.weekly, and cron.monthly.
+
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Set-CronPermission }
+
+            Restricts the cron directories as root.
+
+        .NOTES
+            Run as root. Directories absent on this distribution report Missing.
+        #>
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([pscustomobject])]
+        param(
+            [Parameter(HelpMessage = 'Enter the cron directories to restrict.')]
+            [ValidateNotNullOrEmpty()]
+            [string[]]$Path = @('/etc/cron.d', '/etc/cron.daily', '/etc/cron.hourly', '/etc/cron.weekly', '/etc/cron.monthly')
+        )
+
+        # Only the directories change. A recursive chmod 700 sets the execute bit on every
+        # file inside, and run-parts runs every executable file in cron.daily and its
+        # siblings, so a job disabled with chmod -x would start running again.
+        $table = foreach ($directory in $Path) {
+            @{ Path = $directory; Owner = 'root'; Group = 'root'; Mode = '0700' }
         }
-        catch {
-            Write-Error $_
-        }
+
+        # -WhatIf and -Confirm reach Set-LinuxFilePermission through $WhatIfPreference and
+        # $ConfirmPreference, which a function in the same module inherits from this scope.
+        Set-LinuxFilePermission -Table $table
     }
 }
-

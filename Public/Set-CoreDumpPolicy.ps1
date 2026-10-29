@@ -1,123 +1,119 @@
-if ($IsLinux) {
-    Set-StrictMode -Version Latest
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
 
+if ($IsLinux) {
     function Set-CoreDumpPolicy {
         <#
-    .SYNOPSIS
-        Restricts Linux core dumps through PAM limits and systemd configuration.
+        .SYNOPSIS
+            Disables core dumps through PAM limits and systemd-coredump.
 
-    .DESCRIPTION
-        Writes a dedicated limits file containing * hard core 0 and root hard core 0.
-        When systemd is installed, also writes a coredump drop-in with Storage=none
-        and ProcessSizeMax=0, then runs systemctl daemon-reload. Creates missing
-        parent directories and verifies each written file. Existing matching files
-        are kept. Other configuration files are not evaluated for overrides.
+        .DESCRIPTION
+            Writes a limits.d file that sets the hard core limit to 0 for every account and
+            for root. On hosts running systemd, also writes a coredump.conf.d drop-in with
+            Storage=none and ProcessSizeMax=0, then runs systemctl daemon-reload. Each file is
+            read back after writing to verify it. A file that already holds the policy is
+            left alone.
 
-        Implements the file policy portion of CIS 1.5.1. The kernel setting
-        fs.suid_dumpable=0 already belongs to SysctlHardening; apply it separately
-        with Set-SysctlHardening -Persist. PAM limits affect new sessions using
-        pam_limits and do not alter existing processes.
+            Implements the file portion of CIS 1.5.1. The kernel setting fs.suid_dumpable=0
+            belongs to Set-SysctlHardening.
 
-    .PARAMETER Path
-        Limits drop-in path. Defaults to /etc/security/limits.d/99-pssecurity-core.conf.
+        .PARAMETER Path
+            The limits.d file to write.
 
-    .PARAMETER OutPath
-        systemd coredump drop-in path. Defaults to
-        /etc/systemd/coredump.conf.d/99-pssecurity-core.conf.
+        .PARAMETER CoredumpPath
+            The systemd coredump.conf.d drop-in to write.
 
-    .PARAMETER Elevate
-        Runs the function as root through the module's existing sudo helper.
-        sudo may prompt for a password. Preserves -WhatIf and -Confirm.
+        .INPUTS
+            None. This function does not accept pipeline input.
 
-    .OUTPUTS
-        One summary with Path, OutPath, TotalFiles, HardenedFiles, FailedFiles,
-        and Errors. HardenedFiles counts newly written, verified policy files.
-        Errors contains Path and Message, including a Missing message for the
-        coredump file when systemd is absent. A reload failure counts as a failure.
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. Path and Status for each policy file.
+            Status is Compliant, Preview, Hardened, Failed, or NotApplicable.
 
-    .EXAMPLE
-        Set-CoreDumpPolicy -WhatIf
+        .EXAMPLE
+            Set-CoreDumpPolicy -WhatIf
 
-    .EXAMPLE
-        Set-CoreDumpPolicy -Elevate
-    #>
+            Previews the two policy files.
+
+        .EXAMPLE
+            Invoke-Sudo { Import-Module PSSecurity; Set-CoreDumpPolicy }
+
+            Writes the policy files as root.
+
+        .NOTES
+            Run as root. PAM limits apply to sessions started after the change; running
+            processes keep their current limits.
+        #>
         [CmdletBinding(SupportsShouldProcess)]
         [OutputType([pscustomobject])]
         param(
-            [Parameter(HelpMessage = 'Enter the limits drop-in path.')]
+            [Parameter(HelpMessage = 'Enter the limits.d file to write.')]
             [ValidateNotNullOrEmpty()]
             [string]$Path = '/etc/security/limits.d/99-pssecurity-core.conf',
 
-            [Parameter(HelpMessage = 'Enter the systemd coredump drop-in path.')]
+            [Parameter(HelpMessage = 'Enter the systemd coredump drop-in to write.')]
             [ValidateNotNullOrEmpty()]
-            [string]$OutPath = '/etc/systemd/coredump.conf.d/99-pssecurity-core.conf',
-
-            [Parameter(HelpMessage = 'Run as root through sudo.')]
-            [switch]$Elevate
+            [string]$CoredumpPath = '/etc/systemd/coredump.conf.d/99-pssecurity-core.conf'
         )
 
-        $Path = [System.IO.Path]::GetFullPath($Path)
-        $OutPath = [System.IO.Path]::GetFullPath($OutPath)
-        if ($Path -ceq $OutPath) { throw 'Path and OutPath must be different.' }
+        # pam_limits never applies the '*' wildcard to root, so root needs its own line.
+        $policies = @(
+            [pscustomobject]@{ Path = $Path; Content = "* hard core 0`nroot hard core 0`n"; Reload = $false }
+        )
 
-        $sessionIsRoot = (& id -u) -eq 0
-        if ($Elevate -and -not $sessionIsRoot) {
-            $command = "Set-CoreDumpPolicy -Path '$($Path.Replace("'", "''"))' -OutPath '$($OutPath.Replace("'", "''"))'"
-            if ($WhatIfPreference) { $command += ' -WhatIf' }
-            if ($PSBoundParameters.ContainsKey('Confirm')) { $command += ' -Confirm:$' + [string][bool]$PSBoundParameters['Confirm'] }
-            Invoke-SudoCommand -Command $command
-            return
+        # /run/systemd/system exists only while systemd is the running init, the same test
+        # sd_booted() uses. A systemd binary on disk does not mean systemd-coredump handles
+        # crashes on this host, as in containers.
+        if (Test-Path -LiteralPath '/run/systemd/system' -PathType Container) {
+            $policies += [pscustomobject]@{ Path = $CoredumpPath; Content = "[Coredump]`nStorage=none`nProcessSizeMax=0`n"; Reload = $true }
+        }
+        else {
+            [pscustomobject]@{ Path = $CoredumpPath; Status = 'NotApplicable' }
         }
 
-        $policyFiles = @(
-            @{ Path = $Path; Content = "* hard core 0`nroot hard core 0`n" }
-            @{ Path = $OutPath; Content = "[Coredump]`nStorage=none`nProcessSizeMax=0`n" }
-        )
-        $systemdInstalled = (Test-Path -LiteralPath '/usr/lib/systemd/systemd') -or (Test-Path -LiteralPath '/lib/systemd/systemd')
-        $errors = [System.Collections.Generic.List[object]]::new()
-        $hardenedFiles = 0
+        foreach ($policy in $policies) {
+            $result = [pscustomobject]@{ Path = $policy.Path; Status = 'Compliant' }
 
-        foreach ($policy in $policyFiles) {
             try {
-                if ($policy.Path -ceq $OutPath -and -not $systemdInstalled) {
-                    throw 'Missing: systemd is not installed; coredump drop-in was skipped.'
+                $existing = Get-Item -LiteralPath $policy.Path -Force -ErrorAction Ignore
+
+                # Writing through a symlink as root overwrites whatever file the link points at.
+                if ($existing -and $existing.LinkType) {
+                    throw "$($policy.Path) is a symbolic link."
                 }
 
-                if (Test-Path -LiteralPath $policy.Path) {
-                    $existingFile = Get-Item -LiteralPath $policy.Path -Force -ErrorAction Stop
-                    if ($existingFile.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
-                        throw 'Policy file is a symbolic link.'
-                    }
-                    $before = Get-Content -LiteralPath $policy.Path -Raw -ErrorAction Stop
-                    if ($before -ceq $policy.Content) { continue }
+                if ($existing -and (Get-Content -LiteralPath $policy.Path -Raw -ErrorAction Stop) -ceq $policy.Content) {
+                    $result
+                    continue
                 }
 
-                if ($PSCmdlet.ShouldProcess($policy.Path, 'Write core dump policy')) {
-                    $parentPath = Split-Path -Path $policy.Path -Parent
-                    [void][System.IO.Directory]::CreateDirectory($parentPath)
-                    Set-Content -LiteralPath $policy.Path -Value $policy.Content -NoNewline -Encoding utf8 -ErrorAction Stop
-                    $after = Get-Content -LiteralPath $policy.Path -Raw -ErrorAction Stop
-                    if ($after -cne $policy.Content) { throw 'Written file did not match the requested policy.' }
-
-                    if ($policy.Path -ceq $OutPath) {
-                        & systemctl daemon-reload
-                        if ($LASTEXITCODE -ne 0) { throw 'systemctl daemon-reload failed.' }
-                    }
-                    $hardenedFiles++
+                if (-not $PSCmdlet.ShouldProcess($policy.Path, 'Write core dump policy')) {
+                    $result.Status = 'Preview'
+                    $result
+                    continue
                 }
+
+                [void][System.IO.Directory]::CreateDirectory((Split-Path -Path $policy.Path -Parent))
+                Set-Content -LiteralPath $policy.Path -Value $policy.Content -NoNewline -ErrorAction Stop
+
+                if ((Get-Content -LiteralPath $policy.Path -Raw -ErrorAction Stop) -cne $policy.Content) {
+                    throw "$($policy.Path) did not match the policy after writing."
+                }
+
+                # The CIS remediation reloads systemd after changing the coredump drop-in.
+                if ($policy.Reload) {
+                    systemctl daemon-reload
+                    if ($LASTEXITCODE -ne 0) { throw 'systemctl daemon-reload failed.' }
+                }
+
+                $result.Status = 'Hardened'
+                $result
             }
             catch {
-                $errors.Add([pscustomobject]@{ Path = $policy.Path; Message = $_.Exception.Message })
+                $result.Status = 'Failed'
+                $result
+                Write-Error -ErrorRecord $_
             }
-        }
-
-        [pscustomobject]@{
-            Path          = $Path
-            OutPath       = $OutPath
-            TotalFiles    = $policyFiles.Count
-            HardenedFiles = $hardenedFiles
-            FailedFiles   = $errors.Count
-            Errors        = $errors.ToArray()
         }
     }
 }

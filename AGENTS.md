@@ -7,12 +7,19 @@
 
 **PSSecurity**
 
-## 1. BE CONSISTENT
+## References
 
 - [ ] Read [Compress-FileTree](./Public/Compress-FileTree.ps1)
 - [ ] Read [Get-ApplicationSignatureAudit](./Public/Get-ApplicationSignatureAudit.ps1)
 - [ ] Read [Get-SuidBinary](./Public/Get-SuidBinary.ps1)
 - [ ] See [Compress-FileTree Image](./Image/Compress-FileTree.png)
+
+
+## Consistent Object Outputs
+
+**GOOD**
+
+Use variations of: **Path, OutPath, Total, Verb, Fail, Error**
 
 ```powershell
 Path            : /usr
@@ -30,14 +37,9 @@ Errors          : {@{Path=/usr/share/locale/sv/LC_TIME/coreutils.mo; Message=Exc
                   '."}…}
 ```
 
-**Path, OutPath, Total, Verb, Fail, Error**
+**BAD**
 
-That is about the maxium useful amount of output object. Any more than that, and you are likely not communicating well.
-
-> Instead of Compressed, use `AuditFiles`, instead of `FailedFiles`, use `UnsignedFiles`, or `AnomalyDirectories`. 
-> Choose an appropriate name within the adjacent neighborhood of taxonomies. 
-
-This is too much, cluttered, unfocused information:
+Don't use status, 3 different object types, and data that is repeated again and again:
 
 ```powershell
  Get-SshdConfiguration
@@ -63,10 +65,19 @@ Settings            : {@{Keyword=addressfamily; Values=System.Object[]}, @{Keywo
                       Values=System.Object[]}…}
 ```
 
-Is this an audit? A configuration check? An ssh check? A service check? It's confusing because it's not consisten with already established norms.
-AuditStatus is useless. 
-SshdPath and ServiceBinaryPath are the same. Repeated again 5 more visible times. 
+**GOOD**
 
-## 2. Cross Platform first, $IsLinux, $IsWindows Second
+Refactor the above to something like:
 
-- [ ] Wrap your entire function so that the function doesn't get imported on unsupportred platforms.
+```powershell
+
+BinaryPath = @{
+    Location = C:\Program Files\OpenSSH\sshd.exe
+    Version = OpenSSH_for_Windows_10.0
+}
+ConfigPath = C:\ProgramData\ssh\sshd_config
+ServicePath = C:\WINDOWS\System32\OpenSSH\sshd.exe
+ServiceWontStart = $true
+```
+
+With a detailed object available on verbose
