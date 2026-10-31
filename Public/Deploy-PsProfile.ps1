@@ -18,7 +18,8 @@ function Deploy-PwshProfile {
 
         .PARAMETER LiteralPath
             The profile script to install. The path is used exactly as typed. Defaults to
-            Config/PwshProfile.ps1 in the module directory.
+            Config/PwshProfile.ps1 in the module directory. Accepts a path from the
+            pipeline.
 
         .PARAMETER Force
             Replaces an existing profile.
@@ -27,7 +28,9 @@ function Deploy-PwshProfile {
             Returns the installed profile file.
 
         .INPUTS
-            None. This function does not accept pipeline input.
+            System.String. You can pipe a profile script path to this function. If you
+            pipe more than one path, each replaces the last, so only the final one stays
+            installed.
 
         .OUTPUTS
             System.IO.FileInfo. The installed profile, when -PassThru is used. Otherwise
@@ -47,11 +50,17 @@ function Deploy-PwshProfile {
             Deploy-PwshProfile -LiteralPath ./MyProfile.ps1 -Force -PassThru
 
             Replaces the current profile with ./MyProfile.ps1 and returns the profile file.
+
+        .EXAMPLE
+            './MyProfile.ps1' | Deploy-PwshProfile -Force
+
+            Replaces the current profile with the piped path.
         #>
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([System.IO.FileInfo])]
     param(
-        [Parameter(HelpMessage = 'Enter the path of the profile script to install, treated literally.')]
+        [Parameter(ValueFromPipeline,
+            HelpMessage = 'Enter the path of the profile script to install, treated literally. Accepts a path from the pipeline.')]
         [ValidateNotNullOrEmpty()]
         [string]$LiteralPath,
 
@@ -61,40 +70,45 @@ function Deploy-PwshProfile {
         [Parameter(HelpMessage = 'Return the installed profile file.')]
         [switch]$PassThru
     )
-
-    if ($IsLinux) {
-        $profileDirectory = Join-Path -Path $HOME -ChildPath '.config' -AdditionalChildPath 'powershell'
-    }
-    elseif ($IsWindows) {
-        $profileDirectory = Split-Path -Path $PROFILE -Parent
-    }
-    else {
-        throw 'Deploy-PwshProfile supports Linux and Windows only.'
-    }
-
-    if (-not $PSBoundParameters.ContainsKey('LiteralPath')) {
+    begin {
+        # Piped values are not bound until process, so only the default is resolved here.
         $moduleDirectory = Split-Path -Path $PSScriptRoot -Parent
-        $LiteralPath = Join-Path -Path $moduleDirectory -ChildPath 'Config' -AdditionalChildPath 'PwshProfile.ps1'
+        $defaultLiteralPath = Join-Path -Path $moduleDirectory -ChildPath 'Config' -AdditionalChildPath 'PwshProfile.ps1'
     }
-
-    if (-not (Test-Path -LiteralPath $LiteralPath -PathType Leaf)) {
-        throw "Deploy-PwshProfile can not find literal path: $LiteralPath"
-    }
-
-    if ((Test-Path -LiteralPath $PROFILE) -and -not $Force) {
-        throw "A profile already exists at $PROFILE. Use -Force to replace it."
-    }
-
-    if ($PSCmdlet.ShouldProcess($PROFILE, "Install profile from $LiteralPath")) {
-
-        if (-not (Test-Path -LiteralPath $profileDirectory)) {
-            [void](New-Item -Path $profileDirectory -ItemType Directory)
+    process {
+        if (-not $PSBoundParameters.ContainsKey('LiteralPath')) {
+            $LiteralPath = $defaultLiteralPath
         }
 
-        Copy-Item -LiteralPath $LiteralPath -Destination $PROFILE -Force
+        if (-not (Test-Path -LiteralPath $LiteralPath -PathType Leaf)) {
+            throw "Deploy-PwshProfile can not find literal path: $LiteralPath"
+        }
 
-        if ($PassThru) {
-            Get-Item -LiteralPath $PROFILE
+        if ($IsLinux) {
+            $profileDirectory = Join-Path -Path $HOME -ChildPath '.config' -AdditionalChildPath 'powershell'
+        }
+        elseif ($IsWindows) {
+            $profileDirectory = Split-Path -Path $PROFILE -Parent
+        }
+        else {
+            throw 'Deploy-PwshProfile supports Linux and Windows only.'
+        }
+
+        if ((Test-Path -LiteralPath $PROFILE) -and -not $Force) {
+            throw "A profile already exists at $PROFILE. Use -Force to replace it."
+        }
+
+        if ($PSCmdlet.ShouldProcess($PROFILE, "Install profile from $LiteralPath")) {
+
+            if (-not (Test-Path -LiteralPath $profileDirectory)) {
+                [void](New-Item -Path $profileDirectory -ItemType Directory)
+            }
+
+            Copy-Item -LiteralPath $LiteralPath -Destination $PROFILE -Force
+
+            if ($PassThru) {
+                Get-Item -LiteralPath $PROFILE
+            }
         }
     }
 }
