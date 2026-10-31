@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
 function ConvertFrom-CommentHelp {
@@ -15,21 +16,26 @@ function ConvertFrom-CommentHelp {
         keyword indent plus four spaces.
 
     .PARAMETER Content
-        Raw text of the script to parse.
+        The raw text of the script to parse.
 
     .INPUTS
         None. This function does not accept pipeline input.
 
     .OUTPUTS
-        One PSCustomObject with Found, Synopsis, Description, Inputs, Outputs, Notes,
-        Links, Parameters, and Examples. Parameters contains Name and Text; Examples
-        contains Code and Text.
+        System.Management.Automation.PSCustomObject. One object with Found, Synopsis,
+        Description, Inputs, Outputs, Notes, Links, Parameters, and Examples.
+        Parameters contains Name and Text; Examples contains Code and Text.
+
+    .EXAMPLE
+        $data = ConvertFrom-CommentHelp -Content (Get-Content -LiteralPath ./Public/Get-AclItem.ps1 -Raw)
+        $data.Parameters | Format-Table Name, Text
+
+        Lists the documented parameters of Get-AclItem.
     #>
     [CmdletBinding()]
-    [OutputType([pscustomobject])]
+    [OutputType([PSCustomObject])]
     param(
-        # Raw text of the script to parse.
-        [Parameter(Mandatory = $true, HelpMessage = 'Enter the raw script text to parse.')]
+        [Parameter(Mandatory, HelpMessage = 'Enter the raw script text to parse.')]
         [ValidateNotNullOrEmpty()]
         [string]$Content
     )
@@ -42,10 +48,7 @@ function ConvertFrom-CommentHelp {
         Where-Object { $_.Groups['body'].Value -match "(?m)^\s*\.($keywords)\b" } |
         Select-Object -First 1
 
-    $lines = @()
-    if ($null -ne $block) {
-        $lines = @($block.Groups['body'].Value -split "`r?`n")
-    }
+    $lines = @(if ($block) { $block.Groups['body'].Value -split "`r?`n" })
 
     $synopsis = [System.Collections.Generic.List[string]]::new()
     $description = [System.Collections.Generic.List[string]]::new()
@@ -56,8 +59,10 @@ function ConvertFrom-CommentHelp {
     $parameters = [System.Collections.Generic.List[object]]::new()
     $examples = [System.Collections.Generic.List[object]]::new()
 
-    $current = $null
-    $currentExampleText = $null
+    # Lines outside a recognized section, such as after .LINK, collect here unused.
+    $ignored = [System.Collections.Generic.List[string]]::new()
+
+    $current = $ignored
     $inExampleCode = $false
     $exampleIndent = 0
 
@@ -93,11 +98,12 @@ function ConvertFrom-CommentHelp {
                     $current = $parameter.Text
                 }
                 'EXAMPLE' {
-                    $exampleCode = [System.Collections.Generic.List[string]]::new()
-                    $exampleText = [System.Collections.Generic.List[string]]::new()
-                    $examples.Add([ordered]@{ Code = $exampleCode; Text = $exampleText })
-                    $current = $exampleCode
-                    $currentExampleText = $exampleText
+                    $example = [ordered]@{
+                        Code = [System.Collections.Generic.List[string]]::new()
+                        Text = [System.Collections.Generic.List[string]]::new()
+                    }
+                    $examples.Add($example)
+                    $current = $example.Code
                     $inExampleCode = $true
                     $exampleIndent = ([regex]::Match($line, '^\s*')).Value.Length
                 }
@@ -105,22 +111,15 @@ function ConvertFrom-CommentHelp {
                     if ($argument) {
                         $links.Add($argument.Trim())
                     }
-                    $current = $null
-                }
-                default {
-                    $current = $null
+                    $current = $ignored
                 }
             }
             continue
         }
 
-        if ($null -eq $current) {
-            continue
-        }
-
         # The first blank line inside an example ends the code and starts the text.
         if ($inExampleCode -and $line.Trim().Length -eq 0) {
-            $current = $currentExampleText
+            $current = $example.Text
             $inExampleCode = $false
             continue
         }
@@ -149,8 +148,8 @@ function ConvertFrom-CommentHelp {
             }
         })
 
-    return [pscustomobject]@{
-        Found       = ($null -ne $block)
+    [PSCustomObject]@{
+        Found       = [bool]$block
         Synopsis    = ConvertTo-CleanText -Text $synopsis
         Description = ConvertTo-CleanText -Text $description
         Inputs      = ConvertTo-CleanText -Text $inputs

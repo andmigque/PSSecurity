@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
 function ConvertTo-CleanText {
@@ -5,18 +6,31 @@ function ConvertTo-CleanText {
     .SYNOPSIS
         Joins text lines and strips leading and trailing blank lines.
 
+    .DESCRIPTION
+        Joins the lines with newlines after removing blank or whitespace-only lines from
+        the start and end. Blank lines in the middle are kept. Used by
+        ConvertFrom-CommentHelp to tidy each help section.
+
     .PARAMETER Text
-        Lines to join into one block of text.
+        The lines to join. May be null or empty, because help sections are often empty.
+
+    .INPUTS
+        None. This function does not accept pipeline input.
 
     .OUTPUTS
-        System.String. The joined text without leading or trailing blank lines, or an
-        empty string when there is no content.
+        System.String. The joined text, or an empty string when there is no content.
+
+    .EXAMPLE
+        $lines = [System.Collections.Generic.List[string]]@('', 'First line', '', 'Last line', '  ')
+        ConvertTo-CleanText -Text $lines
+
+        Returns "First line`n`nLast line".
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        # Lines to join into one block of text. Not mandatory: sections are often empty,
-        # and a mandatory collection rejects a list containing an empty string.
+        # Not mandatory: a mandatory collection rejects a list containing an empty string.
+        [Parameter(HelpMessage = 'Enter the lines to join.')]
         [AllowNull()]
         [System.Collections.Generic.List[string]]$Text
     )
@@ -41,5 +55,5 @@ function ConvertTo-CleanText {
         return ''
     }
 
-    return ($items[$first..$last] -join "`n")
+    $items[$first..$last] -join "`n"
 }

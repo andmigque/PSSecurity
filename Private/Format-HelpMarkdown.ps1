@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
 function Format-HelpMarkdown {
@@ -12,27 +13,31 @@ function Format-HelpMarkdown {
         powershell block followed by its explanation.
 
     .PARAMETER Name
-        Heading for the document, usually the function or script name.
+        The heading for the document, usually the function or script name.
 
     .PARAMETER Data
-        Parsed help data from ConvertFrom-CommentHelp.
+        The parsed help data from ConvertFrom-CommentHelp.
 
     .INPUTS
         None. This function does not accept pipeline input.
 
     .OUTPUTS
         System.String. The rendered Markdown document.
+
+    .EXAMPLE
+        $data = ConvertFrom-CommentHelp -Content (Get-Content -LiteralPath ./Public/Get-AclItem.ps1 -Raw)
+        Format-HelpMarkdown -Name 'Get-AclItem' -Data $data
+
+        Returns the help for Get-AclItem as Markdown.
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        # Heading for the document, usually the function or script name.
-        [Parameter(Mandatory = $true, HelpMessage = 'Enter the heading for the document.')]
+        [Parameter(Mandatory, HelpMessage = 'Enter the heading for the document.')]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        # Parsed help data from ConvertFrom-CommentHelp.
-        [Parameter(Mandatory = $true, HelpMessage = 'Enter the parsed help data to render.')]
+        [Parameter(Mandatory, HelpMessage = 'Enter the parsed help data to render.')]
         [pscustomobject]$Data
     )
 
@@ -116,5 +121,5 @@ function Format-HelpMarkdown {
         $out.Add('')
     }
 
-    return ($out -join "`n")
+    $out -join "`n"
 }
