@@ -7,10 +7,11 @@
 - [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
 - [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
 - [ ] Read [Deploy-PsProfile](./Public/Deploy-PsProfile.ps1)
+- [ ] Read [Invoke-ParallelJob](./Private/Invoke-ParallelJob.ps1)
+- [ ] Read [Get-FileMultiThreaded](./Private/Get-FileMultiThreaded.ps1)
 
 
 ## Rules
-
 
 1. Data Input & Targeting
 
