@@ -1,72 +1,100 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function New-LocalAdminUser {
-    <#
-    .SYNOPSIS
-        Creates a local user and adds it to Administrators.
+if ($IsWindows) {
+    function New-LocalAdminUser {
+        <#
+        .SYNOPSIS
+            Creates a local user and adds it to Administrators.
 
-    .PARAMETER Credential
-        Credential containing the new local account name and password.
+        .DESCRIPTION
+            Creates a local account with New-LocalUser from the user name and password in
+            the credential, then adds it to the local Administrators group. Requires an
+            elevated session, including for -WhatIf. Supports -WhatIf and -Confirm.
+            Windows only.
 
-    .PARAMETER FullName
-        Optional display name for the local account.
+        .PARAMETER Credential
+            Credential containing the new local account name and password. Accepts
+            credentials from the pipeline; one account is created for each.
 
-    .PARAMETER Description
-        Optional description for the local account.
+        .PARAMETER FullName
+            Optional display name for the local account.
 
-    .PARAMETER PasswordNeverExpires
-        Prevents the new account password from expiring when specified.
+        .PARAMETER Description
+            Optional description for the local account.
 
-    .EXAMPLE
-        New-LocalAdminUser -Credential (Get-Credential) -WhatIf
+        .PARAMETER PasswordNeverExpires
+            Prevents the new account password from expiring when specified.
 
-        Previews account creation. Requires an elevated session; an actual creation returns an account summary.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [Parameter(Mandatory = $true,
-            HelpMessage = 'Credential containing the new local account name and password.')]
-        [System.Management.Automation.PSCredential]
-        [System.Management.Automation.Credential()]
-        $Credential,
+        .INPUTS
+            System.Management.Automation.PSCredential. You can pipe credentials to this
+            function.
 
-        [Parameter(Mandatory = $false,
-            HelpMessage = 'Optional display name for the local account.')]
-        [string]$FullName,
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. One summary per created account
+            with the user name, full name, and password expiry setting. Nothing is returned
+            for -WhatIf.
 
-        [Parameter(Mandatory = $false,
-            HelpMessage = 'Optional description for the local account.')]
-        [string]$Description,
+        .EXAMPLE
+            New-LocalAdminUser -Credential (Get-Credential) -WhatIf
 
-        [Parameter(Mandatory = $false,
-            HelpMessage = 'Prevents the new account password from expiring when specified.')]
-        [switch]$PasswordNeverExpires
-    )
+            Previews account creation without creating the account.
 
-    Assert-Administrator
+        .EXAMPLE
+            New-LocalAdminUser -Credential (Get-Credential) -FullName 'Break Glass' -PasswordNeverExpires
 
-    $userParams = @{
-        Name     = $Credential.UserName
-        Password = $Credential.Password
-    }
+            Creates a local administrator whose password does not expire.
 
-    if ($FullName) { $userParams['FullName'] = $FullName }
-    if ($Description) { $userParams['Description'] = $Description }
-    if ($PasswordNeverExpires) { $userParams['PasswordNeverExpires'] = $true }
+        .EXAMPLE
+            Get-Credential | New-LocalAdminUser -Description 'Emergency access'
 
-    if (-not $PSCmdlet.ShouldProcess($Credential.UserName, 'Create local account and add to Administrators')) {
-        return
-    }
+            Creates a local administrator from the piped credential.
+        #>
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([PSCustomObject])]
+        param(
+            [Parameter(Mandatory, ValueFromPipeline,
+                HelpMessage = 'Credential containing the new local account name and password.')]
+            [System.Management.Automation.PSCredential]
+            [System.Management.Automation.Credential()]
+            $Credential,
 
-    [void](New-LocalUser @userParams)
-    Add-LocalGroupMember -Group 'Administrators' -Member $Credential.UserName
+            [Parameter(HelpMessage = 'Optional display name for the local account.')]
+            [string]$FullName,
 
-    [PSCustomObject]@{
-        Username             = $Credential.UserName
-        FullName             = $FullName
-        Created              = $true
-        IsAdministrator      = $true
-        PasswordNeverExpires = $PasswordNeverExpires.IsPresent
+            [Parameter(HelpMessage = 'Optional description for the local account.')]
+            [string]$Description,
+
+            [Parameter(HelpMessage = 'Prevents the new account password from expiring when specified.')]
+            [switch]$PasswordNeverExpires
+        )
+        begin {
+            Assert-Administrator
+        }
+        process {
+            $userParams = @{
+                Name     = $Credential.UserName
+                Password = $Credential.Password
+            }
+
+            if ($FullName) { $userParams['FullName'] = $FullName }
+            if ($Description) { $userParams['Description'] = $Description }
+            if ($PasswordNeverExpires) { $userParams['PasswordNeverExpires'] = $true }
+
+            if (-not $PSCmdlet.ShouldProcess($Credential.UserName, 'Create local account and add to Administrators')) {
+                return
+            }
+
+            [void](New-LocalUser @userParams)
+            Add-LocalGroupMember -Group 'Administrators' -Member $Credential.UserName
+
+            [PSCustomObject]@{
+                Username             = $Credential.UserName
+                FullName             = $FullName
+                Created              = $true
+                IsAdministrator      = $true
+                PasswordNeverExpires = $PasswordNeverExpires.IsPresent
+            }
+        }
     }
 }
-

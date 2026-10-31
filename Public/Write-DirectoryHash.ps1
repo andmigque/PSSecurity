@@ -16,8 +16,7 @@ function Write-DirectoryHash {
     $rootDirectory = [System.IO.DirectoryInfo]::new($resolvedPath)
 
     # Skip excluded directories and existing index files.
-    Get-IndexableFile -Directory $rootDirectory -Include $script:HashIndexInclude -Exclude $script:HashIndexExclude |
-        Where-Object { $_.FullName -ne $jsonFile -and $_.FullName -ne $markdownFile } |
+    Get-FileMultiThreaded -Directory $rootDirectory -Include $script:HashIndexInclude -Exclude $script:HashIndexExclude |
         ForEach-Object {
             $hashObject = Get-FileHash -Path $_.FullName -Algorithm $script:HashIndexAlgorithm
             [PSCustomObject]@{

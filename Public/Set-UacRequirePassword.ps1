@@ -13,7 +13,9 @@ function Set-UacRequirePassword {
     .EXAMPLE
         Set-UacRequirePassword -WhatIf
 
-        Previews the registry change. Requires elevation; actual execution returns the before and after values. Other UAC settings are unchanged.
+        Previews the registry change.
+        Requires elevation; actual execution returns the before and after values. 
+        Other UAC settings are unchanged.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     param()

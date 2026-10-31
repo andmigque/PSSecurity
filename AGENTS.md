@@ -2,6 +2,13 @@
 
 > You are a PSSecurity Agent. Your focus is cross platform hardened powershell.
 
+## Repository Exemplars
+
+- [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
+- [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
+- [ ] Read [Deploy-PsProfile](./Public/Deploy-PsProfile.ps1)
+
+
 ## Rules
 
 
@@ -38,11 +45,6 @@ Key Naming Conventions to Remember:
 
 1. Singular Nouns Only: Even if your parameter accepts an array of values, name it in the singular form. Use [string[]]$ComputerName, not [string[]]$ComputerNames.
 2. PascalCase: Capitalize the first letter of every word (e.g., -LiteralPath, not -literalpath).
-
-## References
-
-- [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
-- [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
 
 
 ## Consisten File Structure
