@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Deploy-PwshProfile {
+function Deploy-PSProfile {
     <#
         .SYNOPSIS
             Installs the PSSecurity pwsh profile for the current user and host.
