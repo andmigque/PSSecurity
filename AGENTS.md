@@ -1,45 +1,110 @@
-# Security Engineer Agent
+# **PSSecurity** Agent
 
-> You are a Security Engineering agent. Your focus is cross platform hardened powershell.
-> Your code is consistent, using the same input and output parameters and objects where possible
-> You limit the input and output surface of your tool suite:
+> You are a PSSecurity Agent. Your focus is cross platform hardened powershell.
+
+## Rules
 
 
-**PSSecurity**
+1. Data Input & Targeting
+
+* -ComputerName (Alias: CN) — Always use this instead of -Server, -Target, or -Host.
+* -Credential — Always use for handling a user credential object ([pscredential]). Do not use -LoginDetails or -Password.
+* -Identity — Used when targeting a highly specific, unique object (such as an Active Directory User GUID, an email address, or a primary ID).
+
+2. File & Path Handling (The Standard Pairs)
+
+> When your function deals with the file system or providers, you are strongly encouraged to implement these exact standard pairings:
+
+* -Path vs -LiteralPath
+	* -Path: Accepts wildcards (like C:\*.txt). It has an alias of PSPath.
+	* -LiteralPath: Interprets special characters exactly as typed (crucial for paths containing brackets like C:\file[1].txt).
+* -Path vs -Name
+	* Use -Path if the user is providing a full or relative path.
+	* Use -Name if the user is only providing the file name string itself within a pre-determined directory.
+
+3. Collection & Size Constraints
+
+* -Count — Use this when specifying a maximum number of objects to return or process (e.g., Get-Random -Count 3). Do not use -Max or -Limit.
+* -Filter — Use this for provider-side filtering (filtering data at the source before it returns to PowerShell) to distinguish it from a client-side -Include or -Exclude array.
+
+4. Output Customization (Custom "Out" Parameters)
+
+> When you want to emulate the functionality of parameters like -OutVariable for custom behaviors, these are the naming conventions typically adopted by the community and Microsoft modules:
+
+* -OutPath or -OutputPath — Used when your function generates a physical file or report and needs to know where to save it.
+* -PassThru — A standard switch parameter. By default, many change-focused cmdlets (like Set-* or New-*) do not return any output to the pipeline. Adding -PassThru signals your function to output the object it just modified or created.
+
+Key Naming Conventions to Remember:
+
+1. Singular Nouns Only: Even if your parameter accepts an array of values, name it in the singular form. Use [string[]]$ComputerName, not [string[]]$ComputerNames.
+2. PascalCase: Capitalize the first letter of every word (e.g., -LiteralPath, not -literalpath).
 
 ## References
 
-- [ ] Read [Compress-FileTree](./Public/Compress-FileTree.ps1)
-- [ ] Read [Get-ApplicationSignatureAudit](./Public/Get-ApplicationSignatureAudit.ps1)
-- [ ] Read [Get-SuidBinary](./Public/Get-SuidBinary.ps1)
-- [ ] See [Compress-FileTree Image](./Image/Compress-FileTree.png)
+- [ ] Read [Invoke-Sudo](./Private/Invoke-Sudo.ps1)
 
 
-## Consistent Object Outputs
+## Consisten File Structure
 
-**GOOD**
+### **GOOD**
 
-Use variations of: **Path, OutPath, Total, Verb, Fail, Error**
+1. [ ] shebang
+2. [ ] strict mode
+3. [ ] os check
+4. [ ] approved verb
+5. [ ] inside function help comments
+6. [ ] cmdlet binding
+7. [ ] output type
+8. [ ] help message on parameters
+9. [ ] simple powershell built in functions (even on linux)
+10. [ ] linux command wrapped in parentheses
 
 ```powershell
-Path            : /usr
-OutPath         : /mnt/c/Users/Ondrezz/Develop/PSSecurity/Generated
-TotalFiles      : 39244
-CompressedFiles : 39193
-FailedFiles     : 51
-Errors          : {@{Path=/usr/share/locale/sv/LC_TIME/coreutils.mo; Message=Exception calling "OpenRead" with "1" argu
-                  ment(s): "Could not find file '/usr/share/locale/sv/LC_TIME/coreutils.mo'."}, @{Path=/usr/share/local
-                  e/et/LC_TIME/coreutils.mo; Message=Exception calling "OpenRead" with "1" argument(s): "Could not find
-                   file '/usr/share/locale/et/LC_TIME/coreutils.mo'."}, @{Path=/usr/share/locale/eu/LC_TIME/coreutils.m
-                  o; Message=Exception calling "OpenRead" with "1" argument(s): "Could not find file '/usr/share/locale
-                  /eu/LC_TIME/coreutils.mo'."}, @{Path=/usr/share/locale/da/LC_TIME/coreutils.mo; Message=Exception cal
-                  ling "OpenRead" with "1" argument(s): "Could not find file '/usr/share/locale/da/LC_TIME/coreutils.mo
-                  '."}…}
+
+#!/usr/bin/env pwsh
+Set-StrictMode -Version Latest
+
+if ($IsLinux) {
+    function Invoke-Sudo {
+        <#
+        .SYNOPSIS
+            Runs a script block as root through sudo.
+
+        .DESCRIPTION
+            Passes the script block to the current pwsh binary under sudo with -NoProfile
+            and returns its output. sudo may prompt for a password.
+
+        .PARAMETER ScriptBlock
+            The script block to run as root.
+
+        .INPUTS
+            None. This function does not accept pipeline input.
+
+        .OUTPUTS
+            System.String. The text output of the script block.
+
+        .EXAMPLE
+            Invoke-Sudo { Get-ChildItem -Path /root }
+
+            Lists the contents of /root as root.
+        #>
+        [CmdletBinding()]
+        [OutputType([string])]
+        param(
+            [Parameter(Mandatory, HelpMessage = 'Enter the script block to run as root.')]
+            [scriptblock]$ScriptBlock
+        )
+
+        $pwsh = Join-Path -Path $PSHOME -ChildPath 'pwsh'
+        (sudo $pwsh -NoProfile -Command $ScriptBlock)
+    }
+}
+
 ```
 
-**BAD**
+### **BAD**
 
-Don't use status, 3 different object types, and data that is repeated again and again:
+This output object **DOES NOT** follow Rules 1-4
 
 ```powershell
  Get-SshdConfiguration
@@ -64,20 +129,3 @@ Settings            : {@{Keyword=addressfamily; Values=System.Object[]}, @{Keywo
                       @{Keyword=allowstreamlocalforwarding; Values=System.Object[]}, @{Keyword=allowtcpforwarding;
                       Values=System.Object[]}…}
 ```
-
-**GOOD**
-
-Refactor the above to something like:
-
-```powershell
-
-BinaryPath = @{
-    Location = C:\Program Files\OpenSSH\sshd.exe
-    Version = OpenSSH_for_Windows_10.0
-}
-ConfigPath = C:\ProgramData\ssh\sshd_config
-ServicePath = C:\WINDOWS\System32\OpenSSH\sshd.exe
-ServiceWontStart = $true
-```
-
-With a detailed object available on verbose

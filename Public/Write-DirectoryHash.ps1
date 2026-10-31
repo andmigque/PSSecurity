@@ -1,27 +1,11 @@
-using namespace System
-using namespace System.IO
-using namespace System.Security.Cryptography
-using namespace System.Collections.Immutable
 
 Set-StrictMode -Version Latest
 
 function Write-DirectoryHash {
-    <#
-    .SYNOPSIS
-        Writes Markdown and JSON hash indexes for a directory.
-
-    .PARAMETER Path
-        Existing root directory to index using the module's configured include, exclude, and hash settings.
-
-    .EXAMPLE
-        Write-DirectoryHash -Path C:\Data
-
-        Writes HashIndex.md and HashIndex.json in the directory and reports their paths. Existing index files are excluded and overwritten.
-    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true,
-            HelpMessage = 'Existing root directory to index using the module''s configured include, exclude, and hash settings.')]
+            HelpMessage = 'Existing root directory to index using the modules configured include, exclude, and hash settings.')]
         [string]$Path
     )
 
@@ -29,8 +13,6 @@ function Write-DirectoryHash {
 
     # Remove the home directory prefix from the status output.
     $pathRedactionPrefix = (Resolve-Path '~').Path
-    $markdownFile = Join-Path $resolvedPath 'HashIndex.md'
-    $jsonFile = Join-Path $resolvedPath 'HashIndex.json'
     $rootDirectory = [System.IO.DirectoryInfo]::new($resolvedPath)
 
     # Skip excluded directories and existing index files.
