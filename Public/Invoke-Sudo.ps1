@@ -24,10 +24,12 @@ if ($IsLinux) {
             values from -ArgumentList.
 
         .PARAMETER ArgumentList
-            The arguments to pass to the script block, bound by position.
+            The arguments to pass to the script block, bound by position. Accepts values
+            from the pipeline; the script block runs once for each piped value.
 
         .INPUTS
-            None. This function does not accept pipeline input.
+            System.Object. You can pipe values to this function. Each value is passed to the
+            script block as its only argument.
 
         .OUTPUTS
             System.Object. The deserialized output of the script block. The type of each
@@ -43,6 +45,11 @@ if ($IsLinux) {
             Invoke-Sudo { param($Path) Get-ChildItem -LiteralPath $Path } -ArgumentList '/root'
 
             Lists the contents of the path passed in -ArgumentList as root.
+
+        .EXAMPLE
+            '/root/.ssh', '/etc/ssh' | Invoke-Sudo { param($Path) Get-ChildItem -LiteralPath $Path -Force }
+
+            Lists the contents of each piped path as root. sudo and pwsh start once per path.
         #>
         [CmdletBinding()]
         [OutputType([object])]
@@ -50,16 +57,20 @@ if ($IsLinux) {
             [Parameter(Mandatory, HelpMessage = 'Enter the script block to run as root.')]
             [scriptblock]$ScriptBlock,
 
-            [Parameter(HelpMessage = 'Enter the arguments to pass to the script block.')]
+            [Parameter(ValueFromPipeline,
+                HelpMessage = 'Enter the arguments to pass to the script block. Accepts values from the pipeline.')]
             [object[]]$ArgumentList
         )
-
-        $pwsh = Join-Path -Path $PSHOME -ChildPath 'pwsh'
-        if ($PSBoundParameters.ContainsKey('ArgumentList')) {
-            (sudo $pwsh -NoProfile -Command $ScriptBlock -args $ArgumentList)
+        begin {
+            $pwsh = Join-Path -Path $PSHOME -ChildPath 'pwsh'
         }
-        else {
-            (sudo $pwsh -NoProfile -Command $ScriptBlock)
+        process {
+            if ($PSBoundParameters.ContainsKey('ArgumentList')) {
+                (sudo $pwsh -NoProfile -Command $ScriptBlock -args $ArgumentList)
+            }
+            else {
+                (sudo $pwsh -NoProfile -Command $ScriptBlock)
+            }
         }
     }
 }

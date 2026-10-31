@@ -42,6 +42,7 @@ Key Naming Conventions to Remember:
 ## References
 
 - [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
+- [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
 
 
 ## Consisten File Structure
