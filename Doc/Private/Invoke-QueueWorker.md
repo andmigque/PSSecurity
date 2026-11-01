@@ -4,7 +4,7 @@
 
 ## DESCRIPTION
 
-The body of one Invoke-ParallelJob worker. Start-QueueWorker runs it inside a
+The body of one Enter-ThreadQueue worker. Start-QueueWorker runs it inside a
 thread job; it is not meant to be called directly.
 
 The script block runs as a steppable pipeline: begin runs once, process runs

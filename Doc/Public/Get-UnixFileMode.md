@@ -39,15 +39,11 @@ File returns files, Directory returns directories. Defaults to File.
 Directory names to skip, matched against the name only, not the path.
 Defaults to proc, sys, dev, run, and mnt.
 
-### -Parallel
-
-Recurses the subdirectories of the path in parallel thread jobs. Faster on
-large or slow trees, slower on small ones.
-
 ### -ThrottleLimit
 
-With -Parallel, the number of subdirectories recursed at once, from 1 through
-255. Defaults to 75% of the processors, rounded down, and at least 1.
+The number of subdirectories recursed at once, from 1 through 255. Defaults
+to 1, one thread. Higher values are faster on large or slow trees, slower on
+small ones.
 
 ## EXAMPLES
 
@@ -62,10 +58,11 @@ Lists the SUID and SGID files on the system.
 ### Example 2
 
 ```powershell
-Get-UnixFileMode -Path / -Mode OtherWrite -Parallel
+Get-UnixFileMode -Path / -Mode OtherWrite -ThrottleLimit 8
 ```
 
-Lists the world-writable files on the system, searching in parallel.
+Lists the world-writable files on the system, recursing eight subdirectories
+at a time.
 
 ### Example 3
 

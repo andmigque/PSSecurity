@@ -1,6 +1,6 @@
 # Get-DefaultThrottleLimit
 
-*Returns the default number of parallel workers: 75% of the processors.*
+*Returns the default number of worker threads: 75% of the processors.*
 
 ## DESCRIPTION
 

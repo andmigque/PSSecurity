@@ -37,13 +37,10 @@ if ($IsLinux) {
             Directory names to skip, matched against the name only, not the path.
             Defaults to proc, sys, dev, run, and mnt.
 
-        .PARAMETER Parallel
-            Recurses the subdirectories of the path in parallel thread jobs. Faster on
-            large or slow trees, slower on small ones.
-
         .PARAMETER ThrottleLimit
-            With -Parallel, the number of subdirectories recursed at once, from 1 through
-            255. Defaults to 75% of the processors, rounded down, and at least 1.
+            The number of subdirectories recursed at once, from 1 through 255. Defaults
+            to 1, one thread. Higher values are faster on large or slow trees, slower on
+            small ones.
 
         .INPUTS
             System.String. You can pipe directory paths to this function.
@@ -58,9 +55,10 @@ if ($IsLinux) {
             Lists the SUID and SGID files on the system.
 
         .EXAMPLE
-            Get-UnixFileMode -Path / -Mode OtherWrite -Parallel
+            Get-UnixFileMode -Path / -Mode OtherWrite -ThrottleLimit 8
 
-            Lists the world-writable files on the system, searching in parallel.
+            Lists the world-writable files on the system, recursing eight subdirectories
+            at a time.
 
         .EXAMPLE
             Get-UnixFileMode -Path /home, /var -Mode OtherWrite -ItemType Directory | Select-Object FullName, UnixFileMode
@@ -91,53 +89,18 @@ if ($IsLinux) {
             [Parameter(HelpMessage = 'Enter the directory names to skip.')]
             [string[]]$Exclude = @('proc', 'sys', 'dev', 'run', 'mnt'),
 
-            [Parameter(HelpMessage = 'Recurse the subdirectories in parallel thread jobs.')]
-            [switch]$Parallel,
-
-            [Parameter(HelpMessage = 'Enter the maximum number of workers (1-255).')]
+            [Parameter(HelpMessage = 'Enter the number of subdirectories to recurse at once (1-255).')]
             [ValidateRange(1, 255)]
-            [int]$ThrottleLimit
+            [int]$ThrottleLimit = 1
         )
-        begin {
-            if (-not $PSBoundParameters.ContainsKey('ThrottleLimit')) {
-                $ThrottleLimit = Get-DefaultThrottleLimit
-            }
-        }
         process {
-            # -Path can name several directories, and each wildcard can match several.
-            foreach ($resolvedPath in (Resolve-Path -Path $Path -ErrorAction Stop).ProviderPath) {
-                $directory = [System.IO.DirectoryInfo]::new($resolvedPath)
-
-                if ($ItemType -eq 'Directory') {
-                    $searchCommand = 'Get-DirectoryThreaded'
-                    $searchParams = @{
-                        Directory     = $directory
-                        Exclude       = $Exclude
-                        Parallel      = $Parallel
-                        ThrottleLimit = $ThrottleLimit
-                    }
-                }
-                elseif ($Parallel) {
-                    $searchCommand = 'Get-FileMultiThreaded'
-                    $searchParams = @{
-                        Directory     = $directory
-                        Include       = '*'
-                        Exclude       = $Exclude
-                        ThrottleLimit = $ThrottleLimit
-                    }
-                }
-                else {
-                    $searchCommand = 'Get-FileSingleThreaded'
-                    $searchParams = @{
-                        Directory = $directory
-                        Include   = '*'
-                        Exclude   = $Exclude
-                        Recurse   = $true
-                    }
-                }
-
-                & $searchCommand @searchParams | Where-Object { ($_.UnixFileMode -band $Mode) -ne 0 }
+            $treeParams = @{
+                Path          = $Path
+                File          = $ItemType -eq 'File'
+                Exclude       = $Exclude
+                ThrottleLimit = $ThrottleLimit
             }
+            Get-Tree @treeParams | Where-Object { ($_.UnixFileMode -band $Mode) -ne 0 }
         }
     }
 }

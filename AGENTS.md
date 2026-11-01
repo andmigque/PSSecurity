@@ -8,8 +8,8 @@
 - [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
 - [ ] Read [Deploy-PsProfile](./Public/Deploy-PsProfile.ps1)
 - [ ] Read [Search-PatternInFile](./Public/Search-PatternInFile.ps1)
-- [ ] Read [Invoke-ParallelJob](./Private/Invoke-ParallelJob.ps1)
-- [ ] Read [Get-FileMultiThreaded](./Private/Get-FileMultiThreaded.ps1)
+- [ ] Read [Enter-ThreadQueue](./Public/Enter-ThreadQueue.ps1)
+- [ ] Read [Get-Tree](./Public/Get-Tree.ps1)
 
 ## Microsoft Examples
 

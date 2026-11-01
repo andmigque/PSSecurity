@@ -4,8 +4,8 @@
 
 ## DESCRIPTION
 
-Recurses the directory with Get-FileMultiThreaded and hashes each file with
-Get-FileHash. The file name patterns to include, the directory names to
+Lists the files in the tree with Get-Tree on multiple threads and hashes each
+file with Get-FileHash. The file name patterns to include, the directory names to
 exclude, and the hash algorithm come from HashIndexInclude, HashIndexExclude,
 and HashIndexAlgorithm in Config/Setting.psd1.
 
