@@ -302,6 +302,7 @@ prompts to a public LLM.
   files directly inside `Public/` and `Private/`, so it needs to search
   subfolders first.
 - **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
+- **Do Not write linux config files from a powershell function.** Put the config in `./Config`, and copy it into place.
 
 > Back to the [summary](#summary)
 
