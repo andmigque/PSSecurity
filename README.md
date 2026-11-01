@@ -1,8 +1,6 @@
 # PSSecurity
 
 A cross-platform PowerShell module for auditing and hardening Windows and Linux.
-PSSecurity uses only
-PowerShell and .NET.
 
 [![Open in vscode.dev](https://img.shields.io/badge/Open%20in-vscode.dev-blue)][1]
 
@@ -38,7 +36,7 @@ PowerShell and .NET.
   and file hashes as PowerShell objects.
 - [Harden][3] - Apply UAC policies, change ownership, encrypt with EFS, and remove
   unwanted AppX packages.
-- [Parallel by default][4] - Recurse large file trees and run work on a fixed pool of
+- [Parallel][4] - Recurse large file trees and run work on a fixed pool of
   thread jobs, sized to 75% of the processors.
 - [Self-documenting][5] - Generate Markdown documentation from each function's
   comment-based help.
@@ -51,15 +49,12 @@ PowerShell and .NET.
 ## 🎯 Project objectives
 
 1. **Minimal dependencies**
-   - Uses built-in PowerShell and .NET instead of third-party modules.
+   - Uses built-in PowerShell and .NET. No external module dependencies. 
 2. **Cross-platform**
-   - Supports Windows and Linux from one module.
-   - Platform-specific functions check `$IsWindows` or `$IsLinux` before they are
-     defined.
-3. **Consistent, readable functions**
-   - Every function follows the rules and file structure in [AGENTS.md][6].
-   - Every function has full comment-based help, so its documentation can be
-     generated.
+   - Supports Windows and Linux.
+3. **LLM Friendly**
+   - Comprehensive Markdown function documentation
+   - 
 
   [6]: ./AGENTS.md
 
@@ -67,19 +62,11 @@ PowerShell and .NET.
 
 ## 📦 Getting the module
 
-Install PSSecurity from the PowerShell Gallery with PSResourceGet, which ships with
-PowerShell 7.4 and later:
+Install PSSecurity from the PowerShell Gallery.
 
 ```powershell
 Install-PSResource -Name PSSecurity -Repository PSGallery -Scope CurrentUser
 ```
-
-To try the latest changes before they are published, clone the repository and import
-the manifest from the clone instead.
-
-Module | Description | Downloads / instructions
------- | ----------- | ------------------------
-PSSecurity | Audit and harden Windows and Linux with PowerShell. | [gallery][58] / [source][7] / [instructions](#-getting-started)
 
   [7]: https://github.com/andmigque/PSSecurity
   [58]: https://www.powershellgallery.com/packages/PSSecurity
