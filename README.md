@@ -8,31 +8,31 @@ PowerShell and .NET.
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
 
-### Summary
+### 🧭 Summary
 
 - [PSSecurity](#pssecurity)
-    - [Summary](#summary)
-    - [Features of PSSecurity include](#features-of-pssecurity-include)
-  - [Project objectives](#project-objectives)
-  - [Getting the module](#getting-the-module)
-  - [Getting started](#getting-started)
-  - [Command reference](#command-reference)
-    - [Audit](#audit)
-    - [Harden](#harden)
-    - [Accounts and system setup](#accounts-and-system-setup)
-    - [Utilities](#utilities)
-  - [Repository layout](#repository-layout)
-    - [How private functions stay private](#how-private-functions-stay-private)
-    - [Documentation](#documentation)
-  - [Writing functions](#writing-functions)
-    - [Finding files](#finding-files)
-    - [Running work in parallel](#running-work-in-parallel)
-    - [Requiring administrator rights](#requiring-administrator-rights)
-    - [Handling CUI](#handling-cui)
-  - [Known issues and planned changes](#known-issues-and-planned-changes)
-  - [License](#license)
+    - [🧭 Summary](#-summary)
+    - [✨ Features of PSSecurity include](#-features-of-pssecurity-include)
+  - [🎯 Project objectives](#-project-objectives)
+  - [📦 Getting the module](#-getting-the-module)
+  - [🚀 Getting started](#-getting-started)
+  - [📖 Command reference](#-command-reference)
+    - [🔍 Audit](#-audit)
+    - [🔒 Harden](#-harden)
+    - [👤 Accounts and system setup](#-accounts-and-system-setup)
+    - [🧰 Utilities](#-utilities)
+  - [📁 Repository layout](#-repository-layout)
+    - [🙈 How private functions stay private](#-how-private-functions-stay-private)
+    - [📝 Documentation](#-documentation)
+  - [🔧 Writing functions](#-writing-functions)
+    - [📂 Finding files](#-finding-files)
+    - [⚡ Running work in parallel](#-running-work-in-parallel)
+    - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
+    - [🔏 Handling CUI](#-handling-cui)
+  - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
+  - [📄 License](#-license)
 
-### Features of PSSecurity include
+### ✨ Features of PSSecurity include
 
 - [Audit][2] - Read ACLs, Authenticode signatures, scheduled tasks, UAC settings,
   and file hashes as PowerShell objects.
@@ -43,12 +43,12 @@ PowerShell and .NET.
 - [Self-documenting][5] - Generate Markdown documentation from each function's
   comment-based help.
 
-  [2]: #audit
-  [3]: #harden
-  [4]: #running-work-in-parallel
-  [5]: #documentation
+  [2]: #-audit
+  [3]: #-harden
+  [4]: #-running-work-in-parallel
+  [5]: #-documentation
 
-## Project objectives
+## 🎯 Project objectives
 
 1. **Minimal dependencies**
    - Uses built-in PowerShell and .NET instead of third-party modules.
@@ -63,21 +63,21 @@ PowerShell and .NET.
 
   [6]: ./AGENTS.md
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Getting the module
+## 📦 Getting the module
 
 PSSecurity is not published to the PowerShell Gallery. Clone it from GitHub.
 
 Module | Description | Downloads / instructions
 ------ | ----------- | ------------------------
-PSSecurity | Audit and harden Windows and Linux with PowerShell. | [source][7] / [instructions](#getting-started)
+PSSecurity | Audit and harden Windows and Linux with PowerShell. | [source][7] / [instructions](#-getting-started)
 
   [7]: https://github.com/andmigque/PSSecurity
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Getting started
+## 🚀 Getting started
 
 Import the module, then install the PSSecurity profile:
 
@@ -92,14 +92,14 @@ Windows and Linux, to your `$PROFILE`.
   [8]: ./Public/Deploy-PSProfile.ps1
   [9]: ./Config/PwshProfile.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Command reference
+## 📖 Command reference
 
 The public commands, grouped by security domain. Commands marked *No help yet*
 do not have comment-based help.
 
-### Audit
+### 🔍 Audit
 
 Command | Description
 ------- | -----------
@@ -123,9 +123,9 @@ Command | Description
   [53]: ./Public/Get-UnixFileMode.ps1
   [57]: ./Public/Get-SudoersAudit.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Harden
+### 🔒 Harden
 
 Command | Description
 ------- | -----------
@@ -151,9 +151,9 @@ Command | Description
   [55]: ./Public/Deploy-LinuxConfiguration.ps1
   [56]: ./Public/Set-LinuxFilePermission.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Accounts and system setup
+### 👤 Accounts and system setup
 
 Command | Description
 ------- | -----------
@@ -176,9 +176,9 @@ Command | Description
   [29]: ./Public/Install-DpkgPwsh.ps1
   [30]: ./Public/Install-Sftp.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Utilities
+### 🧰 Utilities
 
 Command | Description
 ------- | -----------
@@ -194,9 +194,9 @@ Command | Description
   [34]: ./Public/Search-PatternInFile.ps1
   [51]: ./Public/Compare-MegaHash.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Repository layout
+## 📁 Repository layout
 
 Path | Contents
 ---- | --------
@@ -221,17 +221,17 @@ Path | Contents
   [43]: ./Skill/
   [44]: ./Skill/cui-llm-redact/SKILL.md
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### How private functions stay private
+### 🙈 How private functions stay private
 
 [PSSecurity.psm1][36] loads `Private/` first, records the contents of the
 `Function:` drive, then loads `Public/`. Only the functions that appear after that
 snapshot are exported, so everything in `Private/` stays internal to the module.
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Documentation
+### 📝 Documentation
 
 Everything under [Doc/][41] is generated from comment-based help by
 [Convert-CommentHelpToMarkdown][32]. Update the help inside a function, then
@@ -241,14 +241,14 @@ regenerate:
 Convert-CommentHelpToMarkdown -Path ./Private -OutPath ./Doc/Private
 ```
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Writing functions
+## 🔧 Writing functions
 
 Follow the rules and file structure in [AGENTS.md][6], and use its exemplar
 functions as models.
 
-### Finding files
+### 📂 Finding files
 
 Pick a recursive file search based on the size of the tree:
 
@@ -259,9 +259,9 @@ Pick a recursive file search based on the size of the tree:
   [45]: ./Private/Get-FileSingleThreaded.ps1
   [46]: ./Private/Get-FileMultiThreaded.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Running work in parallel
+### ⚡ Running work in parallel
 
 [Invoke-ParallelJob][47] runs a script block on a fixed pool of thread jobs. The
 default pool size, from [Get-DefaultThrottleLimit][48], is 75% of the processors.
@@ -272,9 +272,9 @@ For long-running work with interactive, multi-threaded progress, see
   [47]: ./Private/Invoke-ParallelJob.ps1
   [48]: ./Private/Get-DefaultThrottleLimit.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Requiring administrator rights
+### 🔑 Requiring administrator rights
 
 Use [Test-Administrator][49] to check for an elevated session, or
 [Assert-Administrator][50] to stop when the session is not elevated.
@@ -282,17 +282,17 @@ Use [Test-Administrator][49] to check for an elevated session, or
   [49]: ./Private/Test-Administrator.ps1
   [50]: ./Private/Assert-Administrator.ps1
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-### Handling CUI
+### 🔏 Handling CUI
 
 The [cui-llm-redact][44] skill explains how to redact and generalize Controlled
 Unclassified Information (CUI) so that it is no longer CUI and can be used in
 prompts to a public LLM.
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## Known issues and planned changes
+## 🚧 Known issues and planned changes
 
 - **The hash settings reach functions through hidden module variables.**
   [PSSecurity.psm1][36] copies the three HashIndex settings in
@@ -306,8 +306,8 @@ prompts to a public LLM.
 - **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
 - **Do Not write linux config files from a powershell function.** Put the config in `./Config`, and copy it into place.
 
-> Back to the [summary](#summary)
+> Back to the [summary](#-summary)
 
-## License
+## 📄 License
 
 This project is [licensed under the MIT License](./LICENSE).
