@@ -1,33 +1,83 @@
-
 @{
     RootModule           = 'PSSecurity.psm1'
-    ModuleVersion        = '1.10.0'
+    ModuleVersion        = '2.0.0'
     CompatiblePSEditions = 'Core'
     GUID                 = '01a0121d-ee0e-7b97-b54f-7d7a978cf8fc'
     Author               = 'Andres Quesada'
     CompanyName          = 'Quesada Works'
     Copyright            = '(c) 2026 Andres Quesada. Released under the MIT License.'
-    Description          = 'PowerShell security toolkit with hashing, encryption, parallelism, and more'
+    Description          = 'Audit and harden Windows and Linux using only PowerShell 7 and .NET. Covers ACLs, UAC, Authenticode, scheduled tasks, EFS, SUID and world-writable files, sudoers, sshd, kernel parameters, and file permissions.'
     PowerShellVersion    = '7.4'
+
+    # Every public function. Platform-specific functions are defined only on their
+    # platform, so each system exports the subset that exists there.
+    FunctionsToExport    = @(
+        'Add-UnixFileMode'
+        'Compare-MegaHash'
+        'Compress-FileTree'
+        'Convert-CommentHelpToMarkdown'
+        'Deploy-LinuxConfiguration'
+        'Deploy-PSProfile'
+        'Get-AclItem'
+        'Get-ApplicationSignatureAudit'
+        'Get-ScheduledTaskAudit'
+        'Get-SshdConfiguration'
+        'Get-SudoersAudit'
+        'Get-UacConfiguration'
+        'Get-UnixFileMode'
+        'Import-Ubuntu'
+        'Install-AzureDevOpsAgent'
+        'Install-DpkgPwsh'
+        'Install-Sftp'
+        'Invoke-Sudo'
+        'Join-MegaHash'
+        'Measure-OwnerAnomaly'
+        'New-LocalAdminUser'
+        'New-SecurityCertificate'
+        'New-WindowsUserProfile'
+        'Protect-Item'
+        'Remove-App'
+        'Remove-ProvisionedApp'
+        'Search-PatternInFile'
+        'Set-AclItemOwner'
+        'Set-LinuxFilePermission'
+        'Set-UacConsentOnly'
+        'Set-UacRequirePassword'
+        'Unprotect-Item'
+        'Write-DirectoryHash'
+    )
     CmdletsToExport      = @()
+    VariablesToExport    = @()
     AliasesToExport      = @()
+
     PrivateData          = @{
         PSData = @{
-            Tags         = 'Security', 'Encryption', 'Hashing', 'FileIntegrity', 'ACL', 'UAC',
-            'Authenticode', 'Windows', 'PSEdition_Core'
+            Tags         = @(
+                'Security', 'Hardening', 'Audit', 'CIS', 'ACL', 'UAC', 'Authenticode',
+                'EFS', 'Sudoers', 'SSH', 'Windows', 'Linux', 'PSEdition_Core'
+            )
             LicenseUri   = 'https://github.com/andmigque/PSSecurity/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/andmigque/PSSecurity'
             ReleaseNotes = @'
-- Added Set-ModprobeBlacklist to write the CIS module blacklist for unused filesystems, USB storage, and uncommon network protocols.
-- Added Set-LinuxFilePermissions to enforce CIS ownership and mode floors on account databases, wrapper lists, and login banners.
-- Added Set-LoginDefPolicy to apply CIS password aging defaults in /etc/login.defs.
-- Added Get-SudoersAudit to audit /etc/sudoers and sudoers.d includes for passwordless and wildcard grants.
-- Added Get-SshdConfiguration to parse the effective sshd -T dump into one record per keyword on Windows, Linux, and macOS.
-- Replaced the custom encryption commands with Protect-Item and Unprotect-Item, backed by Windows EFS.
-- Added Remove-App and Remove-ProvisionedApp for administrator-approved Windows AppX removal.
-- Moved module settings to Config/Setting.psd1 and expanded hash-index configuration.
-- Updated dependency installation and documentation to use PSResourceGet.
-- Renamed the build file and aligned its lifecycle task names with project policy.
+2.0.0 - First PowerShell Gallery release.
+
+Breaking changes
+- Linux hardening is now configuration files in Config/Linux, deployed by Deploy-LinuxConfiguration. Set-SysctlHardening, Set-ModprobeBlacklist, and Set-CoreDumpPolicy are removed.
+- Set-LinuxFilePermission applies Config/LinuxFilePermission.psd1, which now covers cron and home directories. Set-CronPermission and Set-HomeDirectoryPermission are removed.
+- Set-LoginDefPolicy is removed: /etc/login.defs differs by distribution.
+- Get-SuidBinary, Get-WorldWritableFile, and Set-StickyBitOnWorldWritable are replaced by Get-UnixFileMode and Add-UnixFileMode.
+- Get-SshdConfiguration and Get-SudoersAudit return one object per setting or rule instead of a report object.
+- Install-DpkgPwsh76 is renamed Install-DpkgPwsh.
+- Get-ApplicationSignatureAudit: -Throttle is renamed -ThrottleLimit.
+- New-SecurityCertificate: -Subdomains is renamed -Subdomain.
+- New-WindowsUserProfile: -IsAdmin is a switch.
+- Join-MegaHash and Compare-MegaHash take -Path.
+
+Changes
+- Every public function has full comment-based help, OutputType, and a platform check.
+- Linux functions work on any distribution and use no distribution-specific tools.
+- Get-ApplicationSignatureAudit no longer installs ThreadJob from the PowerShell Gallery.
+- State-changing functions support -WhatIf and -Confirm.
 '@
         }
     }

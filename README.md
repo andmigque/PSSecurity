@@ -67,13 +67,22 @@ PowerShell and .NET.
 
 ## 📦 Getting the module
 
-PSSecurity is not published to the PowerShell Gallery. Clone it from GitHub.
+Install PSSecurity from the PowerShell Gallery with PSResourceGet, which ships with
+PowerShell 7.4 and later:
+
+```powershell
+Install-PSResource -Name PSSecurity -Repository PSGallery -Scope CurrentUser
+```
+
+To try the latest changes before they are published, clone the repository and import
+the manifest from the clone instead.
 
 Module | Description | Downloads / instructions
 ------ | ----------- | ------------------------
-PSSecurity | Audit and harden Windows and Linux with PowerShell. | [source][7] / [instructions](#-getting-started)
+PSSecurity | Audit and harden Windows and Linux with PowerShell. | [gallery][58] / [source][7] / [instructions](#-getting-started)
 
   [7]: https://github.com/andmigque/PSSecurity
+  [58]: https://www.powershellgallery.com/packages/PSSecurity
 
 > Back to the [summary](#-summary)
 
@@ -82,9 +91,11 @@ PSSecurity | Audit and harden Windows and Linux with PowerShell. | [source][7] /
 Import the module, then install the PSSecurity profile:
 
 ```powershell
-Import-Module ./PSSecurity.psd1
+Import-Module PSSecurity
 Deploy-PSProfile
 ```
+
+From a clone, import the manifest by path instead: `Import-Module ./PSSecurity.psd1`.
 
 [Deploy-PSProfile][8] copies [Config/PwshProfile.ps1][9], which works on both
 Windows and Linux, to your `$PROFILE`.
