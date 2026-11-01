@@ -21,6 +21,12 @@
 Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern 'Get-FileHash'
 ```
 
+## Skills and Guides
+
+- Use [ps-performance](./Skill/ps-performance/SKILL.md) when refactoring PowerShell code to be highly performant.
+- Use [vertical-flow](./Skill/vertical-flow/SKILL.md) when code is hard to read.
+- Use [PwshBestPractice](./Doc/PwshBestPractice/) for naming, layout, comment-based help, and output stream questions.
+
 ## Rules
 
 1. Data Input & Targeting
