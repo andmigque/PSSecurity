@@ -5,8 +5,9 @@ variables:
 
 pool:
   name: Default
+  # wsl.exe needs a Windows agent with WSL 2 installed.
   demands:
-  - Agent.Name -equals DESKTOP-MHDOKOL
+  - Agent.OS -equals Windows_NT
 
 steps:
 - checkout: none
