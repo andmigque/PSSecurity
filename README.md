@@ -109,6 +109,8 @@ Command | Description
 [Get-UacConfiguration][13] | Gets UAC settings and their interpreted values.
 [Measure-OwnerAnomaly][14] | Counts items whose owner differs from the expected identity.
 [Write-DirectoryHash][15] | Hashes the files in a directory tree using the module's hash settings.
+[Get-SshdConfiguration][52] | Gets the effective SSH daemon configuration as objects.
+[Get-UnixFileMode][53] | Finds files or directories whose Unix mode has any of the given bits set, such as SUID or world-writable.
 
   [10]: ./Public/Get-AclItem.ps1
   [11]: ./Public/Get-ApplicationSignatureAudit.ps1
@@ -116,6 +118,8 @@ Command | Description
   [13]: ./Public/Get-UacConfiguration.ps1
   [14]: ./Public/Measure-OwnerAnomaly.ps1
   [15]: ./Public/Write-DirectoryHash.ps1
+  [52]: ./Public/Get-SshdConfiguration.ps1
+  [53]: ./Public/Get-UnixFileMode.ps1
 
 > Back to the [summary](#summary)
 
@@ -130,6 +134,7 @@ Command | Description
 [Unprotect-Item][20] | Decrypts an item using Windows EFS.
 [Remove-App][21] | Removes AppX packages identified by JSON input.
 [Remove-ProvisionedApp][22] | Removes provisioned AppX packages from the online Windows image.
+[Add-UnixFileMode][54] | Adds bits to the Unix mode of files or directories, such as the sticky bit.
 
   [16]: ./Public/Set-UacConsentOnly.ps1
   [17]: ./Public/Set-UacRequirePassword.ps1
@@ -138,6 +143,7 @@ Command | Description
   [20]: ./Public/Unprotect-Item.ps1
   [21]: ./Public/Remove-App.ps1
   [22]: ./Public/Remove-ProvisionedApp.ps1
+  [54]: ./Public/Add-UnixFileMode.ps1
 
 > Back to the [summary](#summary)
 
@@ -282,12 +288,12 @@ prompts to a public LLM.
 
 ## Known issues and planned changes
 
-- **Linux audit and hardening functions are disabled.** The files for
-  `Get-SshdConfiguration`, `Get-SudoersAudit`, `Get-SuidBinary`,
-  `Get-WorldWritableFile`, `Set-CoreDumpPolicy`, `Set-CronPermission`,
+- **Some Linux audit and hardening functions are disabled.** The files for
+  `Get-SudoersAudit`, `Set-CoreDumpPolicy`, `Set-CronPermission`,
   `Set-HomeDirectoryPermission`, `Set-LinuxFilePermission`, `Set-LoginDefPolicy`,
-  `Set-ModprobeBlacklist`, `Set-StickyBitOnWorldWritable`, and
-  `Set-SysctlHardening` are commented out until they are rewritten.
+  `Set-ModprobeBlacklist`, and `Set-SysctlHardening` are commented out until they
+  are rewritten. Their configuration moves to files in [Config/][39], copied into
+  place by Deploy functions.
 - **Configuration is hard to read.** [Config/Setting.psd1][40] holds every
   setting, with a lot of Linux-specific detail. It needs a better strategy for
   settings and configuration files.
