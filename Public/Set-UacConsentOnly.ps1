@@ -1,37 +1,59 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Set-UacConsentOnly {
-    <#
-    .SYNOPSIS
-        Sets the administrator UAC consent policy to value 5.
+if ($IsWindows) {
+    function Set-UacConsentOnly {
+        <#
+        .SYNOPSIS
+            Sets the administrator UAC consent policy to value 5.
 
-    .EXAMPLE
-        Set-UacConsentOnly -WhatIf
+        .DESCRIPTION
+            Sets ConsentPromptBehaviorAdmin under
+            HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System to 5, the
+            Windows default: administrators are prompted for consent, not credentials,
+            for non-Windows binaries. Other UAC settings are unchanged. Use
+            Set-UacRequirePassword to require credentials instead.
 
-        Previews the registry change. Requires elevation; actual execution returns the before and after values.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
+            Requires an elevated session, including for -WhatIf. Supports -WhatIf and
+            -Confirm. Windows only.
 
-    Assert-Administrator
+        .INPUTS
+            None. You can't pipe objects to this function.
 
-    $regPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. One object with the setting name,
+            its value before and after, and the resulting policy. Nothing is returned for
+            -WhatIf.
 
-    $before = Get-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin
+        .EXAMPLE
+            Set-UacConsentOnly -WhatIf
 
-    if (-not $PSCmdlet.ShouldProcess($regPath, 'Set ConsentPromptBehaviorAdmin to 5')) {
-        return
-    }
+            Previews the registry change.
 
-    Set-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin -Value 5
+        .EXAMPLE
+            Set-UacConsentOnly
 
-    $after = Get-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin
+            Sets the consent-only policy and returns the before and after values.
+        #>
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([PSCustomObject])]
+        param()
 
-    [PSCustomObject]@{
-        Setting = 'ConsentPromptBehaviorAdmin'
-        Before  = $before.ConsentPromptBehaviorAdmin
-        After   = $after.ConsentPromptBehaviorAdmin
-        Status  = 'Consent-only elevation (Windows default)'
+        Assert-Administrator
+
+        $regPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        $before = Get-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin
+
+        if ($PSCmdlet.ShouldProcess($regPath, 'Set ConsentPromptBehaviorAdmin to 5')) {
+            Set-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin -Value 5
+            $after = Get-ItemProperty -Path $regPath -Name ConsentPromptBehaviorAdmin
+
+            [PSCustomObject]@{
+                Setting = 'ConsentPromptBehaviorAdmin'
+                Before  = $before.ConsentPromptBehaviorAdmin
+                After   = $after.ConsentPromptBehaviorAdmin
+                Status  = 'Consent-only elevation (Windows default)'
+            }
+        }
     }
 }
-

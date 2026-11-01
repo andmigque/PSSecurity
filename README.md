@@ -108,7 +108,7 @@ Command | Description
 [Get-ScheduledTaskAudit][12] | Gets scheduled task configuration and last-run details.
 [Get-UacConfiguration][13] | Gets UAC settings and their interpreted values.
 [Measure-OwnerAnomaly][14] | Counts items whose owner differs from the expected identity.
-[Write-DirectoryHash][15] | *No help yet.* Hashes the files in a directory tree using the module's hash settings.
+[Write-DirectoryHash][15] | Hashes the files in a directory tree using the module's hash settings.
 
   [10]: ./Public/Get-AclItem.ps1
   [11]: ./Public/Get-ApplicationSignatureAudit.ps1
@@ -146,14 +146,14 @@ Command | Description
 Command | Description
 ------- | -----------
 [New-LocalAdminUser][23] | Creates a local user and adds it to Administrators.
-[New-WindowsUserProfile][24] | *No help yet.*
+[New-WindowsUserProfile][24] | Creates a local user and its Windows profile directory.
 [New-SecurityCertificate][25] | Generates certificates with mkcert on Linux.
 [Invoke-Sudo][26] | Runs a script block as root through sudo.
 [Deploy-PSProfile][8] | Installs the PSSecurity pwsh profile for the current user and host.
 [Import-Ubuntu][27] | Imports an Ubuntu archive as a WSL 2 distribution.
 [Install-AzureDevOpsAgent][28] | Downloads and registers an Azure Pipelines Windows agent as a service.
-[Install-DpkgPwsh76][29] | *No help yet.*
-[Install-Sftp][30] | *No help yet.*
+[Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux.
+[Install-Sftp][30] | *No help yet.* Not implemented; the body is commented out.
 
   [23]: ./Public/New-LocalAdminUser.ps1
   [24]: ./Public/New-WindowsUserProfile.ps1
@@ -172,13 +172,15 @@ Command | Description
 ------- | -----------
 [Compress-FileTree][31] | Compresses a directory tree into individual gzip files using thread jobs.
 [Convert-CommentHelpToMarkdown][32] | Converts PowerShell comment-based help into Markdown documents.
-[Join-MegaHash][33] | *No help yet.*
-[Search-PatternInFile][34] | *No help yet.*
+[Join-MegaHash][33] | Joins the hashes of a directory tree into one file.
+[Compare-MegaHash][51] | Compares a directory tree with the joined hash saved by Join-MegaHash.
+[Search-PatternInFile][34] | Searches the files under a path for a regular expression.
 
   [31]: ./Public/Compress-FileTree.ps1
   [32]: ./Public/Convert-CommentHelpToMarkdown.ps1
   [33]: ./Public/Join-MegaHash.ps1
   [34]: ./Public/Search-PatternInFile.ps1
+  [51]: ./Public/Compare-MegaHash.ps1
 
 > Back to the [summary](#summary)
 
@@ -299,6 +301,7 @@ prompts to a public LLM.
   as `Audit` and `Harden`. The loader in [PSSecurity.psm1][36] only reads `.ps1`
   files directly inside `Public/` and `Private/`, so it needs to search
   subfolders first.
+- **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
 
 > Back to the [summary](#summary)
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
 function Convert-CommentHelpToMarkdown {
@@ -7,25 +8,25 @@ function Convert-CommentHelpToMarkdown {
 
     .DESCRIPTION
         Reads script files, extracts each comment-based help block, and writes one
-        Markdown document per script. Sections are emitted in a stable order
+        Markdown document per script. Sections are emitted in a stable order:
 
         - FUNCTION
         - .SYNOPSIS
-        - .DESCRIPTION,
-        - .PARAMETERS,
-        - .EXAMPLES,
-        - .INPUTS,
-        - .OUTPUTS,
-        - .NOTES, and
-        - .RELATED LINKS.
+        - .DESCRIPTION
+        - .PARAMETERS
+        - .EXAMPLES
+        - .INPUTS
+        - .OUTPUTS
+        - .NOTES
+        - .RELATED LINKS
 
-        Empty sections are omitted. Each example renders as a fenced powershell code block followed by
-        its explanation, and the code is dedented by the keyword indent plus four
-        spaces so the block reads as runnable PowerShell.
+        Empty sections are omitted. Each example renders as a fenced powershell code
+        block followed by its explanation, and the code is dedented by the keyword
+        indent plus four spaces so the block reads as runnable PowerShell.
 
-        Only `.ps1` files are processed. A directory under Path is searched recursively,
-        so `-Path .\` collects every script in the tree. Wildcards are also supported,
-        for example `.\Public\*.ps1`.
+        Only .ps1 files are processed. A directory under Path is searched recursively,
+        so -Path .\ collects every script in the tree. Wildcards are also supported,
+        for example .\Public\*.ps1.
 
         The parser recognizes the common help keywords: SYNOPSIS, DESCRIPTION,
         PARAMETER, EXAMPLE, INPUTS, OUTPUTS, NOTES, and LINK. A script without a
@@ -49,14 +50,14 @@ function Convert-CommentHelpToMarkdown {
         are overwritten.
 
     .INPUTS
-        None. This function does not accept pipeline input.
+        None. You can't pipe objects to this function.
 
     .OUTPUTS
-        One PSCustomObject with TotalFiles, ConvertedFiles, FailedFiles, Results, and
-        Errors. Results contains the individual records with Path and OutputPath for
-        every document that was written. Errors contains Path and Message for files
-        with no comment-based help and for conversion or write failures. ConvertedFiles
-        plus FailedFiles equals TotalFiles.
+        System.Management.Automation.PSCustomObject. One object with TotalFiles,
+        ConvertedFiles, FailedFiles, Results, and Errors. Results contains Path and
+        OutputPath for every document that was written. Errors contains Path and
+        Message for files with no comment-based help and for conversion or write
+        failures. ConvertedFiles plus FailedFiles equals TotalFiles.
 
     .EXAMPLE
         Convert-CommentHelpToMarkdown -Path .\Public\Get-AclItem.ps1
@@ -64,11 +65,11 @@ function Convert-CommentHelpToMarkdown {
         Writes Get-AclItem.md next to the source file.
 
     .EXAMPLE
-        $report = Convert-CommentHelpToMarkdown -Path .\Public\*.ps1 -OutPath .\Doc
+        $report = Convert-CommentHelpToMarkdown -Path .\Public\*.ps1 -OutPath .\Doc\Public
         $report.Results | Format-Table Path, OutputPath
 
-        Generates one Markdown file per public function under .\Doc and inspects the
-        per-file records.
+        Generates one Markdown file per public function under .\Doc\Public and inspects
+        the per-file records.
 
     .EXAMPLE
         $report = Convert-CommentHelpToMarkdown -Path .\
@@ -81,37 +82,36 @@ function Convert-CommentHelpToMarkdown {
         Output names come from the function declaration inside the script when one is
         present, and from the file name otherwise, so a help block that documents a
         single function is headed under that function's name. Files are read with -Raw
-        and written as UTF-8. Runs on Windows PowerShell 5.1 and PowerShell 7 on any
-        platform.
+        and written as UTF-8.
     #>
     [CmdletBinding()]
-    [OutputType([pscustomobject])]
+    [OutputType([PSCustomObject])]
     param(
-        # Script files or directories to convert. Directories are searched recursively.
-        [Parameter(Mandatory = $true, HelpMessage = 'Enter the script files or directories to convert.')]
+        [Parameter(Mandatory, HelpMessage = 'Enter the script files or directories to convert.')]
         [ValidateNotNullOrEmpty()]
         [string[]]$Path,
 
-        # Directory for the generated .md files; created when missing.
         [Parameter(HelpMessage = 'Enter the output directory. Defaults to beside each source file.')]
+        [ValidateNotNullOrEmpty()]
         [string]$OutPath
     )
 
-    $resolvedFiles = @()
-    foreach ($entry in $Path) {
-        $resolvedFiles += @(Get-ChildItem -Path $entry -Recurse -File -Filter '*.ps1' -ErrorAction SilentlyContinue)
-    }
+    $resolvedFiles = @(
+        foreach ($entry in $Path) {
+            Get-ChildItem -Path $entry -Recurse -File -Filter '*.ps1' -ErrorAction SilentlyContinue
+        }
+    )
 
     if ($resolvedFiles.Count -eq 0) {
         throw "No files matched: $($Path -join ', ')"
     }
 
-    if ($OutPath -and -not (Test-Path -LiteralPath $OutPath -PathType Container)) {
+    if ($PSBoundParameters.ContainsKey('OutPath') -and -not (Test-Path -LiteralPath $OutPath -PathType Container)) {
         [void](New-Item -Path $OutPath -ItemType Directory -Force)
     }
 
-    $results = [System.Collections.Generic.List[object]]::new()
-    $errors = [System.Collections.Generic.List[object]]::new()
+    $results = [System.Collections.Generic.List[PSCustomObject]]::new()
+    $errors = [System.Collections.Generic.List[PSCustomObject]]::new()
 
     foreach ($file in $resolvedFiles) {
         try {
@@ -119,12 +119,10 @@ function Convert-CommentHelpToMarkdown {
             $data = ConvertFrom-CommentHelp -Content $content
 
             if (-not $data.Found) {
-                $missingHelp = [pscustomobject]@{
-                    Path    = $file.FullName
-                    Message = 'No comment-based help block was found in this file.'
-                }
-
-                $errors.Add($missingHelp)
+                $errors.Add([PSCustomObject]@{
+                        Path    = $file.FullName
+                        Message = 'No comment-based help block was found in this file.'
+                    })
                 continue
             }
 
@@ -137,31 +135,31 @@ function Convert-CommentHelpToMarkdown {
             }
 
             $markdown = Format-HelpMarkdown -Name $name -Data $data
-            $outDirectory = if ($OutPath) { $OutPath } else { $file.DirectoryName }
+            $outDirectory = if ($PSBoundParameters.ContainsKey('OutPath')) {
+                $OutPath
+            }
+            else {
+                $file.DirectoryName
+            }
             $outFile = Join-Path -Path $outDirectory -ChildPath "$($file.BaseName).md"
 
             Set-Content -LiteralPath $outFile -Value $markdown -Encoding utf8
-
             Write-Verbose -Message "Converted $($file.FullName) to $outFile"
 
-            $result = [pscustomobject]@{
-                Path       = $file.FullName
-                OutputPath = $outFile
-            }
-
-            $results.Add($result)
+            $results.Add([PSCustomObject]@{
+                    Path       = $file.FullName
+                    OutputPath = $outFile
+                })
         }
         catch {
-            $failure = [pscustomobject]@{
-                Path    = $file.FullName
-                Message = $_.Exception.Message
-            }
-
-            $errors.Add($failure)
+            $errors.Add([PSCustomObject]@{
+                    Path    = $file.FullName
+                    Message = $_.Exception.Message
+                })
         }
     }
 
-    [pscustomobject]@{
+    [PSCustomObject]@{
         TotalFiles     = $resolvedFiles.Count
         ConvertedFiles = $results.Count
         FailedFiles    = $errors.Count

@@ -1,51 +1,83 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Set-AclItemOwner {
-    <#
-    .SYNOPSIS
-        Changes an item's owner and returns its updated ACL details.
+if ($IsWindows) {
+    function Set-AclItemOwner {
+        <#
+        .SYNOPSIS
+            Changes an item's owner and returns its updated ACL details.
 
-    .PARAMETER AclItem
-        ACL item from Get-AclItem, containing FullName, Owner, and Name. Accepts pipeline input.
+        .DESCRIPTION
+            Sets the owner of each piped ACL item with Get-Acl and Set-Acl, then returns the
+            item's details again from Get-AclItem. The access rules are unchanged.
 
-    .PARAMETER Identity
-        New owner account identity. Defaults to the current USERDOMAIN\USERNAME when omitted.
+            Requires an elevated session, including for -WhatIf. Supports -WhatIf and
+            -Confirm. Windows only.
 
-    .EXAMPLE
-        Get-AclItem -LiteralPath C:\Data | Set-AclItemOwner -Identity 'CONTOSO\Owner' -WhatIf
+        .PARAMETER AclItem
+            An ACL item from Get-AclItem, with FullName, Owner, and Name properties.
+            Accepts objects from the pipeline.
 
-        Previews the ownership change. Requires an elevated session.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param(
-        [Parameter(Mandatory = $true, ValueFromPipeline,
-            HelpMessage = 'ACL item from Get-AclItem, containing FullName, Owner, and Name. Accepts pipeline input.')]
-        [ValidateNotNullOrEmpty()]
-        [PSCustomObject]$AclItem,
+        .PARAMETER Identity
+            The new owner, as DOMAIN\User. Defaults to the current USERDOMAIN\USERNAME.
 
-        [Parameter(HelpMessage = 'New owner account identity. Defaults to the current USERDOMAIN\USERNAME when omitted.')]
-        [ValidateNotNullOrEmpty()]
-        [string]$Identity
-    )
-    begin {
-        Assert-Administrator
-        if ([string]::IsNullOrWhiteSpace($Identity)) {
-            $Identity = "$($env:USERDOMAIN)\$($env:USERNAME)"
+        .INPUTS
+            System.Management.Automation.PSCustomObject. You can pipe ACL items from
+            Get-AclItem to this function.
+
+        .OUTPUTS
+            System.Management.Automation.PSCustomObject. The Get-AclItem details of each
+            changed item. Nothing is returned for -WhatIf.
+
+        .EXAMPLE
+            Get-AclItem -LiteralPath C:\Data | Set-AclItemOwner -Identity 'CONTOSO\Owner' -WhatIf
+
+            Previews the ownership change.
+
+        .EXAMPLE
+            Get-AclItem -LiteralPath C:\Data | Set-AclItemOwner
+
+            Makes the current user the owner of C:\Data.
+
+        .EXAMPLE
+            $anomalies = (Get-ChildItem -LiteralPath C:\Data | ForEach-Object { Get-AclItem -LiteralPath $_.FullName } |
+                Measure-OwnerAnomaly -Identity 'BUILTIN\Administrators').Anomalies
+            $anomalies | Set-AclItemOwner -Identity 'BUILTIN\Administrators'
+
+            Gives Administrators ownership of every item in C:\Data that it does not own.
+        #>
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([PSCustomObject])]
+        param(
+            [Parameter(Mandatory, ValueFromPipeline,
+                HelpMessage = 'ACL item from Get-AclItem, containing FullName, Owner, and Name. Accepts pipeline input.')]
+            [ValidateNotNullOrEmpty()]
+            [PSCustomObject]$AclItem,
+
+            [Parameter(HelpMessage = 'New owner account identity. Defaults to the current USERDOMAIN\USERNAME.')]
+            [ValidateNotNullOrEmpty()]
+            [string]$Identity
+        )
+        begin {
+            Assert-Administrator
+
+            if (-not $PSBoundParameters.ContainsKey('Identity')) {
+                $Identity = "$($env:USERDOMAIN)\$($env:USERNAME)"
+            }
+            $newOwner = [System.Security.Principal.NTAccount]::new($Identity)
         }
-        $newOwner = [System.Security.Principal.NTAccount]::new($Identity)
-    }
-    process {
-        if (-not $AclItem.PSObject.Properties.Match('FullName').Count) {
-            throw 'Usage: Get-Item -LiteralPath . | Get-AclItem | Set-AclItemOwner'
-        }
-        $owner = $AclItem.Owner
-        if ($PSCmdlet.ShouldProcess($AclItem.FullName, "Change owner from $owner to $newOwner on $($AclItem.Name)")) {
-            $acl = Get-Acl -LiteralPath $AclItem.FullName
-            $acl.SetOwner($newOwner)
-            Set-Acl -LiteralPath $AclItem.FullName -AclObject $acl
+        process {
+            if (-not $AclItem.PSObject.Properties.Match('FullName').Count) {
+                throw 'Usage: Get-Item -LiteralPath . | Get-AclItem | Set-AclItemOwner'
+            }
 
-            Get-AclItem -LiteralPath $AclItem.FullName
+            if ($PSCmdlet.ShouldProcess($AclItem.FullName, "Change owner from $($AclItem.Owner) to $newOwner on $($AclItem.Name)")) {
+                $acl = Get-Acl -LiteralPath $AclItem.FullName
+                $acl.SetOwner($newOwner)
+                Set-Acl -LiteralPath $AclItem.FullName -AclObject $acl
+
+                Get-AclItem -LiteralPath $AclItem.FullName
+            }
         }
     }
 }
-

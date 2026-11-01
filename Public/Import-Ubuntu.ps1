@@ -1,37 +1,73 @@
+#!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Import-Ubuntu {
-    <#
-    .SYNOPSIS
-        Imports an Ubuntu archive as a WSL 2 distribution.
+if ($IsWindows) {
+    function Import-Ubuntu {
+        <#
+        .SYNOPSIS
+            Imports an Ubuntu archive as a WSL 2 distribution.
 
-    .PARAMETER Path
-        Ubuntu tar archive to import. Defaults to .\ubuntu.tar.
+        .DESCRIPTION
+            Creates the installation directory, then imports the tar archive with
+            wsl --import as a WSL 2 distribution. Supports -WhatIf and -Confirm. Windows
+            only.
 
-    .PARAMETER InstallPath
-        Distribution installation directory. Defaults to C:\WSL\DevUbuntu.
+        .PARAMETER Path
+            The Ubuntu tar archive to import. Defaults to .\ubuntu.tar.
 
-    .PARAMETER Name
-        WSL distribution name. Defaults to DevUbuntu.
+        .PARAMETER InstallPath
+            The directory for the distribution's virtual disk, created when missing.
+            Defaults to C:\WSL\DevUbuntu.
 
-    .EXAMPLE
-        Import-Ubuntu -Path .\ubuntu.tar -InstallPath C:\WSL\BuildUbuntu -Name BuildUbuntu
+        .PARAMETER Name
+            The WSL distribution name. Defaults to DevUbuntu.
 
-        Creates the installation directory and imports the archive as BuildUbuntu.
-    #>
-    [CmdletBinding()]
-    param (
-        [Parameter(HelpMessage = 'Enter the path to the Ubuntu tar archive.')]
-        [string]$Path = '.\ubuntu.tar',
+        .INPUTS
+            None. You can't pipe objects to this function.
 
-        [Parameter(HelpMessage = 'Enter the distribution installation directory.')]
-        [string]$InstallPath = 'C:\WSL\DevUbuntu',
+        .OUTPUTS
+            System.String. The output of wsl --import.
 
-        [Parameter(HelpMessage = 'Enter the WSL distribution name.')]
-        [string]$Name = 'DevUbuntu'
-    )
+        .EXAMPLE
+            Import-Ubuntu
 
-    $tar = (Resolve-Path $Path).Path
-    New-Item -ItemType Directory -Path $InstallPath -Force
-    wsl --import $Name $InstallPath $tar --version 2
+            Imports .\ubuntu.tar as DevUbuntu in C:\WSL\DevUbuntu.
+
+        .EXAMPLE
+            Import-Ubuntu -Path .\ubuntu.tar -InstallPath C:\WSL\BuildUbuntu -Name BuildUbuntu
+
+            Creates the installation directory and imports the archive as BuildUbuntu.
+
+        .EXAMPLE
+            Import-Ubuntu -Name BuildUbuntu -InstallPath C:\WSL\BuildUbuntu -WhatIf
+
+            Previews the import without creating the directory or the distribution.
+        #>
+        [CmdletBinding(SupportsShouldProcess)]
+        [OutputType([string])]
+        param(
+            [Parameter(HelpMessage = 'Enter the path to the Ubuntu tar archive.')]
+            [ValidateNotNullOrEmpty()]
+            [string]$Path = '.\ubuntu.tar',
+
+            [Parameter(HelpMessage = 'Enter the distribution installation directory.')]
+            [ValidateNotNullOrEmpty()]
+            [string]$InstallPath = 'C:\WSL\DevUbuntu',
+
+            [Parameter(HelpMessage = 'Enter the WSL distribution name.')]
+            [ValidateNotNullOrEmpty()]
+            [string]$Name = 'DevUbuntu'
+        )
+
+        $tar = (Resolve-Path -Path $Path -ErrorAction Stop).Path
+
+        if ($PSCmdlet.ShouldProcess($InstallPath, "Import $tar as WSL 2 distribution $Name")) {
+            [void](New-Item -ItemType Directory -Path $InstallPath -Force)
+
+            (wsl --import $Name $InstallPath $tar --version 2)
+            if ($LASTEXITCODE -ne 0) {
+                throw "Import-Ubuntu failed to import $tar as $Name."
+            }
+        }
+    }
 }
