@@ -1,4 +1,4 @@
-# Enter-ThreadQueue
+# Invoke-ParallelJob
 
 *Runs a script block for each input object on a fixed pool of thread jobs.*
 
@@ -45,23 +45,24 @@ The arguments to pass to the script block in every worker, bound by position.
 
 ### -ThrottleLimit
 
-The maximum number of workers, from 1 through 255. Defaults to 1. Fewer
-workers are started when there are fewer objects.
+The maximum number of workers, from 1 through 255. Defaults to 75% of the
+processors, rounded down, and at least 1. Fewer workers are started when there
+are fewer objects.
 
 ## EXAMPLES
 
 ### Example 1
 
 ```powershell
-$files | Enter-ThreadQueue { process { Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256 } }
+$files | Invoke-ParallelJob { process { Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256 } }
 ```
 
-Hashes each file on one worker thread.
+Hashes each file on the default number of workers, 75% of the processors.
 
 ### Example 2
 
 ```powershell
-$files | Enter-ThreadQueue -ThrottleLimit 8 -ArgumentList $OutPath {
+$files | Invoke-ParallelJob -ThrottleLimit 8 -ArgumentList $OutPath {
     param($OutPath)
     begin { $buffer = [byte[]]::new(64KB) }
     process { Copy-WithBuffer -LiteralPath $_.FullName -Destination $OutPath -Buffer $buffer }
@@ -74,7 +75,7 @@ from the calling session into each worker.
 ### Example 3
 
 ```powershell
-$result = 1..20 | Enter-ThreadQueue { process { if ($_ % 5 -eq 0) { throw "bad $_" }; $_ } } -ErrorVariable failed
+$result = 1..20 | Invoke-ParallelJob { process { if ($_ % 5 -eq 0) { throw "bad $_" }; $_ } } -ErrorVariable failed
 $failed.TargetObject
 ```
 

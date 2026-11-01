@@ -5,7 +5,7 @@
 ## DESCRIPTION
 
 Recurses the path, including hidden and system files, and searches each file
-with Select-String on multiple threads. Files are read as UTF-8 and every match
+with Select-String on parallel threads. Files are read as UTF-8 and every match
 on a line is returned. Files and directories that can't be read are skipped.
 
 When -Pattern is not given, searches for IPv4 addresses.

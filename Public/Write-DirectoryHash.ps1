@@ -7,8 +7,8 @@ function Write-DirectoryHash {
         Hashes the files in a directory tree using the module's hash settings.
 
     .DESCRIPTION
-        Lists the files in the tree with Get-Tree on multiple threads and hashes each
-        file with Get-FileHash. The file name patterns to include, the directory names to
+        Recurses the directory with Get-FileMultiThreaded and hashes each file with
+        Get-FileHash. The file name patterns to include, the directory names to
         exclude, and the hash algorithm come from HashIndexInclude, HashIndexExclude,
         and HashIndexAlgorithm in Config/Setting.psd1.
 
@@ -51,16 +51,10 @@ function Write-DirectoryHash {
     )
     process {
         $resolvedPath = (Resolve-Path -Path $Path -ErrorAction Stop).Path
+        $rootDirectory = [System.IO.DirectoryInfo]::new($resolvedPath)
 
         # Include, Exclude, and the algorithm come from Config/Setting.psd1, loaded by PSSecurity.psm1.
-        $treeParams = @{
-            Path          = $resolvedPath
-            File          = $true
-            Include       = $script:HashIndexInclude
-            Exclude       = $script:HashIndexExclude
-            ThrottleLimit = Get-DefaultThrottleLimit
-        }
-        Get-Tree @treeParams |
+        Get-FileMultiThreaded -Directory $rootDirectory -Include $script:HashIndexInclude -Exclude $script:HashIndexExclude |
             ForEach-Object {
                 $hashObject = Get-FileHash -LiteralPath $_.FullName -Algorithm $script:HashIndexAlgorithm
                 [PSCustomObject]@{

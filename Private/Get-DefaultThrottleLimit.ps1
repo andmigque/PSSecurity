@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 function Get-DefaultThrottleLimit {
     <#
     .SYNOPSIS
-        Returns the default number of worker threads: 75% of the processors.
+        Returns the default number of parallel workers: 75% of the processors.
 
     .DESCRIPTION
         Multiplies the processor count by 0.75 and rounds down, so the workers never

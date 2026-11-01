@@ -13,71 +13,59 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
 - [PSSecurity](#pssecurity)
     - [🧭 Summary](#-summary)
-    - [✨ PSSecurity Domains](#-pssecurity-domains)
-  - [🎯 Goals](#-goals)
-  - [🔭 Roadmap](#-roadmap)
-  - [📦 Installation](#-installation)
+    - [✨ Features of PSSecurity include](#-features-of-pssecurity-include)
+  - [🎯 Project objectives](#-project-objectives)
+  - [📦 Getting the module](#-getting-the-module)
   - [🚀 Getting started](#-getting-started)
-  - [📖 Functionality by Domain](#-functionality-by-domain)
-    - [🎲 Risk Management](#-risk-management)
-    - [💎 Asset Security](#-asset-security)
-    - [📐 Secure Design](#-secure-design)
-    - [🌐 Network Security](#-network-security)
-    - [🔐 Access Control](#-access-control)
-    - [🧪 Security Testing](#-security-testing)
-    - [📡 Security Operations](#-security-operations)
-    - [💻 Secure Coding](#-secure-coding)
+  - [📖 Command reference](#-command-reference)
+    - [🔍 Audit](#-audit)
+    - [🔒 Harden](#-harden)
+    - [👤 Accounts and system setup](#-accounts-and-system-setup)
+    - [🧰 Utilities](#-utilities)
   - [📁 Repository layout](#-repository-layout)
+    - [🙈 How private functions stay private](#-how-private-functions-stay-private)
     - [📝 Documentation](#-documentation)
+  - [🔧 Writing functions](#-writing-functions)
+    - [📂 Finding files](#-finding-files)
+    - [⚡ Running work in parallel](#-running-work-in-parallel)
+    - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
+    - [🔏 Handling CUI](#-handling-cui)
+  - [🔭 Roadmap](#-roadmap)
   - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
   - [🚨 Vulnerabilities](#-vulnerabilities)
   - [📄 License](#-license)
 
-### ✨ PSSecurity Domains
+### ✨ Features of PSSecurity include
 
-1. [Risk Management][2]
-2. [Asset Security][3]
-3. [Secure Design][4]
-4. [Network Security][5]
-5. [Access Control][62]
-6. [Security Testing][63]
-7. [Security Operations][64]
-8. [Secure Coding][65]
+- [Audit][2] - Read ACLs, Authenticode signatures, scheduled tasks, UAC settings,
+  and file hashes as PowerShell objects.
+- [Harden][3] - Apply UAC policies, change ownership, encrypt with EFS, and remove
+  unwanted AppX packages.
+- [Parallel][4] - Recurse large file trees and run work on a fixed pool of
+  thread jobs, sized to 75% of the processors.
+- [Self-documenting][5] - Generate Markdown documentation from each function's
+  comment-based help.
 
-  [2]: #-risk-management
-  [3]: #-asset-security
-  [4]: #-secure-design
-  [5]: #-network-security
-  [62]: #-access-control
-  [63]: #-security-testing
-  [64]: #-security-operations
-  [65]: #-secure-coding
+  [2]: #-audit
+  [3]: #-harden
+  [4]: #-running-work-in-parallel
+  [5]: #-documentation
 
-## 🎯 Goals
+## 🎯 Project objectives
 
-1. **Minimal Dependencies**
+1. **Minimal dependencies**
    - Uses built-in PowerShell and .NET. No external module dependencies. 
 2. **Cross-platform**
    - Supports Windows and Linux.
 3. **LLM Friendly**
-   - Comprehensive generated Markdown function documentation
-   - `SKILL.md` with both Human and Agent utility
-4. **Multi Threaded**
-   - Lightweight thread job pools with .NET enumeration in lieu of Get-ChildItem
-5. **Consistent Style**
-   - House style function template available in Doc 
+   - Comprehensive Markdown function documentation
+   - 
+
+  [6]: ./AGENTS.md
 
 > Back to the [summary](#-summary)
 
-## 🔭 Roadmap
-
-[Doc/Roadmap.md][59] is a running list of advanced public functions and their associated requirements.
-
-  [59]: ./Doc/Roadmap.md
-
-> Back to the [summary](#-summary)
-
-## 📦 Installation
+## 📦 Getting the module
 
 Install PSSecurity from the PowerShell Gallery.
 
@@ -104,125 +92,110 @@ From a clone, import the manifest by path instead: `Import-Module ./PSSecurity.p
 [Deploy-PSProfile][8] copies [Config/PwshProfile.ps1][9], which works on both
 Windows and Linux, to your `$PROFILE`.
 
-  [8]: ./Doc/Public/Deploy-PSProfile.md
+  [8]: ./Public/Deploy-PSProfile.ps1
   [9]: ./Config/PwshProfile.ps1
 
 > Back to the [summary](#-summary)
 
-## 📖 Functionality by Domain
+## 📖 Command reference
 
-PSSecurity functionality, grouped by domain.
+The public commands, grouped by security domain. Commands marked *No help yet*
+do not have comment-based help.
 
-### 🎲 Risk Management
+### 🔍 Audit
 
-- [cui-llm-redact][44]
+Command | Description
+------- | -----------
+[Get-AclItem][10] | Gets ownership, access rules, and metadata for an item.
+[Get-ApplicationSignatureAudit][11] | Audits Authenticode signatures of discoverable applications.
+[Get-ScheduledTaskAudit][12] | Gets scheduled task configuration and last-run details.
+[Get-UacConfiguration][13] | Gets UAC settings and their interpreted values.
+[Measure-OwnerAnomaly][14] | Counts items whose owner differs from the expected identity.
+[Write-DirectoryHash][15] | Hashes the files in a directory tree using the module's hash settings.
+[Get-SshdConfiguration][52] | Gets the effective SSH daemon configuration as objects.
+[Get-UnixFileMode][53] | Finds files or directories whose Unix mode has any of the given bits set, such as SUID or world-writable.
+[Get-SudoersAudit][57] | Audits sudo rules for passwordless, all-command, and wildcard grants.
 
-> Back to the [summary](#-summary)
-
-### 💎 Asset Security
-
-- [Protect-Item][19]
-- [Unprotect-Item][20]
-- [Write-DirectoryHash][15]
-- [Join-MegaHash][33]
-- [Compare-MegaHash][51]
-- [Compress-FileTree][31]
-
-  [15]: ./Doc/Public/Write-DirectoryHash.md
-  [19]: ./Doc/Public/Protect-Item.md
-  [20]: ./Doc/Public/Unprotect-Item.md
-  [31]: ./Doc/Public/Compress-FileTree.md
-  [33]: ./Doc/Public/Join-MegaHash.md
-  [51]: ./Doc/Public/Compare-MegaHash.md
-
-> Back to the [summary](#-summary)
-
-### 📐 Secure Design
-
-- [Deploy-LinuxConfiguration][55]
-- [Remove-App][21]
-- [Remove-ProvisionedApp][22]
-- [New-SecurityCertificate][25]
-
-  [21]: ./Doc/Public/Remove-App.md
-  [22]: ./Doc/Public/Remove-ProvisionedApp.md
-  [25]: ./Doc/Public/New-SecurityCertificate.md
-  [55]: ./Doc/Public/Deploy-LinuxConfiguration.md
+  [10]: ./Public/Get-AclItem.ps1
+  [11]: ./Public/Get-ApplicationSignatureAudit.ps1
+  [12]: ./Public/Get-ScheduledTaskAudit.ps1
+  [13]: ./Public/Get-UacConfiguration.ps1
+  [14]: ./Public/Measure-OwnerAnomaly.ps1
+  [15]: ./Public/Write-DirectoryHash.ps1
+  [52]: ./Public/Get-SshdConfiguration.ps1
+  [53]: ./Public/Get-UnixFileMode.ps1
+  [57]: ./Public/Get-SudoersAudit.ps1
 
 > Back to the [summary](#-summary)
 
-### 🌐 Network Security
+### 🔒 Harden
 
-- [Get-SshdConfiguration][52]
-- [Install-Sftp][30]
+Command | Description
+------- | -----------
+[Set-UacConsentOnly][16] | Sets the administrator UAC consent policy to value 5.
+[Set-UacRequirePassword][17] | Sets the administrator UAC credential policy to value 1.
+[Set-AclItemOwner][18] | Changes an item's owner and returns its updated ACL details.
+[Protect-Item][19] | Encrypts an item using Windows EFS.
+[Unprotect-Item][20] | Decrypts an item using Windows EFS.
+[Remove-App][21] | Removes AppX packages identified by JSON input.
+[Remove-ProvisionedApp][22] | Removes provisioned AppX packages from the online Windows image.
+[Add-UnixFileMode][54] | Adds bits to the Unix mode of files or directories, such as the sticky bit.
+[Deploy-LinuxConfiguration][55] | Copies the Linux hardening files in Config/Linux into place: kernel parameters, module blacklist, and core dump policy.
+[Set-LinuxFilePermission][56] | Tightens the owner and mode of system files, cron directories, and home directories to a rule table.
 
-  [30]: ./Doc/Public/Install-Sftp.md
-  [52]: ./Doc/Public/Get-SshdConfiguration.md
-
-> Back to the [summary](#-summary)
-
-### 🔐 Access Control
-
-- [Get-AclItem][10]
-- [Set-AclItemOwner][18]
-- [Get-UnixFileMode][53]
-- [Add-UnixFileMode][54]
-- [Set-LinuxFilePermission][56]
-- [Get-UacConfiguration][13]
-- [Set-UacConsentOnly][16]
-- [Set-UacRequirePassword][17]
-- [Get-SudoersAudit][57]
-- [Invoke-Sudo][26]
-- [New-LocalAdminUser][23]
-- [New-WindowsUserProfile][24]
-
-  [10]: ./Doc/Public/Get-AclItem.md
-  [13]: ./Doc/Public/Get-UacConfiguration.md
-  [16]: ./Doc/Public/Set-UacConsentOnly.md
-  [17]: ./Doc/Public/Set-UacRequirePassword.md
-  [18]: ./Doc/Public/Set-AclItemOwner.md
-  [23]: ./Doc/Public/New-LocalAdminUser.md
-  [24]: ./Doc/Public/New-WindowsUserProfile.md
-  [26]: ./Doc/Public/Invoke-Sudo.md
-  [53]: ./Doc/Public/Get-UnixFileMode.md
-  [54]: ./Doc/Public/Add-UnixFileMode.md
-  [56]: ./Doc/Public/Set-LinuxFilePermission.md
-  [57]: ./Doc/Public/Get-SudoersAudit.md
+  [16]: ./Public/Set-UacConsentOnly.ps1
+  [17]: ./Public/Set-UacRequirePassword.ps1
+  [18]: ./Public/Set-AclItemOwner.ps1
+  [19]: ./Public/Protect-Item.ps1
+  [20]: ./Public/Unprotect-Item.ps1
+  [21]: ./Public/Remove-App.ps1
+  [22]: ./Public/Remove-ProvisionedApp.ps1
+  [54]: ./Public/Add-UnixFileMode.ps1
+  [55]: ./Public/Deploy-LinuxConfiguration.ps1
+  [56]: ./Public/Set-LinuxFilePermission.ps1
 
 > Back to the [summary](#-summary)
 
-### 🧪 Security Testing
+### 👤 Accounts and system setup
 
-- [Get-ApplicationSignatureAudit][11]
-- [Get-ScheduledTaskAudit][12]
-- [Measure-OwnerAnomaly][14]
+Command | Description
+------- | -----------
+[New-LocalAdminUser][23] | Creates a local user and adds it to Administrators.
+[New-WindowsUserProfile][24] | Creates a local user and its Windows profile directory.
+[New-SecurityCertificate][25] | Generates certificates with mkcert on Linux.
+[Invoke-Sudo][26] | Runs a script block as root through sudo.
+[Deploy-PSProfile][8] | Installs the PSSecurity pwsh profile for the current user and host.
+[Import-Ubuntu][27] | Imports an Ubuntu archive as a WSL 2 distribution.
+[Install-AzureDevOpsAgent][28] | Downloads and registers an Azure Pipelines Windows agent as a service.
+[Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux.
+[Install-Sftp][30] | Installs the Windows OpenSSH server as a chrooted SFTP drop point, with a firewall rule limited to given addresses.
 
-  [11]: ./Doc/Public/Get-ApplicationSignatureAudit.md
-  [12]: ./Doc/Public/Get-ScheduledTaskAudit.md
-  [14]: ./Doc/Public/Measure-OwnerAnomaly.md
+  [23]: ./Public/New-LocalAdminUser.ps1
+  [24]: ./Public/New-WindowsUserProfile.ps1
+  [25]: ./Public/New-SecurityCertificate.ps1
+  [26]: ./Public/Invoke-Sudo.ps1
+  [27]: ./Public/Import-Ubuntu.ps1
+  [28]: ./Public/Install-AzureDevOpsAgent.ps1
+  [29]: ./Public/Install-DpkgPwsh.ps1
+  [30]: ./Public/Install-Sftp.ps1
 
 > Back to the [summary](#-summary)
 
-### 📡 Security Operations
+### 🧰 Utilities
 
-- [Deploy-PSProfile][8]
-- [Import-Ubuntu][27]
-- [Install-AzureDevOpsAgent][28]
-- [Install-DpkgPwsh][29]
+Command | Description
+------- | -----------
+[Compress-FileTree][31] | Compresses a directory tree into individual gzip files using thread jobs.
+[Convert-CommentHelpToMarkdown][32] | Converts PowerShell comment-based help into Markdown documents.
+[Join-MegaHash][33] | Joins the hashes of a directory tree into one file.
+[Compare-MegaHash][51] | Compares a directory tree with the joined hash saved by Join-MegaHash.
+[Search-PatternInFile][34] | Searches the files under a path for a regular expression.
 
-  [27]: ./Doc/Public/Import-Ubuntu.md
-  [28]: ./Doc/Public/Install-AzureDevOpsAgent.md
-  [29]: ./Doc/Public/Install-DpkgPwsh.md
-
-> Back to the [summary](#-summary)
-
-### 💻 Secure Coding
-
-- [Search-PatternInFile][34]
-- [Convert-CommentHelpToMarkdown][32]
-
-  [32]: ./Doc/Public/Convert-CommentHelpToMarkdown.md
-  [34]: ./Doc/Public/Search-PatternInFile.md
+  [31]: ./Public/Compress-FileTree.ps1
+  [32]: ./Public/Convert-CommentHelpToMarkdown.ps1
+  [33]: ./Public/Join-MegaHash.ps1
+  [34]: ./Public/Search-PatternInFile.ps1
+  [51]: ./Public/Compare-MegaHash.ps1
 
 > Back to the [summary](#-summary)
 
@@ -230,17 +203,16 @@ PSSecurity functionality, grouped by domain.
 
 Path | Contents
 ---- | --------
-[PSSecurity.psd1][35] | Module manifest.
-[PSSecurity.psm1][36] | Module loader.
-[Public/][37] | File name matches function name, exported by the module.
-[Private/][38] | File name matches function name, private to the module.
-[Config/][39] | Configuration files. 
-[Doc/][41] | Public and Private are generated.
+[PSSecurity.psd1][35] | Module manifest. Only the data PowerShell requires for a module.
+[PSSecurity.psm1][36] | Module loader. Loads every `.ps1` file and exports only the public functions.
+[Public/][37] | Exported functions, one per `.ps1` file.
+[Private/][38] | Internal helper functions, one per `.ps1` file.
+[Config/][39] | [Setting.psd1][40] holds the module's settings; [PwshProfile.ps1][9] is the profile installed by `Deploy-PSProfile`; `Linux/` mirrors `/` and holds the hardening files installed by `Deploy-LinuxConfiguration`; `LinuxFilePermission.psd1` holds the rules applied by `Set-LinuxFilePermission`.
+[Doc/][41] | [Roadmap.md][59] and `PwshBestPractice/` are hand edited. `Public/` and `Private/` are generated.
 [Pipeline/][42] | Azure Pipelines definitions (`.yml`).
 [Skill/][43] | Agent skills, such as [cui-llm-redact][44].
-[AGENTS.md][6] | Guidance for LLM's.
+[AGENTS.md][6] | Coding rules, file structure, and exemplar functions for agents and contributors.
 
-  [6]: ./AGENTS.md
   [35]: ./PSSecurity.psd1
   [36]: ./PSSecurity.psm1
   [37]: ./Public/
@@ -251,6 +223,14 @@ Path | Contents
   [42]: ./Pipeline/
   [43]: ./Skill/
   [44]: ./Skill/cui-llm-redact/SKILL.md
+
+> Back to the [summary](#-summary)
+
+### 🙈 How private functions stay private
+
+[PSSecurity.psm1][36] loads `Private/` first, records the contents of the
+`Function:` drive, then loads `Public/`. Only the functions that appear after that
+snapshot are exported, so everything in `Private/` stays internal to the module.
 
 > Back to the [summary](#-summary)
 
@@ -266,23 +246,79 @@ Convert-CommentHelpToMarkdown -Path ./Private -OutPath ./Doc/Private
 
 > Back to the [summary](#-summary)
 
+## 🔧 Writing functions
+
+Follow the rules and file structure in [AGENTS.md][6], and use its exemplar
+functions as models.
+
+### 📂 Finding files
+
+Pick a private recursive file implementation to use in your public function.  
+Choose based on the size of the tree:
+
+- [Get-FileSingleThreaded][45] - For small trees. It has no startup cost.
+- [Get-FileMultiThreaded][46] - For large trees. It recurses into each subdirectory
+  in parallel, at the cost of starting thread jobs.
+
+  [45]: ./Private/Get-FileSingleThreaded.ps1
+  [46]: ./Private/Get-FileMultiThreaded.ps1
+
+> Back to the [summary](#-summary)
+
+### ⚡ Running work in parallel
+
+[Invoke-ParallelJob][47] runs a script block on a fixed pool of thread jobs. The
+default pool size, from [Get-DefaultThrottleLimit][48], is 75% of the processors.
+
+For long-running work with interactive, multi-threaded progress, see
+[Compress-FileTree][31].
+
+  [47]: ./Private/Invoke-ParallelJob.ps1
+  [48]: ./Private/Get-DefaultThrottleLimit.ps1
+
+> Back to the [summary](#-summary)
+
+### 🔑 Requiring administrator rights
+
+Use [Test-Administrator][49] to check for an elevated session, or
+[Assert-Administrator][50] to stop when the session is not elevated.
+
+  [49]: ./Private/Test-Administrator.ps1
+  [50]: ./Private/Assert-Administrator.ps1
+
+> Back to the [summary](#-summary)
+
+### 🔏 Handling CUI
+
+The [cui-llm-redact][44] skill explains how to redact and generalize Controlled
+Unclassified Information (CUI) so that it is no longer CUI and can be used in
+prompts to a public LLM.
+
+> Back to the [summary](#-summary)
+
+## 🔭 Roadmap
+
+[Doc/Roadmap.md][59] plans new functions and states their requirements as
+MUST, SHOULD, MAY, and MUST NOT rules. The first planned function is `Get-Log`,
+which reads Windows Event Logs and the Linux journal through one set of
+parameters and one output shape.
+
+  [59]: ./Doc/Roadmap.md
+
+> Back to the [summary](#-summary)
+
 ## 🚧 Known issues and planned changes
 
 - **The hash settings reach functions through hidden module variables.**
-  [PSSecurity.psm1][36] copies the HashIndex settings in
+  [PSSecurity.psm1][36] copies the three HashIndex settings in
   [Config/Setting.psd1][40] into `$script:` variables, which
   [Write-DirectoryHash][15] reads without declaring them. The Linux functions
   already read their own files in [Config/][39] instead.
 - **`Public/` is flat.** Group functions into subfolders by security domain, such
-  as `AccessControl` and `AssetSecurity`. The loader in [PSSecurity.psm1][36] only reads `.ps1`
+  as `Audit` and `Harden`. The loader in [PSSecurity.psm1][36] only reads `.ps1`
   files directly inside `Public/` and `Private/`, so it needs to search
-  sub folders first.
-- **Some functions recurse file trees with their own code.** They should use
-  `Get-Tree` instead. Find them by searching `Public/` for `-Recurse`.
-- **[Compress-FileTree][31] runs its own thread-job pool.** It calls
-  `Start-ThreadJob` directly instead of the module's shared thread-job
-  functions, and installs ThreadJob from the PowerShell Gallery when
-  `Start-ThreadJob` is missing.
+  subfolders first.
+- **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
 - **Do Not write linux config files from a powershell function.** Put the config in `./Config`, and copy it into place.
 
 > Back to the [summary](#-summary)
@@ -292,14 +328,15 @@ Convert-CommentHelpToMarkdown -Path ./Private -OutPath ./Doc/Private
 Known security issues in this repository that are not yet fixed.
 
 - **The WSL pipelines expose the admin password on a command line.**
-  [build-ubuntu-wsl-tar.yml][60] and [harden-ubuntu-wsl-tar.yml][61] pass the
-  admin password to `chpasswd` inside a `bash -c` argument. The password
-  becomes part of the `wsl.exe` and `bash` command lines, so any process that
-  can list command lines can read it, and command-line auditing and EDR logs
-  record it. Fix: pipe it to `chpasswd` on standard input instead.
+  [build-ubuntu-wsl-tar.yml][60] and [harden-ubuntu-wsl-tar.yml][61] set the
+  password with `bash -c "echo 'admin:$($env:WSL_SUDOER)' | chpasswd"`. The
+  password becomes part of the `wsl.exe` and `bash` arguments, so any process
+  that can list command lines can read it, and command-line auditing and EDR
+  logs record it. Fix: send it on standard input instead, with
+  `"admin:$env:WSL_SUDOER" | wsl.exe -d $distro -u root -- chpasswd`.
 
-  [60]: ./Pipeline/build-ubuntu-wsl-tar.yml
-  [61]: ./Pipeline/harden-ubuntu-wsl-tar.yml
+  [60]: ./Pipeline/build-ubuntu-wsl-tar.yml#L50
+  [61]: ./Pipeline/harden-ubuntu-wsl-tar.yml#L55
 
 > Back to the [summary](#-summary)
 

@@ -9,8 +9,8 @@ if ($IsWindows) {
 
         .DESCRIPTION
             Finds every application on the PATH with Get-Command, then checks each
-            signature with Get-AuthenticodeSignature on a pool of thread jobs, using
-            Enter-ThreadQueue. Applications in WindowsApps are excluded. Each application
+            signature with Get-AuthenticodeSignature on parallel thread jobs, using
+            Invoke-ParallelJob. Applications in WindowsApps are excluded. Each application
             produces a signature record, or an Error record when the check throws.
 
             Returns one summary with counts by outcome, every record in Results, and the
@@ -74,7 +74,7 @@ if ($IsWindows) {
         )
 
         $results = @(
-            $applications | Enter-ThreadQueue -ThrottleLimit $ThrottleLimit {
+            $applications | Invoke-ParallelJob -ThrottleLimit $ThrottleLimit {
                 process {
                     # Inside catch, $_ is the error, so keep the application.
                     $application = $_

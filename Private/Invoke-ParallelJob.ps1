@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 Set-StrictMode -Version Latest
 
-function Enter-ThreadQueue {
+function Invoke-ParallelJob {
     <#
     .SYNOPSIS
         Runs a script block for each input object on a fixed pool of thread jobs.
@@ -42,8 +42,9 @@ function Enter-ThreadQueue {
         The arguments to pass to the script block in every worker, bound by position.
 
     .PARAMETER ThrottleLimit
-        The maximum number of workers, from 1 through 255. Defaults to 1. Fewer
-        workers are started when there are fewer objects.
+        The maximum number of workers, from 1 through 255. Defaults to 75% of the
+        processors, rounded down, and at least 1. Fewer workers are started when there
+        are fewer objects.
 
     .INPUTS
         System.Object. You can pipe any objects to this function.
@@ -52,12 +53,12 @@ function Enter-ThreadQueue {
         System.Object. The output of the script block, in the order it is produced.
 
     .EXAMPLE
-        $files | Enter-ThreadQueue { process { Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256 } }
+        $files | Invoke-ParallelJob { process { Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256 } }
 
-        Hashes each file on one worker thread.
+        Hashes each file on the default number of workers, 75% of the processors.
 
     .EXAMPLE
-        $files | Enter-ThreadQueue -ThrottleLimit 8 -ArgumentList $OutPath {
+        $files | Invoke-ParallelJob -ThrottleLimit 8 -ArgumentList $OutPath {
             param($OutPath)
             begin { $buffer = [byte[]]::new(64KB) }
             process { Copy-WithBuffer -LiteralPath $_.FullName -Destination $OutPath -Buffer $buffer }
@@ -67,7 +68,7 @@ function Enter-ThreadQueue {
         from the calling session into each worker.
 
     .EXAMPLE
-        $result = 1..20 | Enter-ThreadQueue { process { if ($_ % 5 -eq 0) { throw "bad $_" }; $_ } } -ErrorVariable failed
+        $result = 1..20 | Invoke-ParallelJob { process { if ($_ % 5 -eq 0) { throw "bad $_" }; $_ } } -ErrorVariable failed
         $failed.TargetObject
 
         Returns the 16 numbers that succeeded, and lists 5, 10, 15, and 20 as the
@@ -89,11 +90,15 @@ function Enter-ThreadQueue {
 
         [Parameter(HelpMessage = 'Enter the maximum number of workers (1-255).')]
         [ValidateRange(1, 255)]
-        [int]$ThrottleLimit = 1
+        [int]$ThrottleLimit
     )
     begin {
+        if (-not $PSBoundParameters.ContainsKey('ThrottleLimit')) {
+            $ThrottleLimit = Get-DefaultThrottleLimit
+        }
+
         if (-not $ScriptBlock.Ast.ProcessBlock) {
-            throw 'Enter-ThreadQueue requires a script block with a process block.'
+            throw 'Invoke-ParallelJob requires a script block with a process block.'
         }
 
         $scriptText = $ScriptBlock.ToString()
