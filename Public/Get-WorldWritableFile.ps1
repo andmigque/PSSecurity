@@ -8,9 +8,9 @@
 #             Finds world-writable files on Linux.
 
 #         .DESCRIPTION
-#             Walks each path and returns one report listing every file that any account can
+#             Recurses each path and returns one report listing every file that any account can
 #             write. With -IncludeDirectories, the report also lists world-writable directories
-#             that lack the sticky bit. The walk stays on the filesystem of each root, skips
+#             that lack the sticky bit. The recursion stays on the filesystem of each root, skips
 #             symlinks, and uses no external tools. Directories that cannot be read land in
 #             Errors, so a partial scan reports itself. -Verbose writes the mode, owner, and
 #             group of each finding.
@@ -55,10 +55,10 @@
 #             Requires PowerShell 7.3 or later for the UnixStat property. Run as root: a
 #             non-root scan cannot read root-only directories, so they land in Errors.
 
-#             The walk does not descend into mount points listed in /proc/self/mounts, the
+#             The recursion does not descend into mount points listed in /proc/self/mounts, the
 #             same as find -xdev. Separate partitions such as /home or /var are scanned only
 #             when passed as roots. Pseudo filesystems such as /proc and tmpfs mounts such as
-#             /tmp are mount points, so the walk skips them. Bind mounts are skipped as well.
+#             /tmp are mount points, so the recursion skips them. Bind mounts are skipped as well.
 
 #             Files include every non-directory entry, so a world-writable socket or FIFO is
 #             listed along with regular files.
@@ -95,12 +95,12 @@
 #         }
 
 #         # Every mount point on the host, read from the kernel's own mount table. A
-#         # directory in this set is the root of another filesystem, so the walk does not
+#         # directory in this set is the root of another filesystem, so the recursion does not
 #         # descend into it, the same as find -xdev. The kernel writes space, tab, newline,
 #         # and backslash in mount paths as octal escapes, which are decoded here.
 #         # Checking the set costs nothing per directory; reading each directory's device
 #         # ID instead would take one Get-Item call per directory, about 15 times slower.
-#         # A bind mount is a mount point too, so the walk skips it even when it repeats
+#         # A bind mount is a mount point too, so the recursion skips it even when it repeats
 #         # the root's filesystem.
 #         $mountPoints = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 #         foreach ($mountLine in Get-Content -LiteralPath '/proc/self/mounts' -ErrorAction Stop) {

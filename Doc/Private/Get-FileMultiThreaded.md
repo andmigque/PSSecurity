@@ -1,17 +1,17 @@
 # Get-FileMultiThreaded
 
 *Recursively returns the files under a directory that match a name pattern,*
-*walking its subdirectories in parallel.*
+*recursing into its subdirectories in parallel.*
 
 ## DESCRIPTION
 
-Lists the files directly in -Directory, then walks each of its subdirectories
-recursively with Get-FileSingleThreaded, -ThrottleLimit subdirectories at a
+Lists the files directly in -Directory, then recurses into each of its
+subdirectories with Get-FileSingleThreaded, -ThrottleLimit subdirectories at a
 time, using Invoke-ParallelJob.
 
 Directories whose name is in -Exclude are skipped entirely, so their contents
 are never read. Directories that cannot be read are skipped instead of stopping
-the walk. Symbolic links and junctions are not followed. Hidden and system
+the recursion. Symbolic links and junctions are not followed. Hidden and system
 items are included. Name matching is case insensitive on every platform.
 
 Files are returned as workers find them, not in directory order.
@@ -20,7 +20,7 @@ Files are returned as workers find them, not in directory order.
 
 ### -Directory
 
-The directory to walk. Accepts directories from the pipeline.
+The directory to recurse. Accepts directories from the pipeline.
 
 ### -Include
 
@@ -34,7 +34,7 @@ directory name only, not its path.
 
 ### -ThrottleLimit
 
-The number of subdirectories walked at once, from 1 through 255. Defaults to
+The number of subdirectories recursed at once, from 1 through 255. Defaults to
 75% of the processors, rounded down, and at least 1.
 
 ## EXAMPLES

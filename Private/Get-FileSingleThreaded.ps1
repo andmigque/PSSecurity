@@ -7,13 +7,13 @@ function Get-FileSingleThreaded {
         Returns the files in a directory that match a name pattern, on one thread.
 
     .DESCRIPTION
-        The sequential walker behind Get-FileMultiThreaded. Lists the files in -Directory
-        and, with -Recurse, every directory below it, using .NET enumeration and a
-        stack instead of Get-ChildItem or recursive function calls.
+        The single-threaded recursive search behind Get-FileMultiThreaded. Lists the
+        files in -Directory and, with -Recurse, every directory below it, using .NET
+        enumeration and a stack instead of Get-ChildItem or recursive function calls.
 
         Directories whose name is in -Exclude are skipped entirely, so their contents
         are never read. Directories that cannot be read are skipped instead of stopping
-        the walk. Symbolic links and junctions are not followed. Hidden and system
+        the recursion. Symbolic links and junctions are not followed. Hidden and system
         items are included. Name matching is case insensitive on every platform.
 
         This function runs inside Invoke-ParallelJob workers, so it must not call

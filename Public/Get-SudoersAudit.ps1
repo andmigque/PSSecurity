@@ -148,7 +148,7 @@
 #         }
 
 #         # sudo applies its own includedir rules to discovered files, and include directives may
-#         # name single files as well as directories, so discovery walks a work queue while parsing.
+#         # name single files as well as directories, so discovery recurses through a work queue while parsing.
 #         $directivePattern = '^\s*[@#]include(dir)?\s+(\S+)'
 #         $tagNames = 'NOPASSWD|PASSWD|NOEXEC|EXEC|SETENV|NOSETENV|MAIL|NOMAIL|FOLLOW|NOFOLLOW'
 #         $tagNames = "$tagNames|LOG_INPUT|NOLOG_INPUT|LOG_OUTPUT|NOLOG_OUTPUT|INTERCEPT|NOINTERCEPT"
@@ -468,7 +468,7 @@
 #             $userText = ($userTokens -join ', ')
 #             $hostText = ($hostTokens -join ' ')
 
-#             # Walk the right side as sudo does: runas targets and tags persist across the whole
+#             # Parse the right side as sudo does: runas targets and tags persist across the whole
 #             # specification until overridden, including through alias expansion, and each alias
 #             # expands with its own state before the outer state is restored.
 #             $runasDisplay = 'root'

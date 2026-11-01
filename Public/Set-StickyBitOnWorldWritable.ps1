@@ -7,7 +7,7 @@
 #         Adds the sticky bit to world-writable Linux directories.
 
 #     .DESCRIPTION
-#         Walks Path with a directory stack. Symlinks, nested mounts, and excluded
+#         Recurses Path with a directory stack. Symlinks, nested mounts, and excluded
 #         directory prefixes are skipped before descent. Every world-writable directory
 #         without the sticky bit keeps its existing permissions and gains the sticky bit.
 #         The changed mode is read back to verify the repair. Implements CIS 1.1.21 for

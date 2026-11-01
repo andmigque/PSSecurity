@@ -260,7 +260,7 @@ function Compress-FileTree {
     try {
         Write-Progress -Activity 'Compressing file tree' -Status 'Discovering files' -PercentComplete -1
         $progressTimer = [System.Diagnostics.Stopwatch]::StartNew()
-        # Walk directories explicitly: pruning OutPath before descent prevents
+        # Recurse directories explicitly: pruning OutPath before descent prevents
         # reading old backups or following a recursively growing output tree.
         $directories = [System.Collections.Generic.Stack[string]]::new()
         $directories.Push($Path)
