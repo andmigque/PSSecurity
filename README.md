@@ -10,25 +10,27 @@ PowerShell and .NET.
 
 ### Summary
 
-- [Features of PSSecurity include](#features-of-pssecurity-include)
-- [Project objectives](#project-objectives)
-- [Getting the module](#getting-the-module)
-- [Getting started](#getting-started)
-- [Command reference](#command-reference)
-  - [Audit](#audit)
-  - [Harden](#harden)
-  - [Accounts and system setup](#accounts-and-system-setup)
-  - [Utilities](#utilities)
-- [Repository layout](#repository-layout)
-  - [How private functions stay private](#how-private-functions-stay-private)
-  - [Documentation](#documentation)
-- [Writing functions](#writing-functions)
-  - [Finding files](#finding-files)
-  - [Running work in parallel](#running-work-in-parallel)
-  - [Requiring administrator rights](#requiring-administrator-rights)
-  - [Handling CUI](#handling-cui)
-- [Known issues and planned changes](#known-issues-and-planned-changes)
-- [License](#license)
+- [PSSecurity](#pssecurity)
+    - [Summary](#summary)
+    - [Features of PSSecurity include](#features-of-pssecurity-include)
+  - [Project objectives](#project-objectives)
+  - [Getting the module](#getting-the-module)
+  - [Getting started](#getting-started)
+  - [Command reference](#command-reference)
+    - [Audit](#audit)
+    - [Harden](#harden)
+    - [Accounts and system setup](#accounts-and-system-setup)
+    - [Utilities](#utilities)
+  - [Repository layout](#repository-layout)
+    - [How private functions stay private](#how-private-functions-stay-private)
+    - [Documentation](#documentation)
+  - [Writing functions](#writing-functions)
+    - [Finding files](#finding-files)
+    - [Running work in parallel](#running-work-in-parallel)
+    - [Requiring administrator rights](#requiring-administrator-rights)
+    - [Handling CUI](#handling-cui)
+  - [Known issues and planned changes](#known-issues-and-planned-changes)
+  - [License](#license)
 
 ### Features of PSSecurity include
 
@@ -189,7 +191,7 @@ Path | Contents
 [Public/][37] | Exported functions, one per `.ps1` file.
 [Private/][38] | Internal helper functions, one per `.ps1` file.
 [Config/][39] | [Setting.psd1][40] holds the module's settings; [PwshProfile.ps1][9] is the profile installed by `Deploy-PSProfile`.
-[Doc/][41] | Generated documentation. Do not edit by hand.
+[Doc/][41] | `PwshBestPractices/` is hand edited. `Public/` and `Private/` are generated.
 [Pipeline/][42] | Azure Pipelines definitions (`.yml`).
 [Skill/][43] | Agent skills, such as [cui-llm-redact][44].
 [AGENTS.md][6] | Coding rules, file structure, and exemplar functions for agents and contributors.

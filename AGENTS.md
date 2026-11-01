@@ -48,7 +48,7 @@ Key Naming Conventions to Remember:
 2. PascalCase: Capitalize the first letter of every word (e.g., -LiteralPath, not -literalpath).
 
 
-## Consisten File Structure
+## Consistent File Structure
 
 ### **GOOD**
 
