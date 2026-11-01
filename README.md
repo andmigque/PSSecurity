@@ -2,6 +2,9 @@
 
 A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSSecurity)][58]
+[![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSSecurity)][58]
+[![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/PSSecurity)][58]
 [![Open in vscode.dev](https://img.shields.io/badge/Open%20in-vscode.dev-blue)][1]
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
@@ -27,7 +30,9 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
     - [⚡ Running work in parallel](#-running-work-in-parallel)
     - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
     - [🔏 Handling CUI](#-handling-cui)
+  - [🔭 Roadmap](#-roadmap)
   - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
+  - [🚨 Vulnerabilities](#-vulnerabilities)
   - [📄 License](#-license)
 
 ### ✨ Features of PSSecurity include
@@ -203,7 +208,7 @@ Path | Contents
 [Public/][37] | Exported functions, one per `.ps1` file.
 [Private/][38] | Internal helper functions, one per `.ps1` file.
 [Config/][39] | [Setting.psd1][40] holds the module's settings; [PwshProfile.ps1][9] is the profile installed by `Deploy-PSProfile`; `Linux/` mirrors `/` and holds the hardening files installed by `Deploy-LinuxConfiguration`; `LinuxFilePermission.psd1` holds the rules applied by `Set-LinuxFilePermission`.
-[Doc/][41] | `PwshBestPractices/` is hand edited. `Public/` and `Private/` are generated.
+[Doc/][41] | [Roadmap.md][59] and `PwshBestPractice/` are hand edited. `Public/` and `Private/` are generated.
 [Pipeline/][42] | Azure Pipelines definitions (`.yml`).
 [Skill/][43] | Agent skills, such as [cui-llm-redact][44].
 [AGENTS.md][6] | Coding rules, file structure, and exemplar functions for agents and contributors.
@@ -231,7 +236,7 @@ snapshot are exported, so everything in `Private/` stays internal to the module.
 
 ### 📝 Documentation
 
-Everything under [Doc/][41] is generated from comment-based help by
+`Doc/Public/` and `Doc/Private/` are generated from comment-based help by
 [Convert-CommentHelpToMarkdown][32]. Update the help inside a function, then
 regenerate:
 
@@ -248,7 +253,8 @@ functions as models.
 
 ### 📂 Finding files
 
-Pick a recursive file search based on the size of the tree:
+Pick a private recursive file implementation to use in your public function.  
+Choose based on the size of the tree:
 
 - [Get-FileSingleThreaded][45] - For small trees. It has no startup cost.
 - [Get-FileMultiThreaded][46] - For large trees. It recurses into each subdirectory
@@ -290,6 +296,17 @@ prompts to a public LLM.
 
 > Back to the [summary](#-summary)
 
+## 🔭 Roadmap
+
+[Doc/Roadmap.md][59] plans new functions and states their requirements as
+MUST, SHOULD, MAY, and MUST NOT rules. The first planned function is `Get-Log`,
+which reads Windows Event Logs and the Linux journal through one set of
+parameters and one output shape.
+
+  [59]: ./Doc/Roadmap.md
+
+> Back to the [summary](#-summary)
+
 ## 🚧 Known issues and planned changes
 
 - **The hash settings reach functions through hidden module variables.**
@@ -303,6 +320,23 @@ prompts to a public LLM.
   subfolders first.
 - **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
 - **Do Not write linux config files from a powershell function.** Put the config in `./Config`, and copy it into place.
+
+> Back to the [summary](#-summary)
+
+## 🚨 Vulnerabilities
+
+Known security issues in this repository that are not yet fixed.
+
+- **The WSL pipelines expose the admin password on a command line.**
+  [build-ubuntu-wsl-tar.yml][60] and [harden-ubuntu-wsl-tar.yml][61] set the
+  password with `bash -c "echo 'admin:$($env:WSL_SUDOER)' | chpasswd"`. The
+  password becomes part of the `wsl.exe` and `bash` arguments, so any process
+  that can list command lines can read it, and command-line auditing and EDR
+  logs record it. Fix: send it on standard input instead, with
+  `"admin:$env:WSL_SUDOER" | wsl.exe -d $distro -u root -- chpasswd`.
+
+  [60]: ./Pipeline/build-ubuntu-wsl-tar.yml#L50
+  [61]: ./Pipeline/harden-ubuntu-wsl-tar.yml#L55
 
 > Back to the [summary](#-summary)
 

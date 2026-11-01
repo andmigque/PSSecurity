@@ -6,7 +6,7 @@
     Author               = 'Andres Quesada'
     CompanyName          = 'Quesada Works'
     Copyright            = '(c) 2026 Andres Quesada. Released under the MIT License.'
-    Description          = 'Audit and harden Windows and Linux using only PowerShell 7 and .NET. Covers ACLs, UAC, Authenticode, scheduled tasks, EFS, SUID and world-writable files, sudoers, sshd, kernel parameters, and file permissions.'
+    Description          = 'A cross-platform PowerShell module for auditing and hardening Windows and Linux.'
     PowerShellVersion    = '7.4'
 
     # Every public function. Platform-specific functions are defined only on their
@@ -53,17 +53,22 @@
     PrivateData          = @{
         PSData = @{
             Tags         = @(
-                'Security', 'Hardening', 'Audit', 'CIS', 'ACL', 'UAC', 'Authenticode',
-                'EFS', 'Sudoers', 'SSH', 'Windows', 'Linux', 'PSEdition_Core'
+                'Security', 'Hardening', 'Audit', 'Compliance', 'NIST', 'NIST800-171', 'CUI', 'CIS',
+                'ACL', 'Permissions', 'Ownership', 'UAC', 'Authenticode', 'CodeSigning', 'EFS', 'Encryption',
+                'ScheduledTask', 'AppX', 'Bloatware', 'Hash', 'FileIntegrity', 'FedRAMP',
+                'Sudo', 'Sudoers', 'SUID', 'Sysctl', 'Kernel', 'SSH', 'OpenSSH', 'Sshd', 'SFTP',
+                'Certificate', 'WSL', 'AzureDevOps', 'DevSecOps', 'SysAdmin', 'CrossPlatform',
+                'Windows', 'Linux', 'PSEdition_Core'
             )
             LicenseUri   = 'https://github.com/andmigque/PSSecurity/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/andmigque/PSSecurity'
             ReleaseNotes = @'
-2.0.0 - First PowerShell Gallery release.
+2.0.0
 
-Breaking changes
-- Linux hardening is now configuration files in Config/Linux, deployed by Deploy-LinuxConfiguration. Set-SysctlHardening, Set-ModprobeBlacklist, and Set-CoreDumpPolicy are removed.
-- Set-LinuxFilePermission applies Config/LinuxFilePermission.psd1, which now covers cron and home directories. Set-CronPermission and Set-HomeDirectoryPermission are removed.
+- Linux hardening is now configuration files in Config/Linux, deployed by Deploy-LinuxConfiguration.
+- Set-SysctlHardening, Set-ModprobeBlacklist, and Set-CoreDumpPolicy are removed.
+- Set-LinuxFilePermission applies Config/LinuxFilePermission.psd1.
+- Set-CronPermission and Set-HomeDirectoryPermission are removed.
 - Set-LoginDefPolicy is removed: /etc/login.defs differs by distribution.
 - Get-SuidBinary, Get-WorldWritableFile, and Set-StickyBitOnWorldWritable are replaced by Get-UnixFileMode and Add-UnixFileMode.
 - Get-SshdConfiguration and Get-SudoersAudit return one object per setting or rule instead of a report object.
