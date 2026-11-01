@@ -7,9 +7,19 @@
 - [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
 - [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
 - [ ] Read [Deploy-PsProfile](./Public/Deploy-PsProfile.ps1)
+- [ ] Read [Search-PatternInFile](./Public/Search-PatternInFile.ps1)
 - [ ] Read [Invoke-ParallelJob](./Private/Invoke-ParallelJob.ps1)
 - [ ] Read [Get-FileMultiThreaded](./Private/Get-FileMultiThreaded.ps1)
 
+## Microsoft Examples
+
+> Before writing a call to a built-in command, find how Microsoft uses it.
+
+[PowershellExamples.md](./Doc/PwshBestPractice/PowershellExamples.md) holds every PowerShell help example. Each example is a `###` title followed by a code block. Search it with [Search-PatternInFile](./Public/Search-PatternInFile.ps1):
+
+```powershell
+Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern 'Get-FileHash'
+```
 
 ## Rules
 
