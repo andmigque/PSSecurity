@@ -165,7 +165,7 @@ Command | Description
 [Import-Ubuntu][27] | Imports an Ubuntu archive as a WSL 2 distribution.
 [Install-AzureDevOpsAgent][28] | Downloads and registers an Azure Pipelines Windows agent as a service.
 [Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux.
-[Install-Sftp][30] | *No help yet.* Not implemented; the body is commented out.
+[Install-Sftp][30] | Installs the Windows OpenSSH server as a chrooted SFTP drop point, with a firewall rule limited to given addresses.
 
   [23]: ./Public/New-LocalAdminUser.ps1
   [24]: ./Public/New-WindowsUserProfile.ps1
