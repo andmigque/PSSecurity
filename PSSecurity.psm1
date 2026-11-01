@@ -10,23 +10,6 @@ $psSecuritySettings = Import-PowerShellDataFile -LiteralPath $script:SettingsPat
 $script:HashIndexAlgorithm = $psSecuritySettings.HashIndexAlgorithm
 $script:HashIndexInclude = $psSecuritySettings.HashIndexInclude
 $script:HashIndexExclude = $psSecuritySettings.HashIndexExclude
-$script:WorldWritableIncludePath = $psSecuritySettings.WorldWritableIncludePath
-$script:WorldWritableExcludePath = $psSecuritySettings.WorldWritableExcludePath
-$script:StickyBitExcludePath = $psSecuritySettings.StickyBitExcludePath
-$script:SuidIncludePath = $psSecuritySettings.SuidIncludePath
-$script:SuidExcludePath = $psSecuritySettings.SuidExcludePath
-$script:SuidKnownGoodPath = $psSecuritySettings.SuidKnownGoodPath
-$script:SudoersFilePath = $psSecuritySettings.SudoersFilePath
-$script:SudoersIncludeDirPath = $psSecuritySettings.SudoersIncludeDirPath
-$script:SudoersKnownGoodSpec = $psSecuritySettings.SudoersKnownGoodSpec
-$script:SshdPlatform = if ($IsWindows) { 'Windows' } elseif ($IsMacOS) { 'MacOS' } else { 'Linux' }
-$script:SshdBinary = $psSecuritySettings.SshdBinary[$script:SshdPlatform]
-$script:SshdConfigPath = $psSecuritySettings.SshdConfigPath[$script:SshdPlatform]
-$script:SysctlHardening = $psSecuritySettings.SysctlHardening
-$script:ModprobeBlacklist = $psSecuritySettings.ModprobeBlacklist
-$script:LinuxFilePermissions = $psSecuritySettings.LinuxFilePermissions
-$script:LoginDefPolicy = $psSecuritySettings.LoginDefPolicy
-$script:LoginDefsPath = $psSecuritySettings.LoginDefsPath
 
 $script:OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 

@@ -93,7 +93,7 @@ steps:
     targetType: inline
     script: |
       $distro = "Ubuntu-$(Build.BuildId)-$(System.JobAttempt)"
-      wsl.exe -d $distro -u root --cd "$(Build.SourcesDirectory)" -- pwsh -NoLogo -NoProfile -Command "`Import-Module ./PSSecurity.psd1; Set-CronPermission; Set-SysctlHardening -Persist; Set-HomeDirectoryPermission"
+      wsl.exe -d $distro -u root --cd "$(Build.SourcesDirectory)" -- pwsh -NoLogo -NoProfile -Command "`Import-Module ./PSSecurity.psd1; Deploy-LinuxConfiguration -Name '99-pssecurity-hardening.conf'; Set-LinuxFilePermission"
       if ($LASTEXITCODE -ne 0) { throw 'Hardening failed.' }
 
 - task: PowerShell@2

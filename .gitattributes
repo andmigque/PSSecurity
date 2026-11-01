@@ -1,0 +1,3 @@
+# Linux configuration files are copied into /etc as they are, so they must keep LF
+# line endings even when checked out on Windows with core.autocrlf.
+Config/Linux/** text eol=lf
