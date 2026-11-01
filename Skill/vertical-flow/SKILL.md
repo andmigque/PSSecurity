@@ -1,11 +1,11 @@
 ---
 name: vertical-flow
-description: Use this skill when you need to improve the readability of source code.
+description: Use this skill when code is hard to read. The problem is usually horizontal: too much on one line. Fix it by stacking one idea per line down the page.
 ---
 
 # Vertical Flow
 
-> Use this skill when you need to improve the readability of source code.
+> Use this skill when code is hard to read. The problem is usually horizontal: too much on one line. Fix it by stacking one idea per line down the page.
 
 
 ## Optimizing for the Y-axis
