@@ -10,7 +10,7 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
 - [PSSecurity](#pssecurity)
     - [🧭 Summary](#-summary)
-    - [✨ Features of PSSecurity include](#-features-of-pssecurity-include)
+    - [✨ Features of PSSecurity](#-features-of-pssecurity-include)
   - [🎯 Project objectives](#-project-objectives)
   - [📦 Getting the module](#-getting-the-module)
   - [🚀 Getting started](#-getting-started)
