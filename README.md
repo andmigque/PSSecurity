@@ -32,15 +32,16 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
   - [🚨 Vulnerabilities](#-vulnerabilities)
   - [📄 License](#-license)
 
-### ✨ Features of PSSecurity include
+### ✨ Features of PSSecurity 
+
+PSSecurity helps you run multithreaded auditing and hardening workflows. The module is conceptually organized into four domains:
 
 - [Audit][2] - Read ACLs, Authenticode signatures, scheduled tasks, UAC settings,
   and file hashes as PowerShell objects.
-- [Harden][3] - Apply UAC policies, change ownership, encrypt with EFS, and remove
-  unwanted AppX packages.
-- [Parallel][4] - Recurse large file trees and run work on a fixed pool of
+- [Harden][3] - Apply UAC policies, change ownership, encrypt with EFS, and remove unwanted AppX packages.
+- [MultiThreaded][4] - Recurse large file trees and run work on a fixed pool of
   thread jobs, sized to 75% of the processors.
-- [Self-documenting][5] - Generate Markdown documentation from each function's
+- [Doucmentation][5] - Generate Markdown documentation from each function's
   comment-based help.
 
   [2]: #-audit
@@ -48,21 +49,20 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
   [4]: #-running-work-in-parallel
   [5]: #-documentation
 
-## 🎯 Project objectives
+## 🎯 PSSecurity Objectives
 
-1. **Minimal dependencies**
+1. **Minimal Dependencies**
    - Uses built-in PowerShell and .NET. No external module dependencies. 
-2. **Cross-platform**
+2. **Cross Platform**
    - Supports Windows and Linux.
 3. **LLM Friendly**
-   - Comprehensive Markdown function documentation
-   - 
+   - Comprehensive Markdown function documentation.
 
   [6]: ./AGENTS.md
 
 > Back to the [summary](#-summary)
 
-## 📦 Clone the module
+## 📦 Clone the Module
 
 Enter your source code directory, then:
 
@@ -92,7 +92,7 @@ All future commands will be written to the root of your user directory.
 
 > Back to the [summary](#-summary)
 
-## 📖 Command reference
+## 📖 Command Reference
 
 The public commands, grouped by security domain. Commands marked *No help yet*
 do not have comment-based help.
@@ -194,7 +194,7 @@ Command | Description
 
 > Back to the [summary](#-summary)
 
-## 📁 Repository layout
+## 📁 Repository Layout
 
 Path | Contents
 ---- | --------
@@ -220,7 +220,7 @@ Path | Contents
 
 > Back to the [summary](#-summary)
 
-### 🙈 How private functions stay private
+### 🙈 How Private Functions Stay Private
 
 [PSSecurity.psm1][36] loads `Private/` first, records the contents of the
 `Function:` drive, then loads `Public/`. Only the functions that appear after that
@@ -240,13 +240,12 @@ Convert-CommentHelpToMarkdown -Path ./Private -OutPath ./Doc/Private
 
 > Back to the [summary](#-summary)
 
-## 🔧 Writing functions
+## 🔧 Writing Functions
 
 Follow the rules and file structure in [AGENTS.md][6], and use its exemplar
 functions as models.
 
-### 📂 Finding files
-
+### 📂 Finding Files
 Pick a private recursive file implementation to use in your public function.  
 Choose based on the size of the tree:
 
@@ -259,7 +258,7 @@ Choose based on the size of the tree:
 
 > Back to the [summary](#-summary)
 
-### ⚡ Running work in parallel
+### ⚡ Running Multi Threaded Work
 
 [Invoke-ParallelJob][47] runs a script block on a fixed pool of thread jobs. The
 default pool size, from [Get-DefaultThrottleLimit][48], is 75% of the processors.
