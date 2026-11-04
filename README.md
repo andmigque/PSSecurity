@@ -26,7 +26,6 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
     - [📂 Finding files](#-finding-files)
     - [⚡ Running work in parallel](#-running-work-in-parallel)
     - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
-    - [🔏 Handling CUI](#-handling-cui)
   - [🔭 Roadmap](#-roadmap)
   - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
   - [🚨 Vulnerabilities](#-vulnerabilities)
@@ -184,15 +183,11 @@ Command | Description
 ------- | -----------
 [Compress-FileTree][31] | Recursively mirrors and compresses directory trees as gzip files using thread jobs.
 [Convert-CommentHelpToMarkdown][32] | Converts PowerShell comment-based help into Markdown documents.
-[Join-MegaHash][33] | Joins the hashes of a directory tree into one file.
-[Compare-MegaHash][51] | Compares a directory tree with the joined hash saved by Join-MegaHash.
 [Search-PatternInFile][34] | Searches the files under a path for a regular expression.
 
   [31]: ./Public/Compress-FileTree.ps1
   [32]: ./Public/Convert-CommentHelpToMarkdown.ps1
-  [33]: ./Public/Join-MegaHash.ps1
   [34]: ./Public/Search-PatternInFile.ps1
-  [51]: ./Public/Compare-MegaHash.ps1
 
 > Back to the [summary](#-summary)
 
@@ -218,8 +213,7 @@ Path | Contents
   [41]: ./Doc/
   [42]: ./Pipeline/
   [43]: ./Skill/
-  [44]: ./Skill/cui-llm-redact/SKILL.md
-
+  
 > Back to the [summary](#-summary)
 
 ### 🙈 How Private Functions Stay Private
@@ -261,9 +255,6 @@ Choose based on the size of the tree:
 > Back to the [summary](#-summary)
 
 ### ⚡ Running Multi Threaded Work
-
-[Invoke-ParallelJob][47] runs a script block on a fixed pool of thread jobs. The
-default pool size, from [Get-DefaultThrottleLimit][48], is 75% of the processors.
 
 For long-running work with interactive, multi-threaded progress, see
 [Compress-FileTree][31].
