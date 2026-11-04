@@ -2,9 +2,6 @@
 
 A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSSecurity)][58]
-[![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSSecurity)][58]
-[![PowerShell Gallery Platform](https://img.shields.io/powershellgallery/p/PSSecurity)][58]
 [![Open in vscode.dev](https://img.shields.io/badge/Open%20in-vscode.dev-blue)][1]
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
@@ -65,32 +62,30 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
 > Back to the [summary](#-summary)
 
-## 📦 Getting the module
+## 📦 Clone the module
 
-Install PSSecurity from the PowerShell Gallery.
+Enter your source code directory, then:
 
 ```powershell
-Install-PSResource -Name PSSecurity -Repository PSGallery -Scope CurrentUser
+git clone https://github.com/andmigque/PSSecurity.git
 ```
 
   [7]: https://github.com/andmigque/PSSecurity
-  [58]: https://www.powershellgallery.com/packages/PSSecurity
 
 > Back to the [summary](#-summary)
 
-## 🚀 Getting started
+## 🚀 Import the Module
 
-Import the module, then install the PSSecurity profile:
+Import, then install the PSSecurity profile:
 
 ```powershell
 Import-Module PSSecurity
 Deploy-PSProfile
 ```
 
-From a clone, import the manifest by path instead: `Import-Module ./PSSecurity.psd1`.
-
 [Deploy-PSProfile][8] copies [Config/PwshProfile.ps1][9], which works on both
-Windows and Linux, to your `$PROFILE`.
+Windows and Linux, to your `$PROFILE`. 
+All future commands will be written to the root of your user directory.
 
   [8]: ./Public/Deploy-PSProfile.ps1
   [9]: ./Config/PwshProfile.ps1
@@ -156,7 +151,7 @@ Command | Description
 
 > Back to the [summary](#-summary)
 
-### 👤 Accounts and system setup
+### 👤 Accounts and Setup
 
 Command | Description
 ------- | -----------
@@ -167,7 +162,7 @@ Command | Description
 [Deploy-PSProfile][8] | Installs the PSSecurity pwsh profile for the current user and host.
 [Import-Ubuntu][27] | Imports an Ubuntu archive as a WSL 2 distribution.
 [Install-AzureDevOpsAgent][28] | Downloads and registers an Azure Pipelines Windows agent as a service.
-[Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux.
+[Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux
 [Install-Sftp][30] | Installs the Windows OpenSSH server as a chrooted SFTP drop point, with a firewall rule limited to given addresses.
 
   [23]: ./Public/New-LocalAdminUser.ps1
@@ -185,7 +180,7 @@ Command | Description
 
 Command | Description
 ------- | -----------
-[Compress-FileTree][31] | Compresses a directory tree into individual gzip files using thread jobs.
+[Compress-FileTree][31] | Recursively mirrors and compresses directory trees as gzip files using thread jobs.
 [Convert-CommentHelpToMarkdown][32] | Converts PowerShell comment-based help into Markdown documents.
 [Join-MegaHash][33] | Joins the hashes of a directory tree into one file.
 [Compare-MegaHash][51] | Compares a directory tree with the joined hash saved by Join-MegaHash.
@@ -210,7 +205,6 @@ Path | Contents
 [Config/][39] | [Setting.psd1][40] holds the module's settings; [PwshProfile.ps1][9] is the profile installed by `Deploy-PSProfile`; `Linux/` mirrors `/` and holds the hardening files installed by `Deploy-LinuxConfiguration`; `LinuxFilePermission.psd1` holds the rules applied by `Set-LinuxFilePermission`.
 [Doc/][41] | [Roadmap.md][59] and `PwshBestPractice/` are hand edited. `Public/` and `Private/` are generated.
 [Pipeline/][42] | Azure Pipelines definitions (`.yml`).
-[Skill/][43] | Agent skills, such as [cui-llm-redact][44].
 [AGENTS.md][6] | Coding rules, file structure, and exemplar functions for agents and contributors.
 
   [35]: ./PSSecurity.psd1
@@ -287,12 +281,6 @@ Use [Test-Administrator][49] to check for an elevated session, or
   [50]: ./Private/Assert-Administrator.ps1
 
 > Back to the [summary](#-summary)
-
-### 🔏 Handling CUI
-
-The [cui-llm-redact][44] skill explains how to redact and generalize Controlled
-Unclassified Information (CUI) so that it is no longer CUI and can be used in
-prompts to a public LLM.
 
 > Back to the [summary](#-summary)
 
