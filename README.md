@@ -76,16 +76,18 @@ git clone https://github.com/andmigque/PSSecurity.git
 
 ## 🚀 Import the Module
 
-Import, then install the PSSecurity profile:
+Import the module, then deploy the PSSecurity profile:
 
 ```powershell
 Import-Module PSSecurity
 Deploy-PSProfile
 ```
 
-[Deploy-PSProfile][8] copies [Config/PwshProfile.ps1][9], which works on both
-Windows and Linux, to your `$PROFILE`. 
-All future commands will be written to the root of your user directory.
+[Deploy-PSProfile][8] copies [Config/PwshProfile.ps1][9] to your `$PROFILE` on Win and Lin.
+
+All future commands will be written to the root of your user directory into the pshistory.log file.
+
+Restart your session to begin using your upgraded PowerShell.
 
   [8]: ./Public/Deploy-PSProfile.ps1
   [9]: ./Config/PwshProfile.ps1
