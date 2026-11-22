@@ -6,9 +6,24 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
 
+## 🔭 Roadmap
+
+See the [Roadmap][59] for the upcoming FedRAMP feature.
+The most up-to-date FedRAMP rules and marketplace listings, accessible directly in your terminal.
+
+- [1.3 FedRAMP Rules](./Doc/Roadmap.md#-13-fedramp-rules)
+- [1.4 FedRAMP Marketplace](./Doc/Roadmap.md#-14-fedramp-marketplace)
+- [2.3 FedRAMP Requirements](./Doc/Roadmap.md#-23-fedramp-requirements)
+  - [2.3.6 FedRAMP rules example](./Doc/Roadmap.md#-236-fedramp-rules-example)
+- [2.4 FedRAMP Marketplace Requirements](./Doc/Roadmap.md#-24-fedramp-marketplace-requirements)
+  - [2.4.6 Marketplace category example](./Doc/Roadmap.md#-246-marketplace-category-example)
+
+  [59]: ./Doc/Roadmap.md
+
 ### 🧭 Summary
 
 - [PSSecurity](#pssecurity)
+  - [🔭 Roadmap](#-roadmap)
     - [🧭 Summary](#-summary)
     - [✨ Features of PSSecurity](#-features-of-pssecurity-include)
   - [🎯 Project objectives](#-project-objectives)
@@ -24,9 +39,8 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
     - [📝 Documentation](#-documentation)
   - [🔧 Writing functions](#-writing-functions)
     - [📂 Finding files](#-finding-files)
-    - [⚡ Running work in parallel](#-running-work-in-parallel)
+    - [⚡ Running multithreaded work](#-running-multithreaded-work)
     - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
-  - [🔭 Roadmap](#-roadmap)
   - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
   - [📄 License](#-license)
 
@@ -37,14 +51,14 @@ PSSecurity helps you run multithreaded auditing and hardening workflows. The mod
 - [Audit][2] - Read ACLs, Authenticode signatures, scheduled tasks, UAC settings,
   and file hashes as PowerShell objects.
 - [Harden][3] - Apply UAC policies, change ownership, encrypt with EFS, and remove unwanted AppX packages.
-- [MultiThreaded][4] - Recurse large file trees and run work on a fixed pool of
-  thread jobs, sized to 75% of the processors.
+- [Multithreading][4] - Schedule caller-created thread jobs and inspect the
+  running, completed, failed, and stopped jobs.
 - [Doucmentation][5] - Generate Markdown documentation from each function's
   comment-based help.
 
   [2]: #-audit
   [3]: #-harden
-  [4]: #-running-work-in-parallel
+  [4]: #-running-multithreaded-work
   [5]: #-documentation
 
 ## 🎯 PSSecurity Objectives
@@ -180,11 +194,20 @@ Command | Description
 ------- | -----------
 [Compress-FileTree][31] | Recursively mirrors and compresses directory trees as gzip files using thread jobs.
 [Convert-CommentHelpToMarkdown][32] | Converts PowerShell comment-based help into Markdown documents.
+[Get-EnumeratedDirectory][60] | Lists child directories and optionally recurses, skipping excluded subtrees.
+[Initialize-ThreadJobBag][61] | Places an array of thread jobs in a bounded bag.
+[Initialize-Pool][62] | Opens a scheduler runspace and attaches it to the supplied bag object.
+[Start-ThreadJobPool][63] | Starts the scheduler and returns the pool with live job counts and job objects.
 [Search-PatternInFile][34] | Searches the files under a path for a regular expression.
 
   [31]: ./Public/Compress-FileTree.ps1
   [32]: ./Public/Convert-CommentHelpToMarkdown.ps1
   [34]: ./Public/Search-PatternInFile.ps1
+  [60]: ./Doc/Public/Get-EnumeratedDirectory.md
+  [61]: ./Doc/Public/Initialize-ThreadJobBag.md
+  [62]: ./Doc/Public/Initialize-Pool.md
+  [63]: ./Doc/Public/Start-ThreadJobPool.md
+  [64]: ./Doc/Private/Get-DefaultThreadCount.md
 
 > Back to the [summary](#-summary)
 
@@ -226,6 +249,7 @@ snapshot are exported, so everything in `Private/` stays internal to the module.
 regenerate:
 
 ```powershell
+Convert-CommentHelpToMarkdown -Path ./Public -OutPath ./Doc/Public
 Convert-CommentHelpToMarkdown -Path ./Private -OutPath ./Doc/Private
 ```
 
@@ -237,6 +261,16 @@ Follow the rules and file structure in [AGENTS.md][6], and use its exemplar
 functions as models.
 
 ### 📂 Finding Files
+
+Use [Get-EnumeratedDirectory][60] to list immediate child directories, or pass
+`-Recurse` to walk descendants. Exclusions match directory names and skip the
+entire matching subtree. Each input path produces one list of directories.
+
+```powershell
+$directories = Get-EnumeratedDirectory -LiteralPath . -Recurse -Exclude '.git', 'bin*'
+$directories | Select-Object -ExpandProperty FullName
+```
+
 Pick a private recursive file implementation to use in your public function.  
 Choose based on the size of the tree:
 
@@ -249,10 +283,36 @@ Choose based on the size of the tree:
 
 > Back to the [summary](#-summary)
 
-### ⚡ Running Multi Threaded Work
+### ⚡ Running Multithreaded Work
 
-For long-running work with interactive, multi-threaded progress, see
-[Compress-FileTree][31].
+Pass your array of unstarted, unscheduled thread jobs to
+[Initialize-ThreadJobBag][61]. The bag holds the entire batch.
+[Initialize-Pool][62] opens the scheduler runspace, and [Start-ThreadJobPool][63]
+starts dispatching jobs and returns the pool immediately. Jobs created with
+`Start-ThreadJob` already have a scheduler.
+
+```powershell
+$pool = Initialize-ThreadJobBag -ThreadJob $threadJobs |
+    Initialize-Pool |
+    Start-ThreadJobPool -ThreadCount 8
+
+$pool.Summary               # Counts for Active, Completed, Failed, and Stopped
+$pool.Status.Active         # The job objects currently running
+$pool.Status.Failed         # The job objects that failed
+```
+
+Omitting `-ThreadCount` or passing `0` selects the [default thread count][64].
+The default and the initial number of jobs both cap concurrency. For example,
+requesting 8 with 3 jobs and a default of 6 gives the scheduler 3 slots.
+
+Read `Summary` or `Status` again to refresh it. To wait for the jobs and collect
+their output, use the original job objects retained on the pool.
+
+```powershell
+$pool.ThreadJob | Wait-Job | Receive-Job
+```
+
+For file compression with interactive progress, see [Compress-FileTree][31].
 
   [47]: ./Private/Invoke-ParallelJob.ps1
   [48]: ./Private/Get-DefaultThrottleLimit.ps1
@@ -268,17 +328,6 @@ Use [Test-Administrator][49] to check for an elevated session, or
   [50]: ./Private/Assert-Administrator.ps1
 
 > Back to the [summary](#-summary)
-
-> Back to the [summary](#-summary)
-
-## 🔭 Roadmap
-
-[Doc/Roadmap.md][59] plans new functions and states their requirements as
-MUST, SHOULD, MAY, and MUST NOT rules. The first planned function is `Get-Log`,
-which reads Windows Event Logs and the Linux journal through one set of
-parameters and one output shape.
-
-  [59]: ./Doc/Roadmap.md
 
 > Back to the [summary](#-summary)
 
