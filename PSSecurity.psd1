@@ -26,6 +26,7 @@
         'Get-UacConfiguration'
         'Get-UnixFileMode'
         'Import-Ubuntu'
+        'Initialize-Pool'
         'Initialize-ThreadJobBag'
         'Install-AzureDevOpsAgent'
         'Install-DpkgPwsh'
