@@ -19,6 +19,7 @@
         'Deploy-PSProfile'
         'Get-AclItem'
         'Get-ApplicationSignatureAudit'
+        'Get-EnumeratedDirectory'
         'Get-ScheduledTaskAudit'
         'Get-SshdConfiguration'
         'Get-SudoersAudit'
