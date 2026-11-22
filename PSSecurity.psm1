@@ -1,5 +1,8 @@
 Set-StrictMode -Version Latest
 
+if ($null -eq (Get-Variable -Name PSSecurityThreadPool -Scope Global -ErrorAction Ignore)) {
+    $global:PSSecurityThreadPool = [PSCustomObject]@{}
+}
 
 $env:POWERSHELL_TELEMETRY_OPTOUT = 'true'
 $root = Split-Path -Parent -Path $MyInvocation.MyCommand.Path
