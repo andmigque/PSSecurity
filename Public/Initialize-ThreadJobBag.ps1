@@ -4,14 +4,13 @@ Set-StrictMode -Version Latest
 function Initialize-ThreadJobBag {
     <#
     .SYNOPSIS
-        Creates a bounded, unordered bag of thread jobs.
+        Creates an empty concurrent bag of thread jobs.
 
     .DESCRIPTION
-        Creates one bag per input. A BlockingCollection bounds its capacity at
-        the resolved thread count and stores jobs in a ConcurrentBag.
+        Creates one ConcurrentBag per input and returns it with the resolved thread count.
 
     .PARAMETER ThreadCount
-        Specify 1 through 255 to set the bag capacity. Omit ThreadCount or pass
+        Specify 1 through 255 to set the thread count. Omit ThreadCount or pass
         0 to use the count calculated by Get-DefaultThreadCount.
 
     .INPUTS
@@ -22,20 +21,20 @@ function Initialize-ThreadJobBag {
         Use the ConcurrentBag property's Add and TryTake methods to submit and take jobs.
 
     .EXAMPLE
-        (Initialize-ThreadJobBag -ThreadCount 8).ConcurrentBag.BoundedCapacity
+        (Initialize-ThreadJobBag -ThreadCount 8).ConcurrentBag.Count
 
-        Returns 8.
+        Returns 0 because the new bag is empty.
 
     .EXAMPLE
         0, 4 | Initialize-ThreadJobBag
 
-        Creates two bags. The first uses the calculated default. The second has four slots.
+        Creates two bags. The first has the default thread count. The second has a thread count of 4.
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName,
-            HelpMessage = 'Enter 1 through 255 for a fixed capacity, or 0 to use the calculated default.')]
+            HelpMessage = 'Enter a thread count from 1 through 255, or 0 to use the calculated default.')]
         [ValidateRange(0, 255)]
         [int]$ThreadCount = 0
     )
@@ -46,10 +45,9 @@ function Initialize-ThreadJobBag {
 
     process {
         $count = $ThreadCount -eq 0 ? $default : $ThreadCount
-        $bag = [System.Collections.Concurrent.ConcurrentBag[ThreadJob.ThreadJob]]::new()
 
         [PSCustomObject]@{
-            ConcurrentBag = [System.Collections.Concurrent.BlockingCollection[ThreadJob.ThreadJob]]::new($bag, $count)
+            ConcurrentBag = [System.Collections.Concurrent.ConcurrentBag[ThreadJob.ThreadJob]]::new()
             ThreadCount   = $count
         }
     }
