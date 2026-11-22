@@ -26,6 +26,7 @@
         'Get-UacConfiguration'
         'Get-UnixFileMode'
         'Import-Ubuntu'
+        'Initialize-ThreadJobQueue'
         'Install-AzureDevOpsAgent'
         'Install-DpkgPwsh'
         'Invoke-Sudo'
