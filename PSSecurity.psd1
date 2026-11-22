@@ -43,6 +43,7 @@
         'Set-LinuxFilePermission'
         'Set-UacConsentOnly'
         'Set-UacRequirePassword'
+        'Start-ThreadJobPool'
         'Unprotect-Item'
         'Write-DirectoryHash'
     )

@@ -4,53 +4,38 @@ Set-StrictMode -Version Latest
 function Initialize-ThreadJobBag {
     <#
     .SYNOPSIS
-        Creates a bounded, unordered bag of thread jobs.
+        Creates a bounded bag containing the supplied thread jobs.
 
-    .DESCRIPTION
-        Creates one bag per input. A BlockingCollection bounds its capacity at
-        the resolved thread count and stores jobs in a ConcurrentBag.
-
-    .PARAMETER ThreadCount
-        Specify 1 through 255 to set the bag capacity. Omit ThreadCount or pass
-        0 to use the count calculated by Get-DefaultThreadCount.
-
-    .INPUTS
-        System.Int32 or an object with a ThreadCount property.
+    .PARAMETER ThreadJob
+        The array of thread jobs to place in the bag.
 
     .OUTPUTS
-        PSCustomObject with ConcurrentBag and ThreadCount properties.
-        Use the ConcurrentBag property's Add and TryTake methods to submit and take jobs.
+        A PSCustomObject containing the original ThreadJob array and the
+        populated ConcurrentBag wrapped in a bounded BlockingCollection.
 
     .EXAMPLE
-        (Initialize-ThreadJobBag -ThreadCount 8).ConcurrentBag.BoundedCapacity
-
-        Returns 8.
-
-    .EXAMPLE
-        0, 4 | Initialize-ThreadJobBag
-
-        Creates two bags. The first uses the calculated default. The second has four slots.
+        Initialize-ThreadJobBag -ThreadJob $threadJobs |
+            Initialize-Pool |
+            Start-ThreadJobPool
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param(
-        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName,
-            HelpMessage = 'Enter 1 through 255 for a fixed capacity, or 0 to use the calculated default.')]
-        [ValidateRange(0, 255)]
-        [int]$ThreadCount = 0
+        [Parameter(HelpMessage = 'Enter the thread jobs to place in the bag.')]
+        [ThreadJob.ThreadJob[]]$ThreadJob = @()
     )
 
-    begin {
-        $default = (Get-DefaultThreadCount).ThreadCount
+    if ($ThreadJob.Length -eq 0) {
+        throw 'At least one thread job is required.'
     }
 
-    process {
-        $count = $ThreadCount -eq 0 ? $default : $ThreadCount
-        $bag = [System.Collections.Concurrent.ConcurrentBag[ThreadJob.ThreadJob]]::new()
+    $bag = [System.Collections.Concurrent.ConcurrentBag[ThreadJob.ThreadJob]]::new($ThreadJob)
 
-        [PSCustomObject]@{
-            ConcurrentBag = [System.Collections.Concurrent.BlockingCollection[ThreadJob.ThreadJob]]::new($bag, $count)
-            ThreadCount   = $count
-        }
+    [PSCustomObject]@{
+        ThreadJob     = $ThreadJob
+        ConcurrentBag = [System.Collections.Concurrent.BlockingCollection[ThreadJob.ThreadJob]]::new(
+            $bag,
+            $ThreadJob.Length
+        )
     }
 }

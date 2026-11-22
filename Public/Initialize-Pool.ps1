@@ -16,10 +16,10 @@ function Initialize-Pool {
         PSCustomObject from Initialize-ThreadJobBag.
 
     .OUTPUTS
-        PSCustomObject with ConcurrentBag, ThreadCount, and Runspace properties.
+        PSCustomObject with ConcurrentBag, ThreadJob, and Runspace properties.
 
     .EXAMPLE
-        $pool = Initialize-ThreadJobBag -ThreadCount 8 | Initialize-Pool
+        $pool = Initialize-ThreadJobBag -ThreadJob $threadJobs | Initialize-Pool
         $pool.Runspace.RunspaceStateInfo.State
 
         Returns Opened.
