@@ -2,13 +2,6 @@
 
 A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
-> [!IMPORTANT]
-> **GLOBAL VARIABLE — `$global:PSSecurityThreadPool`**
->
-> The planned `Start-ThreadJobPool` command sets `$global:PSSecurityThreadPool = $Pool`
-> after the scheduler starts successfully. This gives scripts in the caller's runspace
-> access to the same live pool. The reference lasts until the PowerShell session ends.
-
 [![Open in vscode.dev](https://img.shields.io/badge/Open%20in-vscode.dev-blue)][1]
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
@@ -80,12 +73,6 @@ git clone https://github.com/andmigque/PSSecurity.git
 > Back to the [summary](#-summary)
 
 ## 🚀 Import the Module
-
-> [!IMPORTANT]
-> **Start a fresh PowerShell process to test changes to a loaded `Add-Type` class.**
-> Once `Get-EnumeratedDirectory` loads `PSSecurity.DirectoryEnumerator`, the process
-> keeps that compiled definition even after `Import-Module -Force`. Start a new
-> `pwsh`, import the edited module there, and rerun the command.
 
 Import the module, then deploy the PSSecurity profile:
 
