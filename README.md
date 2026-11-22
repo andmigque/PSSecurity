@@ -28,7 +28,6 @@ A cross-platform PowerShell module for auditing and hardening Windows and Linux.
     - [🔑 Requiring administrator rights](#-requiring-administrator-rights)
   - [🔭 Roadmap](#-roadmap)
   - [🚧 Known issues and planned changes](#-known-issues-and-planned-changes)
-  - [🚨 Vulnerabilities](#-vulnerabilities)
   - [📄 License](#-license)
 
 ### ✨ Features of PSSecurity 
@@ -88,7 +87,7 @@ All future commands will be written to the root of your user directory into the 
 
 Restart your session to begin using your upgraded PowerShell.
 
-  [8]: ./Public/Deploy-PSProfile.ps1
+  [8]: ./Public/Deploy-PsProfile.ps1
   [9]: ./Config/PwshProfile.ps1
 
 > Back to the [summary](#-summary)
@@ -164,7 +163,6 @@ Command | Description
 [Import-Ubuntu][27] | Imports an Ubuntu archive as a WSL 2 distribution.
 [Install-AzureDevOpsAgent][28] | Downloads and registers an Azure Pipelines Windows agent as a service.
 [Install-DpkgPwsh][29] | Installs PowerShell 7.6.6 from the GitHub .deb package on Linux
-[Install-Sftp][30] | Installs the Windows OpenSSH server as a chrooted SFTP drop point, with a firewall rule limited to given addresses.
 
   [23]: ./Public/New-LocalAdminUser.ps1
   [24]: ./Public/New-WindowsUserProfile.ps1
@@ -173,7 +171,6 @@ Command | Description
   [27]: ./Public/Import-Ubuntu.ps1
   [28]: ./Public/Install-AzureDevOpsAgent.ps1
   [29]: ./Public/Install-DpkgPwsh.ps1
-  [30]: ./Public/Install-Sftp.ps1
 
 > Back to the [summary](#-summary)
 
@@ -201,7 +198,6 @@ Path | Contents
 [Private/][38] | Internal helper functions, one per `.ps1` file.
 [Config/][39] | [Setting.psd1][40] holds the module's settings; [PwshProfile.ps1][9] is the profile installed by `Deploy-PSProfile`; `Linux/` mirrors `/` and holds the hardening files installed by `Deploy-LinuxConfiguration`; `LinuxFilePermission.psd1` holds the rules applied by `Set-LinuxFilePermission`.
 [Doc/][41] | [Roadmap.md][59] and `PwshBestPractice/` are hand edited. `Public/` and `Private/` are generated.
-[Pipeline/][42] | Azure Pipelines definitions (`.yml`).
 [AGENTS.md][6] | Coding rules, file structure, and exemplar functions for agents and contributors.
 
   [35]: ./PSSecurity.psd1
@@ -211,7 +207,6 @@ Path | Contents
   [39]: ./Config/
   [40]: ./Config/Setting.psd1
   [41]: ./Doc/
-  [42]: ./Pipeline/
   [43]: ./Skill/
   
 > Back to the [summary](#-summary)
@@ -300,23 +295,6 @@ parameters and one output shape.
   subfolders first.
 - **There are several disparate recursive file implementations.** All implementations should be refactored to use one of the private `Get-File*Threaded` functions.
 - **Do Not write linux config files from a powershell function.** Put the config in `./Config`, and copy it into place.
-
-> Back to the [summary](#-summary)
-
-## 🚨 Vulnerabilities
-
-Known security issues in this repository that are not yet fixed.
-
-- **The WSL pipelines expose the admin password on a command line.**
-  [build-ubuntu-wsl-tar.yml][60] and [harden-ubuntu-wsl-tar.yml][61] set the
-  password with `bash -c "echo 'admin:$($env:WSL_SUDOER)' | chpasswd"`. The
-  password becomes part of the `wsl.exe` and `bash` arguments, so any process
-  that can list command lines can read it, and command-line auditing and EDR
-  logs record it. Fix: send it on standard input instead, with
-  `"admin:$env:WSL_SUDOER" | wsl.exe -d $distro -u root -- chpasswd`.
-
-  [60]: ./Pipeline/build-ubuntu-wsl-tar.yml#L50
-  [61]: ./Pipeline/harden-ubuntu-wsl-tar.yml#L55
 
 > Back to the [summary](#-summary)
 
