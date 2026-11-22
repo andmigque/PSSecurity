@@ -13,7 +13,6 @@
     # platform, so each system exports the subset that exists there.
     FunctionsToExport    = @(
         'Add-UnixFileMode'
-        'Compare-MegaHash'
         'Compress-FileTree'
         'Convert-CommentHelpToMarkdown'
         'Deploy-LinuxConfiguration'
@@ -28,9 +27,7 @@
         'Import-Ubuntu'
         'Install-AzureDevOpsAgent'
         'Install-DpkgPwsh'
-        'Install-Sftp'
         'Invoke-Sudo'
-        'Join-MegaHash'
         'Measure-OwnerAnomaly'
         'New-LocalAdminUser'
         'New-SecurityCertificate'
@@ -76,7 +73,7 @@
 - Get-ApplicationSignatureAudit: -Throttle is renamed -ThrottleLimit.
 - New-SecurityCertificate: -Subdomains is renamed -Subdomain.
 - New-WindowsUserProfile: -IsAdmin is a switch.
-- Join-MegaHash and Compare-MegaHash take -Path.
+- Removed Compare-MegaHash, Join-MegaHash, Install-Sftp, the Windows SFTP configuration and banner, and the Azure Pipelines definitions for building and hardening the WSL image.
 
 Changes
 - Every public function has full comment-based help, OutputType, and a platform check.

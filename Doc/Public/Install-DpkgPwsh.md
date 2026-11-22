@@ -10,7 +10,6 @@ needs and finish the installation. The package is deleted afterward.
 
 dpkg is expected to report unmet dependencies, which the apt steps that
 follow repair, so only the download and apt steps stop the function.
-Pipeline/harden-ubuntu-wsl-tar.yml runs the same steps.
 
 Runs sudo, so it can prompt for a password. Supports -WhatIf and -Confirm.
 Debian and Ubuntu only.
