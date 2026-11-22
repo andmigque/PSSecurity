@@ -74,6 +74,12 @@ git clone https://github.com/andmigque/PSSecurity.git
 
 ## 🚀 Import the Module
 
+> [!IMPORTANT]
+> **Start a fresh PowerShell process to test changes to a loaded `Add-Type` class.**
+> Once `Get-EnumeratedDirectory` loads `PSSecurity.DirectoryEnumerator`, the process
+> keeps that compiled definition even after `Import-Module -Force`. Start a new
+> `pwsh`, import the edited module there, and rerun the command.
+
 Import the module, then deploy the PSSecurity profile:
 
 ```powershell
@@ -250,6 +256,10 @@ Choose based on the size of the tree:
 > Back to the [summary](#-summary)
 
 ### ⚡ Running Multi Threaded Work
+
+**Pool startup owns `$global:PSSecurityThreadPool`.** The planned
+`Start-ThreadJobPool` command should assign the live pool to this variable
+after the scheduler starts successfully. Exiting PowerShell clears the reference.
 
 For long-running work with interactive, multi-threaded progress, see
 [Compress-FileTree][31].
