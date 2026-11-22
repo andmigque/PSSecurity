@@ -9,15 +9,16 @@ function Start-ThreadJobPool {
     .DESCRIPTION
         Runs the scheduler asynchronously in the pool's runspace. Summary
         returns counts by job state. Status returns the jobs in each state.
-        Active corresponds to the Running state.
+        Both expose Active (Running), Completed, Failed, and Stopped. Reading
+        either property takes a fresh snapshot, including after dispatch ends.
 
     .PARAMETER Pool
         The pool returned by Initialize-Pool.
 
     .PARAMETER ThreadCount
-        The requested number of concurrent jobs. Zero selects the default
-        from Get-DefaultThreadCount. The default and the initial bag count
-        both cap the effective thread count.
+        Accepts 0 through 255. Omit ThreadCount or pass 0 to use the default
+        from Get-DefaultThreadCount. The scheduler uses the smallest of the
+        resolved request, the default, and the initial job count.
 
     .INPUTS
         PSCustomObject.
@@ -28,15 +29,27 @@ function Start-ThreadJobPool {
 
     .NOTES
         $global:PSSecurityThreadPool references the started pool.
+        AsyncResult tracks the scheduler invocation. Its completion means the
+        scheduler has finished dispatching jobs. Wait-Job on the ThreadJob
+        array waits for the jobs themselves.
 
     .EXAMPLE
         $pool = Initialize-ThreadJobBag -ThreadJob $threadJobs |
             Initialize-Pool |
             Start-ThreadJobPool -ThreadCount 8
 
+        Starts the pool with up to eight concurrent jobs and returns immediately.
+
+    .EXAMPLE
         $pool.Summary
         $pool.Status.Active
-        $pool.Status.Failed
+
+        Shows the current counts and the running ThreadJob objects.
+
+    .EXAMPLE
+        $pool.ThreadJob | Wait-Job | Receive-Job
+
+        Waits for the supplied jobs and reads their output.
     #>
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
