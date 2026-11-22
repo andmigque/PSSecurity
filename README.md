@@ -2,6 +2,13 @@
 
 A cross-platform PowerShell module for auditing and hardening Windows and Linux.
 
+> [!IMPORTANT]
+> **GLOBAL VARIABLE — `$global:PSSecurityThreadPool`**
+>
+> The planned `Start-ThreadJobPool` command sets `$global:PSSecurityThreadPool = $Pool`
+> after the scheduler starts successfully. This gives scripts in the caller's runspace
+> access to the same live pool. The reference lasts until the PowerShell session ends.
+
 [![Open in vscode.dev](https://img.shields.io/badge/Open%20in-vscode.dev-blue)][1]
 
   [1]: https://vscode.dev/github/andmigque/PSSecurity
@@ -256,10 +263,6 @@ Choose based on the size of the tree:
 > Back to the [summary](#-summary)
 
 ### ⚡ Running Multi Threaded Work
-
-**Pool startup owns `$global:PSSecurityThreadPool`.** The planned
-`Start-ThreadJobPool` command should assign the live pool to this variable
-after the scheduler starts successfully. Exiting PowerShell clears the reference.
 
 For long-running work with interactive, multi-threaded progress, see
 [Compress-FileTree][31].
