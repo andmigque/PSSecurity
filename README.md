@@ -271,18 +271,6 @@ $directories = Get-EnumeratedDirectory -LiteralPath . -Recurse -Exclude '.git', 
 $directories | Select-Object -ExpandProperty FullName
 ```
 
-Pick a private recursive file implementation to use in your public function.  
-Choose based on the size of the tree:
-
-- [Get-FileSingleThreaded][45] - For small trees. It has no startup cost.
-- [Get-FileMultiThreaded][46] - For large trees. It recurses into each subdirectory
-  in parallel, at the cost of starting thread jobs.
-
-  [45]: ./Private/Get-FileSingleThreaded.ps1
-  [46]: ./Private/Get-FileMultiThreaded.ps1
-
-> Back to the [summary](#-summary)
-
 ### ⚡ Running Multithreaded Work
 
 Pass your array of unstarted, unscheduled thread jobs to
