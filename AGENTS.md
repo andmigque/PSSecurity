@@ -1,94 +1,25 @@
 # **PSSecurity** Agent
 
-> You are a PSSecurity Agent. Your focus is cross platform hardened powershell.
+> You are a PSSecurity Agent. 
 
-## Repository Exemplars
+Your focus is cross platform hardened powershell.
 
-- [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
-- [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
-- [ ] Read [Search-PatternInFile](./Public/Search-PatternInFile.ps1)
-
-## Microsoft Examples
-
-> Before writing a call to a built-in command, find how Microsoft uses it.
-
-[PowershellExamples.md](./Doc/PwshBestPractice/PowershellExamples.md) holds every PowerShell help example. 
-Each example is a `###` title followed by a code block. 
-Search it with [Search-PatternInFile](./Public/Search-PatternInFile.ps1):
-
-```powershell
-Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern 'Get-FileHash'
-```
-
-## Skills and Guides
+## Skills
 
 - Use [ps-performance](./Skill/ps-performance/SKILL.md) when refactoring PowerShell code to be highly performant.
 - Use [vertical-flow](./Skill/vertical-flow/SKILL.md) when code is hard to read.
 
-## Rules
+## Session Start
 
-1. File & Path Handling
+You start a new session by verifying the requirements of the function you will be implementing. 
+Continue with each iteration on the two task below until skeleton is requested:
 
-> When your function deals with the file system or providers, you are strongly encouraged to implement these exact standard pairings:
+- [ ] Verified function name
+- [ ] Verified parameters, parameter sets, and validators
 
-* -Path vs -LiteralPath
-	* -Path: Accepts wildcards (like C:\*.txt). It has an alias of PSPath.
-	* -LiteralPath: Interprets special characters exactly as typed (crucial for paths containing brackets like C:\file[1].txt).
+When the user asks for skeleton:
+
+Create a minimal skeleton function.
+Place inline comments at each step that explain your intended implementation.
 
 
-3. Collection & Size Constraints
-
-* -Count — Use this when specifying a maximum number of objects to return or process (e.g., Get-Random -Count 3). Do not use -Max or -Limit.
-* -Filter — Use this for provider-side filtering (filtering data at the source before it returns to PowerShell) to distinguish it from a client-side -Include or -Exclude array.
-
-4. Output Customization (Custom "Out" Parameters)
-
-> When you want to emulate the functionality of parameters like -OutVariable for custom behaviors, these are the naming conventions typically adopted by the community and Microsoft modules:
-
-* -OutPath or -OutputPath — Used when your function generates a physical file or report and needs to know where to save it.
-* -PassThru — A standard switch parameter. By default, many change-focused cmdlets (like Set-* or New-*) do not return any output to the pipeline. Adding -PassThru signals your function to output the object it just modified or created.
-
-## Consistent File Structure
-
-### **GOOD**
-
-1. [ ] shebang
-2. [ ] strict mode
-3. [ ] os check
-4. [ ] approved verb
-5. [ ] inside function help comments
-6. [ ] cmdlet binding
-7. [ ] output type
-8. [ ] help message on parameters
-9. [ ] simple powershell built in functions (even on linux)
-10. [ ] linux command wrapped in parentheses
-
-See [Invoke-Sudo](./Public/Invoke-Sudo.ps1) for an example that follows this structure.
-
-### **BAD**
-
-This output object **DOES NOT** follow Rules 1-4
-
-```powershell
- Get-SshdConfiguration
-
-AuditStatus         : Complete
-ConfigPath          : C:\ProgramData\ssh\sshd_config
-ConnectionSpec      :
-SshdPath            : C:\WINDOWS\System32\OpenSSH\sshd.exe
-SshdVersion         : OpenSSH_for_Windows_9.5p2
-ServiceName         : sshd
-ServiceState        : Stopped
-ServiceBinaryPath   : C:\WINDOWS\System32\OpenSSH\sshd.exe
-ServiceConfigPath   :
-RunningProcessPaths : {}
-InstalledBinaries   : {@{Path=C:\Program Files\OpenSSH\sshd.exe; Version=OpenSSH_for_Windows_10.0p2},
-                      @{Path=C:\WINDOWS\System32\OpenSSH\sshd.exe; Version=OpenSSH_for_Windows_9.5p2}}
-KeywordCount        : 81
-Warnings            : {Multiple sshd binaries are installed: C:\Program Files\OpenSSH\sshd.exe (OpenSSH_for_Windows_10.0p2),
-                      C:\WINDOWS\System32\OpenSSH\sshd.exe (OpenSSH_for_Windows_9.5p2). The sshd service runs
-                      'C:\WINDOWS\System32\OpenSSH\sshd.exe'.}
-Settings            : {@{Keyword=addressfamily; Values=System.Object[]}, @{Keyword=allowagentforwarding; Values=System.Object[]},
-                      @{Keyword=allowstreamlocalforwarding; Values=System.Object[]}, @{Keyword=allowtcpforwarding;
-                      Values=System.Object[]}…}
-```
