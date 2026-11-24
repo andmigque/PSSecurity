@@ -6,16 +6,15 @@
 
 - [ ] Read [Invoke-Sudo](./Public/Invoke-Sudo.ps1)
 - [ ] Read [Get-AclItem](./Public/Get-AclItem.ps1)
-- [ ] Read [Deploy-PsProfile](./Public/Deploy-PsProfile.ps1)
 - [ ] Read [Search-PatternInFile](./Public/Search-PatternInFile.ps1)
-- [ ] Read [Invoke-ParallelJob](./Private/Invoke-ParallelJob.ps1)
-- [ ] Read [Get-FileMultiThreaded](./Private/Get-FileMultiThreaded.ps1)
 
 ## Microsoft Examples
 
 > Before writing a call to a built-in command, find how Microsoft uses it.
 
-[PowershellExamples.md](./Doc/PwshBestPractice/PowershellExamples.md) holds every PowerShell help example. Each example is a `###` title followed by a code block. Search it with [Search-PatternInFile](./Public/Search-PatternInFile.ps1):
+[PowershellExamples.md](./Doc/PwshBestPractice/PowershellExamples.md) holds every PowerShell help example. 
+Each example is a `###` title followed by a code block. 
+Search it with [Search-PatternInFile](./Public/Search-PatternInFile.ps1):
 
 ```powershell
 Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern 'Get-FileHash'
@@ -25,26 +24,17 @@ Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern
 
 - Use [ps-performance](./Skill/ps-performance/SKILL.md) when refactoring PowerShell code to be highly performant.
 - Use [vertical-flow](./Skill/vertical-flow/SKILL.md) when code is hard to read.
-- Use [PwshBestPractice](./Doc/PwshBestPractice/) for naming, layout, comment-based help, and output stream questions.
 
 ## Rules
 
-1. Data Input & Targeting
-
-* -ComputerName (Alias: CN) — Always use this instead of -Server, -Target, or -Host.
-* -Credential — Always use for handling a user credential object ([pscredential]). Do not use -LoginDetails or -Password.
-* -Identity — Used when targeting a highly specific, unique object (such as an Active Directory User GUID, an email address, or a primary ID).
-
-2. File & Path Handling (The Standard Pairs)
+1. File & Path Handling
 
 > When your function deals with the file system or providers, you are strongly encouraged to implement these exact standard pairings:
 
 * -Path vs -LiteralPath
 	* -Path: Accepts wildcards (like C:\*.txt). It has an alias of PSPath.
 	* -LiteralPath: Interprets special characters exactly as typed (crucial for paths containing brackets like C:\file[1].txt).
-* -Path vs -Name
-	* Use -Path if the user is providing a full or relative path.
-	* Use -Name if the user is only providing the file name string itself within a pre-determined directory.
+
 
 3. Collection & Size Constraints
 
@@ -57,12 +47,6 @@ Search-PatternInFile -Path ./Doc/PwshBestPractice/PowershellExamples.md -Pattern
 
 * -OutPath or -OutputPath — Used when your function generates a physical file or report and needs to know where to save it.
 * -PassThru — A standard switch parameter. By default, many change-focused cmdlets (like Set-* or New-*) do not return any output to the pipeline. Adding -PassThru signals your function to output the object it just modified or created.
-
-Key Naming Conventions to Remember:
-
-1. Singular Nouns Only: Even if your parameter accepts an array of values, name it in the singular form. Use [string[]]$ComputerName, not [string[]]$ComputerNames.
-2. PascalCase: Capitalize the first letter of every word (e.g., -LiteralPath, not -literalpath).
-
 
 ## Consistent File Structure
 
