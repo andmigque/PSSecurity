@@ -24,6 +24,7 @@
         'Get-ScheduledTaskAudit'
         'Get-SshdConfiguration'
         'Get-SudoersAudit'
+        'Get-ThreadJobScheduler'
         'Get-UacConfiguration'
         'Get-UnixFileMode'
         'Import-Ubuntu'
