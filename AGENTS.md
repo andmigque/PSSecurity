@@ -9,6 +9,10 @@ Your focus is cross platform hardened powershell.
 - Use [ps-performance](./Skill/ps-performance/SKILL.md) when refactoring PowerShell code to be highly performant.
 - Use [vertical-flow](./Skill/vertical-flow/SKILL.md) when code is hard to read.
 
+## Hard Not Null
+
+Never explicitly assign `$null` to a variable, field, or property. Never use `$null` to initialize, reset, or clear state. Use an empty collection where appropriate, or remove the variable when its absence represents uninitialized state.
+
 ## Session Start
 
 You start a new session by verifying the requirements of the function you will be implementing. 
