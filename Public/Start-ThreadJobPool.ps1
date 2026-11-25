@@ -66,36 +66,24 @@ function Start-ThreadJobPool {
     $requested = $ThreadCount -eq 0 ? $default : $ThreadCount
     $ThreadCount = [Math]::Min($Pool.ConcurrentBag.Count, [Math]::Min($requested, $default))
 
-    $schedule = {
-        param($Bag, [ThreadJob.ThreadJob[]]$ThreadJob, [int]$ThreadCount)
-
-        do {
-            $activeThreadJobCount = $ThreadJob.Where({ $_.State -eq 'Running' }).Count
-
-            for ($i = $activeThreadJobCount; $i -lt $ThreadCount; $i++) {
-                if ($Bag.Count -gt 0) {
-                    $Bag.Take().StartJob()
-                }
-            }
-        } while ($Bag.Count -gt 0)
-    }
-
-    $scheduler = [PowerShell]::Create()
     try {
-        $scheduler.Runspace = $Pool.Runspace
-        [void]$scheduler.AddScript($schedule.ToString())
-        [void]$scheduler.AddArgument($Pool.ConcurrentBag)
-        [void]$scheduler.AddArgument($Pool.ThreadJob)
-        [void]$scheduler.AddArgument($ThreadCount)
-        $asyncResult = $scheduler.BeginInvoke()
+        ($schedulerRunspace = [PowerShell]::Create()).Runspace = $Pool.Runspace
+        [ScriptBlock]$scheduler = Get-ThreadJobScheduler
+        [void]$schedulerRunspace.AddScript($scheduler.ToString())
+        [void]$schedulerRunspace.AddArgument($Pool.ConcurrentBag)
+        [void]$schedulerRunspace.AddArgument($Pool.ThreadJob)
+        [void]$schedulerRunspace.AddArgument($ThreadCount)
+        $asyncResult = $schedulerRunspace.BeginInvoke()
     }
     catch {
-        $scheduler.Dispose()
+        if (Get-Variable -Name schedulerRunspace -Scope Local -ErrorAction Ignore) {
+            $schedulerRunspace.Dispose()
+        }
         throw
     }
 
     $Pool | Add-Member -NotePropertyMembers @{
-        Scheduler   = $scheduler
+        Scheduler   = $schedulerRunspace
         AsyncResult = $asyncResult
     } -ErrorAction Stop
 
