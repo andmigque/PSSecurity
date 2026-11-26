@@ -1,0 +1,14 @@
+[
+  {
+    "Id": "PS_L2_3_9_1",
+    "CmmcId": "PS.L2-3.9.1",
+    "ShortDescription": "Screen Individuals",
+    "Goal": "Screen individuals prior to authorizing access to organizational systems containing CUI."
+  },
+  {
+    "Id": "PS_L2_3_9_2",
+    "CmmcId": "PS.L2-3.9.2",
+    "ShortDescription": "Personnel Actions",
+    "Goal": "Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers."
+  }
+]

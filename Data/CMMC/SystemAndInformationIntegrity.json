@@ -1,0 +1,44 @@
+[
+  {
+    "Id": "SI_L2_3_14_1",
+    "CmmcId": "SI.L2-3.14.1",
+    "ShortDescription": "Flaw Remediation",
+    "Goal": "Identify, report, and correct information and information system flaws in a timely manner."
+  },
+  {
+    "Id": "SI_L2_3_14_2",
+    "CmmcId": "SI.L2-3.14.2",
+    "ShortDescription": "Malicious Code Protection",
+    "Goal": "Provide protection from malicious code at appropriate locations within organizational information systems."
+  },
+  {
+    "Id": "SI_L2_3_14_3",
+    "CmmcId": "SI.L2-3.14.3",
+    "ShortDescription": "Security Alerts & Advisories",
+    "Goal": "Monitor system security alerts and advisories and take action in response."
+  },
+  {
+    "Id": "SI_L2_3_14_4",
+    "CmmcId": "SI.L2-3.14.4",
+    "ShortDescription": "Update Malicious Code Protection",
+    "Goal": "Update malicious code protection mechanisms when new releases are available."
+  },
+  {
+    "Id": "SI_L2_3_14_5",
+    "CmmcId": "SI.L2-3.14.5",
+    "ShortDescription": "System & File Scanning",
+    "Goal": "Perform periodic scans of the information system and real-time scans of files from external sources as files are downloaded, opened, or executed."
+  },
+  {
+    "Id": "SI_L2_3_14_6",
+    "CmmcId": "SI.L2-3.14.6",
+    "ShortDescription": "Monitor Communications for Attacks",
+    "Goal": "Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks."
+  },
+  {
+    "Id": "SI_L2_3_14_7",
+    "CmmcId": "SI.L2-3.14.7",
+    "ShortDescription": "Identify Unauthorized Use",
+    "Goal": "Identify unauthorized use of organizational systems."
+  }
+]

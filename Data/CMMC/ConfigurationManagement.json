@@ -1,0 +1,56 @@
+[
+  {
+    "Id": "CM_L2_3_4_1",
+    "CmmcId": "CM.L2-3.4.1",
+    "ShortDescription": "System Baselining",
+    "Goal": "Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation) throughout the respective system development life cycles."
+  },
+  {
+    "Id": "CM_L2_3_4_2",
+    "CmmcId": "CM.L2-3.4.2",
+    "ShortDescription": "Security Configuration Enforcement",
+    "Goal": "Establish and enforce security configuration settings for information technology products employed in organizational systems."
+  },
+  {
+    "Id": "CM_L2_3_4_3",
+    "CmmcId": "CM.L2-3.4.3",
+    "ShortDescription": "System Change Management",
+    "Goal": "Track, review, approve or disapprove, and log changes to organizational systems."
+  },
+  {
+    "Id": "CM_L2_3_4_4",
+    "CmmcId": "CM.L2-3.4.4",
+    "ShortDescription": "Security Impact Analysis",
+    "Goal": "Analyze the security impact of changes prior to implementation."
+  },
+  {
+    "Id": "CM_L2_3_4_5",
+    "CmmcId": "CM.L2-3.4.5",
+    "ShortDescription": "Access Restrictions for Change",
+    "Goal": "Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems."
+  },
+  {
+    "Id": "CM_L2_3_4_6",
+    "CmmcId": "CM.L2-3.4.6",
+    "ShortDescription": "Least Functionality",
+    "Goal": "Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities."
+  },
+  {
+    "Id": "CM_L2_3_4_7",
+    "CmmcId": "CM.L2-3.4.7",
+    "ShortDescription": "Nonessential Functionality",
+    "Goal": "Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services."
+  },
+  {
+    "Id": "CM_L2_3_4_8",
+    "CmmcId": "CM.L2-3.4.8",
+    "ShortDescription": "Application Execution Policy",
+    "Goal": "Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized software."
+  },
+  {
+    "Id": "CM_L2_3_4_9",
+    "CmmcId": "CM.L2-3.4.9",
+    "ShortDescription": "User-Installed Software",
+    "Goal": "Control and monitor user-installed software."
+  }
+]

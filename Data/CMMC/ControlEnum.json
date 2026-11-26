@@ -1,0 +1,552 @@
+[
+  {
+    "Name": "AC_L2_3_1_1",
+    "Value": 0,
+    "CmmcId": "AC.L2-3.1.1"
+  },
+  {
+    "Name": "AC_L2_3_1_2",
+    "Value": 1,
+    "CmmcId": "AC.L2-3.1.2"
+  },
+  {
+    "Name": "AC_L2_3_1_3",
+    "Value": 2,
+    "CmmcId": "AC.L2-3.1.3"
+  },
+  {
+    "Name": "AC_L2_3_1_4",
+    "Value": 3,
+    "CmmcId": "AC.L2-3.1.4"
+  },
+  {
+    "Name": "AC_L2_3_1_5",
+    "Value": 4,
+    "CmmcId": "AC.L2-3.1.5"
+  },
+  {
+    "Name": "AC_L2_3_1_6",
+    "Value": 5,
+    "CmmcId": "AC.L2-3.1.6"
+  },
+  {
+    "Name": "AC_L2_3_1_7",
+    "Value": 6,
+    "CmmcId": "AC.L2-3.1.7"
+  },
+  {
+    "Name": "AC_L2_3_1_8",
+    "Value": 7,
+    "CmmcId": "AC.L2-3.1.8"
+  },
+  {
+    "Name": "AC_L2_3_1_9",
+    "Value": 8,
+    "CmmcId": "AC.L2-3.1.9"
+  },
+  {
+    "Name": "AC_L2_3_1_10",
+    "Value": 9,
+    "CmmcId": "AC.L2-3.1.10"
+  },
+  {
+    "Name": "AC_L2_3_1_11",
+    "Value": 10,
+    "CmmcId": "AC.L2-3.1.11"
+  },
+  {
+    "Name": "AC_L2_3_1_12",
+    "Value": 11,
+    "CmmcId": "AC.L2-3.1.12"
+  },
+  {
+    "Name": "AC_L2_3_1_13",
+    "Value": 12,
+    "CmmcId": "AC.L2-3.1.13"
+  },
+  {
+    "Name": "AC_L2_3_1_14",
+    "Value": 13,
+    "CmmcId": "AC.L2-3.1.14"
+  },
+  {
+    "Name": "AC_L2_3_1_15",
+    "Value": 14,
+    "CmmcId": "AC.L2-3.1.15"
+  },
+  {
+    "Name": "AC_L2_3_1_16",
+    "Value": 15,
+    "CmmcId": "AC.L2-3.1.16"
+  },
+  {
+    "Name": "AC_L2_3_1_17",
+    "Value": 16,
+    "CmmcId": "AC.L2-3.1.17"
+  },
+  {
+    "Name": "AC_L2_3_1_18",
+    "Value": 17,
+    "CmmcId": "AC.L2-3.1.18"
+  },
+  {
+    "Name": "AC_L2_3_1_19",
+    "Value": 18,
+    "CmmcId": "AC.L2-3.1.19"
+  },
+  {
+    "Name": "AC_L2_3_1_20",
+    "Value": 19,
+    "CmmcId": "AC.L2-3.1.20"
+  },
+  {
+    "Name": "AC_L2_3_1_21",
+    "Value": 20,
+    "CmmcId": "AC.L2-3.1.21"
+  },
+  {
+    "Name": "AC_L2_3_1_22",
+    "Value": 21,
+    "CmmcId": "AC.L2-3.1.22"
+  },
+  {
+    "Name": "AT_L2_3_2_1",
+    "Value": 22,
+    "CmmcId": "AT.L2-3.2.1"
+  },
+  {
+    "Name": "AT_L2_3_2_2",
+    "Value": 23,
+    "CmmcId": "AT.L2-3.2.2"
+  },
+  {
+    "Name": "AT_L2_3_2_3",
+    "Value": 24,
+    "CmmcId": "AT.L2-3.2.3"
+  },
+  {
+    "Name": "AU_L2_3_3_1",
+    "Value": 25,
+    "CmmcId": "AU.L2-3.3.1"
+  },
+  {
+    "Name": "AU_L2_3_3_2",
+    "Value": 26,
+    "CmmcId": "AU.L2-3.3.2"
+  },
+  {
+    "Name": "AU_L2_3_3_3",
+    "Value": 27,
+    "CmmcId": "AU.L2-3.3.3"
+  },
+  {
+    "Name": "AU_L2_3_3_4",
+    "Value": 28,
+    "CmmcId": "AU.L2-3.3.4"
+  },
+  {
+    "Name": "AU_L2_3_3_5",
+    "Value": 29,
+    "CmmcId": "AU.L2-3.3.5"
+  },
+  {
+    "Name": "AU_L2_3_3_6",
+    "Value": 30,
+    "CmmcId": "AU.L2-3.3.6"
+  },
+  {
+    "Name": "AU_L2_3_3_7",
+    "Value": 31,
+    "CmmcId": "AU.L2-3.3.7"
+  },
+  {
+    "Name": "AU_L2_3_3_8",
+    "Value": 32,
+    "CmmcId": "AU.L2-3.3.8"
+  },
+  {
+    "Name": "AU_L2_3_3_9",
+    "Value": 33,
+    "CmmcId": "AU.L2-3.3.9"
+  },
+  {
+    "Name": "CA_L2_3_12_1",
+    "Value": 34,
+    "CmmcId": "CA.L2-3.12.1"
+  },
+  {
+    "Name": "CA_L2_3_12_2",
+    "Value": 35,
+    "CmmcId": "CA.L2-3.12.2"
+  },
+  {
+    "Name": "CA_L2_3_12_3",
+    "Value": 36,
+    "CmmcId": "CA.L2-3.12.3"
+  },
+  {
+    "Name": "CA_L2_3_12_4",
+    "Value": 37,
+    "CmmcId": "CA.L2-3.12.4"
+  },
+  {
+    "Name": "CM_L2_3_4_1",
+    "Value": 38,
+    "CmmcId": "CM.L2-3.4.1"
+  },
+  {
+    "Name": "CM_L2_3_4_2",
+    "Value": 39,
+    "CmmcId": "CM.L2-3.4.2"
+  },
+  {
+    "Name": "CM_L2_3_4_3",
+    "Value": 40,
+    "CmmcId": "CM.L2-3.4.3"
+  },
+  {
+    "Name": "CM_L2_3_4_4",
+    "Value": 41,
+    "CmmcId": "CM.L2-3.4.4"
+  },
+  {
+    "Name": "CM_L2_3_4_5",
+    "Value": 42,
+    "CmmcId": "CM.L2-3.4.5"
+  },
+  {
+    "Name": "CM_L2_3_4_6",
+    "Value": 43,
+    "CmmcId": "CM.L2-3.4.6"
+  },
+  {
+    "Name": "CM_L2_3_4_7",
+    "Value": 44,
+    "CmmcId": "CM.L2-3.4.7"
+  },
+  {
+    "Name": "CM_L2_3_4_8",
+    "Value": 45,
+    "CmmcId": "CM.L2-3.4.8"
+  },
+  {
+    "Name": "CM_L2_3_4_9",
+    "Value": 46,
+    "CmmcId": "CM.L2-3.4.9"
+  },
+  {
+    "Name": "IA_L2_3_5_1",
+    "Value": 47,
+    "CmmcId": "IA.L2-3.5.1"
+  },
+  {
+    "Name": "IA_L2_3_5_2",
+    "Value": 48,
+    "CmmcId": "IA.L2-3.5.2"
+  },
+  {
+    "Name": "IA_L2_3_5_3",
+    "Value": 49,
+    "CmmcId": "IA.L2-3.5.3"
+  },
+  {
+    "Name": "IA_L2_3_5_4",
+    "Value": 50,
+    "CmmcId": "IA.L2-3.5.4"
+  },
+  {
+    "Name": "IA_L2_3_5_5",
+    "Value": 51,
+    "CmmcId": "IA.L2-3.5.5"
+  },
+  {
+    "Name": "IA_L2_3_5_6",
+    "Value": 52,
+    "CmmcId": "IA.L2-3.5.6"
+  },
+  {
+    "Name": "IA_L2_3_5_7",
+    "Value": 53,
+    "CmmcId": "IA.L2-3.5.7"
+  },
+  {
+    "Name": "IA_L2_3_5_8",
+    "Value": 54,
+    "CmmcId": "IA.L2-3.5.8"
+  },
+  {
+    "Name": "IA_L2_3_5_9",
+    "Value": 55,
+    "CmmcId": "IA.L2-3.5.9"
+  },
+  {
+    "Name": "IA_L2_3_5_10",
+    "Value": 56,
+    "CmmcId": "IA.L2-3.5.10"
+  },
+  {
+    "Name": "IA_L2_3_5_11",
+    "Value": 57,
+    "CmmcId": "IA.L2-3.5.11"
+  },
+  {
+    "Name": "IR_L2_3_6_1",
+    "Value": 58,
+    "CmmcId": "IR.L2-3.6.1"
+  },
+  {
+    "Name": "IR_L2_3_6_2",
+    "Value": 59,
+    "CmmcId": "IR.L2-3.6.2"
+  },
+  {
+    "Name": "IR_L2_3_6_3",
+    "Value": 60,
+    "CmmcId": "IR.L2-3.6.3"
+  },
+  {
+    "Name": "MA_L2_3_7_1",
+    "Value": 61,
+    "CmmcId": "MA.L2-3.7.1"
+  },
+  {
+    "Name": "MA_L2_3_7_2",
+    "Value": 62,
+    "CmmcId": "MA.L2-3.7.2"
+  },
+  {
+    "Name": "MA_L2_3_7_3",
+    "Value": 63,
+    "CmmcId": "MA.L2-3.7.3"
+  },
+  {
+    "Name": "MA_L2_3_7_4",
+    "Value": 64,
+    "CmmcId": "MA.L2-3.7.4"
+  },
+  {
+    "Name": "MA_L2_3_7_5",
+    "Value": 65,
+    "CmmcId": "MA.L2-3.7.5"
+  },
+  {
+    "Name": "MA_L2_3_7_6",
+    "Value": 66,
+    "CmmcId": "MA.L2-3.7.6"
+  },
+  {
+    "Name": "MP_L2_3_8_1",
+    "Value": 67,
+    "CmmcId": "MP.L2-3.8.1"
+  },
+  {
+    "Name": "MP_L2_3_8_2",
+    "Value": 68,
+    "CmmcId": "MP.L2-3.8.2"
+  },
+  {
+    "Name": "MP_L2_3_8_3",
+    "Value": 69,
+    "CmmcId": "MP.L2-3.8.3"
+  },
+  {
+    "Name": "MP_L2_3_8_4",
+    "Value": 70,
+    "CmmcId": "MP.L2-3.8.4"
+  },
+  {
+    "Name": "MP_L2_3_8_5",
+    "Value": 71,
+    "CmmcId": "MP.L2-3.8.5"
+  },
+  {
+    "Name": "MP_L2_3_8_6",
+    "Value": 72,
+    "CmmcId": "MP.L2-3.8.6"
+  },
+  {
+    "Name": "MP_L2_3_8_7",
+    "Value": 73,
+    "CmmcId": "MP.L2-3.8.7"
+  },
+  {
+    "Name": "MP_L2_3_8_8",
+    "Value": 74,
+    "CmmcId": "MP.L2-3.8.8"
+  },
+  {
+    "Name": "MP_L2_3_8_9",
+    "Value": 75,
+    "CmmcId": "MP.L2-3.8.9"
+  },
+  {
+    "Name": "PE_L2_3_10_1",
+    "Value": 76,
+    "CmmcId": "PE.L2-3.10.1"
+  },
+  {
+    "Name": "PE_L2_3_10_2",
+    "Value": 77,
+    "CmmcId": "PE.L2-3.10.2"
+  },
+  {
+    "Name": "PE_L2_3_10_3",
+    "Value": 78,
+    "CmmcId": "PE.L2-3.10.3"
+  },
+  {
+    "Name": "PE_L2_3_10_4",
+    "Value": 79,
+    "CmmcId": "PE.L2-3.10.4"
+  },
+  {
+    "Name": "PE_L2_3_10_5",
+    "Value": 80,
+    "CmmcId": "PE.L2-3.10.5"
+  },
+  {
+    "Name": "PE_L2_3_10_6",
+    "Value": 81,
+    "CmmcId": "PE.L2-3.10.6"
+  },
+  {
+    "Name": "PS_L2_3_9_1",
+    "Value": 82,
+    "CmmcId": "PS.L2-3.9.1"
+  },
+  {
+    "Name": "PS_L2_3_9_2",
+    "Value": 83,
+    "CmmcId": "PS.L2-3.9.2"
+  },
+  {
+    "Name": "RA_L2_3_11_1",
+    "Value": 84,
+    "CmmcId": "RA.L2-3.11.1"
+  },
+  {
+    "Name": "RA_L2_3_11_2",
+    "Value": 85,
+    "CmmcId": "RA.L2-3.11.2"
+  },
+  {
+    "Name": "RA_L2_3_11_3",
+    "Value": 86,
+    "CmmcId": "RA.L2-3.11.3"
+  },
+  {
+    "Name": "SC_L2_3_13_1",
+    "Value": 87,
+    "CmmcId": "SC.L2-3.13.1"
+  },
+  {
+    "Name": "SC_L2_3_13_2",
+    "Value": 88,
+    "CmmcId": "SC.L2-3.13.2"
+  },
+  {
+    "Name": "SC_L2_3_13_3",
+    "Value": 89,
+    "CmmcId": "SC.L2-3.13.3"
+  },
+  {
+    "Name": "SC_L2_3_13_4",
+    "Value": 90,
+    "CmmcId": "SC.L2-3.13.4"
+  },
+  {
+    "Name": "SC_L2_3_13_5",
+    "Value": 91,
+    "CmmcId": "SC.L2-3.13.5"
+  },
+  {
+    "Name": "SC_L2_3_13_6",
+    "Value": 92,
+    "CmmcId": "SC.L2-3.13.6"
+  },
+  {
+    "Name": "SC_L2_3_13_7",
+    "Value": 93,
+    "CmmcId": "SC.L2-3.13.7"
+  },
+  {
+    "Name": "SC_L2_3_13_8",
+    "Value": 94,
+    "CmmcId": "SC.L2-3.13.8"
+  },
+  {
+    "Name": "SC_L2_3_13_9",
+    "Value": 95,
+    "CmmcId": "SC.L2-3.13.9"
+  },
+  {
+    "Name": "SC_L2_3_13_10",
+    "Value": 96,
+    "CmmcId": "SC.L2-3.13.10"
+  },
+  {
+    "Name": "SC_L2_3_13_11",
+    "Value": 97,
+    "CmmcId": "SC.L2-3.13.11"
+  },
+  {
+    "Name": "SC_L2_3_13_12",
+    "Value": 98,
+    "CmmcId": "SC.L2-3.13.12"
+  },
+  {
+    "Name": "SC_L2_3_13_13",
+    "Value": 99,
+    "CmmcId": "SC.L2-3.13.13"
+  },
+  {
+    "Name": "SC_L2_3_13_14",
+    "Value": 100,
+    "CmmcId": "SC.L2-3.13.14"
+  },
+  {
+    "Name": "SC_L2_3_13_15",
+    "Value": 101,
+    "CmmcId": "SC.L2-3.13.15"
+  },
+  {
+    "Name": "SC_L2_3_13_16",
+    "Value": 102,
+    "CmmcId": "SC.L2-3.13.16"
+  },
+  {
+    "Name": "SI_L2_3_14_1",
+    "Value": 103,
+    "CmmcId": "SI.L2-3.14.1"
+  },
+  {
+    "Name": "SI_L2_3_14_2",
+    "Value": 104,
+    "CmmcId": "SI.L2-3.14.2"
+  },
+  {
+    "Name": "SI_L2_3_14_3",
+    "Value": 105,
+    "CmmcId": "SI.L2-3.14.3"
+  },
+  {
+    "Name": "SI_L2_3_14_4",
+    "Value": 106,
+    "CmmcId": "SI.L2-3.14.4"
+  },
+  {
+    "Name": "SI_L2_3_14_5",
+    "Value": 107,
+    "CmmcId": "SI.L2-3.14.5"
+  },
+  {
+    "Name": "SI_L2_3_14_6",
+    "Value": 108,
+    "CmmcId": "SI.L2-3.14.6"
+  },
+  {
+    "Name": "SI_L2_3_14_7",
+    "Value": 109,
+    "CmmcId": "SI.L2-3.14.7"
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "Name": "AC",
+    "Value": 0,
+    "Description": "Access Control"
+  },
+  {
+    "Name": "AT",
+    "Value": 1,
+    "Description": "Awareness and Training"
+  },
+  {
+    "Name": "AU",
+    "Value": 2,
+    "Description": "Audit and Accountability"
+  },
+  {
+    "Name": "CA",
+    "Value": 3,
+    "Description": "Security Assessment"
+  },
+  {
+    "Name": "CM",
+    "Value": 4,
+    "Description": "Configuration Management"
+  },
+  {
+    "Name": "IA",
+    "Value": 5,
+    "Description": "Identification and Authentication"
+  },
+  {
+    "Name": "IR",
+    "Value": 6,
+    "Description": "Incident Response"
+  },
+  {
+    "Name": "MA",
+    "Value": 7,
+    "Description": "Maintenance"
+  },
+  {
+    "Name": "MP",
+    "Value": 8,
+    "Description": "Media Protection"
+  },
+  {
+    "Name": "PE",
+    "Value": 9,
+    "Description": "Physical Protection"
+  },
+  {
+    "Name": "PS",
+    "Value": 10,
+    "Description": "Personnel Security"
+  },
+  {
+    "Name": "RA",
+    "Value": 11,
+    "Description": "Risk Assessment"
+  },
+  {
+    "Name": "SC",
+    "Value": 12,
+    "Description": "System and Communications Protection"
+  },
+  {
+    "Name": "SI",
+    "Value": 13,
+    "Description": "System and Information Integrity"
+  }
+]

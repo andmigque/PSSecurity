@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "CA_L2_3_12_1",
+    "CmmcId": "CA.L2-3.12.1",
+    "ShortDescription": "Security Control Assessment",
+    "Goal": "Periodically assess the security controls in organizational systems to determine if the controls are effective in their application."
+  },
+  {
+    "Id": "CA_L2_3_12_2",
+    "CmmcId": "CA.L2-3.12.2",
+    "ShortDescription": "Plan of Action",
+    "Goal": "Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems."
+  },
+  {
+    "Id": "CA_L2_3_12_3",
+    "CmmcId": "CA.L2-3.12.3",
+    "ShortDescription": "Security Control Monitoring",
+    "Goal": "Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls."
+  },
+  {
+    "Id": "CA_L2_3_12_4",
+    "CmmcId": "CA.L2-3.12.4",
+    "ShortDescription": "System Security Plan",
+    "Goal": "Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security requirements are implemented, and the relationships with or connections to other systems."
+  }
+]

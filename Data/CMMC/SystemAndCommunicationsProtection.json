@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "SC_L2_3_13_1",
+    "CmmcId": "SC.L2-3.13.1",
+    "ShortDescription": "Boundary Protection",
+    "Goal": "Monitor, control, and protect organizational communications (i.e., information transmitted or received by organizational information systems) at the external boundaries and key internal boundaries of the information systems."
+  },
+  {
+    "Id": "SC_L2_3_13_2",
+    "CmmcId": "SC.L2-3.13.2",
+    "ShortDescription": "Security Engineering",
+    "Goal": "Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security within organizational systems."
+  },
+  {
+    "Id": "SC_L2_3_13_3",
+    "CmmcId": "SC.L2-3.13.3",
+    "ShortDescription": "Role Separation",
+    "Goal": "Separate user functionality from system management functionality."
+  },
+  {
+    "Id": "SC_L2_3_13_4",
+    "CmmcId": "SC.L2-3.13.4",
+    "ShortDescription": "Shared Resource Control",
+    "Goal": "Prevent unauthorized and unintended information transfer via shared system resources."
+  },
+  {
+    "Id": "SC_L2_3_13_5",
+    "CmmcId": "SC.L2-3.13.5",
+    "ShortDescription": "Public-Access System Separation",
+    "Goal": "Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks."
+  },
+  {
+    "Id": "SC_L2_3_13_6",
+    "CmmcId": "SC.L2-3.13.6",
+    "ShortDescription": "Network Communication by Exception",
+    "Goal": "Deny network communications traffic by default and allow network communications traffic by exception (i.e., deny all, permit by exception)."
+  },
+  {
+    "Id": "SC_L2_3_13_7",
+    "CmmcId": "SC.L2-3.13.7",
+    "ShortDescription": "Split Tunneling",
+    "Goal": "Prevent remote devices from simultaneously establishing non-remote connections with organizational systems and communicating via some other connection to resources in external networks (i.e., split tunneling)."
+  },
+  {
+    "Id": "SC_L2_3_13_8",
+    "CmmcId": "SC.L2-3.13.8",
+    "ShortDescription": "Data in Transit",
+    "Goal": "Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission unless otherwise protected by alternative physical safeguards."
+  },
+  {
+    "Id": "SC_L2_3_13_9",
+    "CmmcId": "SC.L2-3.13.9",
+    "ShortDescription": "Connections Termination",
+    "Goal": "Terminate network connections associated with communications sessions at the end of the sessions or after a defined period of inactivity."
+  },
+  {
+    "Id": "SC_L2_3_13_10",
+    "CmmcId": "SC.L2-3.13.10",
+    "ShortDescription": "Key Management",
+    "Goal": "Establish and manage cryptographic keys for cryptography employed in organizational systems."
+  },
+  {
+    "Id": "SC_L2_3_13_11",
+    "CmmcId": "SC.L2-3.13.11",
+    "ShortDescription": "CUI Encryption",
+    "Goal": "Employ FIPS-validated cryptography when used to protect the confidentiality of CUI."
+  },
+  {
+    "Id": "SC_L2_3_13_12",
+    "CmmcId": "SC.L2-3.13.12",
+    "ShortDescription": "Collaborative Device Control",
+    "Goal": "Prohibit remote activation of collaborative computing devices and provide indication of devices in use to users present at the device."
+  },
+  {
+    "Id": "SC_L2_3_13_13",
+    "CmmcId": "SC.L2-3.13.13",
+    "ShortDescription": "Mobile Code",
+    "Goal": "Control and monitor the use of mobile code."
+  },
+  {
+    "Id": "SC_L2_3_13_14",
+    "CmmcId": "SC.L2-3.13.14",
+    "ShortDescription": "Voice over Internet Protocol",
+    "Goal": "Control and monitor the use of Voice over Internet Protocol (VoIP) technologies."
+  },
+  {
+    "Id": "SC_L2_3_13_15",
+    "CmmcId": "SC.L2-3.13.15",
+    "ShortDescription": "Communications Authenticity",
+    "Goal": "Protect the authenticity of communications sessions."
+  },
+  {
+    "Id": "SC_L2_3_13_16",
+    "CmmcId": "SC.L2-3.13.16",
+    "ShortDescription": "Data at Rest",
+    "Goal": "Protect the confidentiality of CUI at rest."
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "Id": "MP_L2_3_8_1",
+    "CmmcId": "MP.L2-3.8.1",
+    "ShortDescription": "Media Protection",
+    "Goal": "Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital."
+  },
+  {
+    "Id": "MP_L2_3_8_2",
+    "CmmcId": "MP.L2-3.8.2",
+    "ShortDescription": "Media Access",
+    "Goal": "Limit access to CUI on system media to authorized users."
+  },
+  {
+    "Id": "MP_L2_3_8_3",
+    "CmmcId": "MP.L2-3.8.3",
+    "ShortDescription": "Media Disposal",
+    "Goal": "Sanitize or destroy information system media containing Federal Contract Information before disposal or release for reuse."
+  },
+  {
+    "Id": "MP_L2_3_8_4",
+    "CmmcId": "MP.L2-3.8.4",
+    "ShortDescription": "Media Markings",
+    "Goal": "Mark media with necessary CUI markings and distribution limitations."
+  },
+  {
+    "Id": "MP_L2_3_8_5",
+    "CmmcId": "MP.L2-3.8.5",
+    "ShortDescription": "Media Accountability",
+    "Goal": "Control access to media containing CUI and maintain accountability for media during transport outside of controlled areas."
+  },
+  {
+    "Id": "MP_L2_3_8_6",
+    "CmmcId": "MP.L2-3.8.6",
+    "ShortDescription": "Portable Storage Encryption",
+    "Goal": "Implement cryptographic mechanisms to protect the confidentiality of CUI stored on digital media during transport unless otherwise protected by alternative physical safeguards."
+  },
+  {
+    "Id": "MP_L2_3_8_7",
+    "CmmcId": "MP.L2-3.8.7",
+    "ShortDescription": "Removable Media",
+    "Goal": "Control the use of removable media on system components."
+  },
+  {
+    "Id": "MP_L2_3_8_8",
+    "CmmcId": "MP.L2-3.8.8",
+    "ShortDescription": "Shared Media",
+    "Goal": "Prohibit the use of portable storage devices when such devices have no identifiable owner."
+  },
+  {
+    "Id": "MP_L2_3_8_9",
+    "CmmcId": "MP.L2-3.8.9",
+    "ShortDescription": "Protect Backups",
+    "Goal": "Protect the confidentiality of backup CUI at storage locations."
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "AT_L2_3_2_1",
+    "CmmcId": "AT.L2-3.2.1",
+    "ShortDescription": "Role-Based Risk Awareness",
+    "Goal": "Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activities and of the applicable policies, standards, and procedures related to the security of those systems."
+  },
+  {
+    "Id": "AT_L2_3_2_2",
+    "CmmcId": "AT.L2-3.2.2",
+    "ShortDescription": "Role-Based Training",
+    "Goal": "Ensure that personnel are trained to carry out their assigned information security-related duties and responsibilities."
+  },
+  {
+    "Id": "AT_L2_3_2_3",
+    "CmmcId": "AT.L2-3.2.3",
+    "ShortDescription": "Insider Threat Awareness",
+    "Goal": "Provide security awareness training on recognizing and reporting potential indicators of insider threat."
+  }
+]

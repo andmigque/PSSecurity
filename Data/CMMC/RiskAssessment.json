@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "RA_L2_3_11_1",
+    "CmmcId": "RA.L2-3.11.1",
+    "ShortDescription": "Risk Assessments",
+    "Goal": "Periodically assess the risk to organizational operations (including mission, functions, image, or reputation), organizational assets, and individuals, resulting from the operation of organizational systems and the associated processing, storage, or transmission of CUI."
+  },
+  {
+    "Id": "RA_L2_3_11_2",
+    "CmmcId": "RA.L2-3.11.2",
+    "ShortDescription": "Vulnerability Scan",
+    "Goal": "Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applications are identified."
+  },
+  {
+    "Id": "RA_L2_3_11_3",
+    "CmmcId": "RA.L2-3.11.3",
+    "ShortDescription": "Vulnerability Remediation",
+    "Goal": "Remediate vulnerabilities in accordance with risk assessments."
+  }
+]
