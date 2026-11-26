@@ -1,0 +1,21 @@
+{
+  "Kind": "interface",
+  "Name": "IControl",
+  "Methods": [
+    {
+      "Name": "GetControls",
+      "ReturnType": "ImmutableList<Control>",
+      "Parameters": []
+    },
+    {
+      "Name": "GetControl",
+      "ReturnType": "Control",
+      "Parameters": [
+        {
+          "Name": "controlEnum",
+          "Type": "ControlEnum"
+        }
+      ]
+    }
+  ]
+}

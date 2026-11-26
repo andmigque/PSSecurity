@@ -1,0 +1,68 @@
+[
+  {
+    "Id": "IA_L2_3_5_1",
+    "CmmcId": "IA.L2-3.5.1",
+    "ShortDescription": "Identification",
+    "Goal": "Identify information system users, processes acting on behalf of users, or devices."
+  },
+  {
+    "Id": "IA_L2_3_5_2",
+    "CmmcId": "IA.L2-3.5.2",
+    "ShortDescription": "Authentication",
+    "Goal": "Authenticate (or verify) the identities of those users, processes, or devices, as a prerequisite to allowing access to organizational information systems."
+  },
+  {
+    "Id": "IA_L2_3_5_3",
+    "CmmcId": "IA.L2-3.5.3",
+    "ShortDescription": "Multifactor Authentication",
+    "Goal": "Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts."
+  },
+  {
+    "Id": "IA_L2_3_5_4",
+    "CmmcId": "IA.L2-3.5.4",
+    "ShortDescription": "Replay-Resistant Authentication",
+    "Goal": "Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts."
+  },
+  {
+    "Id": "IA_L2_3_5_5",
+    "CmmcId": "IA.L2-3.5.5",
+    "ShortDescription": "Identifier Reuse",
+    "Goal": "Prevent reuse of identifiers for a defined period."
+  },
+  {
+    "Id": "IA_L2_3_5_6",
+    "CmmcId": "IA.L2-3.5.6",
+    "ShortDescription": "Identifier Handling",
+    "Goal": "Disable identifiers after a defined period of inactivity."
+  },
+  {
+    "Id": "IA_L2_3_5_7",
+    "CmmcId": "IA.L2-3.5.7",
+    "ShortDescription": "Password Complexity",
+    "Goal": "Enforce a minimum password complexity and change of characters when new passwords are created."
+  },
+  {
+    "Id": "IA_L2_3_5_8",
+    "CmmcId": "IA.L2-3.5.8",
+    "ShortDescription": "Password Reuse",
+    "Goal": "Prohibit password reuse for a specified number of generations."
+  },
+  {
+    "Id": "IA_L2_3_5_9",
+    "CmmcId": "IA.L2-3.5.9",
+    "ShortDescription": "Temporary Passwords",
+    "Goal": "Allow temporary password use for system logons with an immediate change to a permanent password."
+  },
+  {
+    "Id": "IA_L2_3_5_10",
+    "CmmcId": "IA.L2-3.5.10",
+    "ShortDescription": "Cryptographically-Protected Passwords",
+    "Goal": "Store and transmit only cryptographically protected passwords."
+  },
+  {
+    "Id": "IA_L2_3_5_11",
+    "CmmcId": "IA.L2-3.5.11",
+    "ShortDescription": "Obscure Feedback",
+    "Goal": "Obscure feedback of authentication information."
+  }
+]

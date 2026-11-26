@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "IR_L2_3_6_1",
+    "CmmcId": "IR.L2-3.6.1",
+    "ShortDescription": "Incident Handling",
+    "Goal": "Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recovery, and user response activities."
+  },
+  {
+    "Id": "IR_L2_3_6_2",
+    "CmmcId": "IR.L2-3.6.2",
+    "ShortDescription": "Incident Reporting",
+    "Goal": "Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization."
+  },
+  {
+    "Id": "IR_L2_3_6_3",
+    "CmmcId": "IR.L2-3.6.3",
+    "ShortDescription": "Incident Response Testing",
+    "Goal": "Test the organizational incident response capability."
+  }
+]

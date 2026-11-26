@@ -1,0 +1,56 @@
+[
+  {
+    "Id": "AU_L2_3_3_1",
+    "CmmcId": "AU.L2-3.3.1",
+    "ShortDescription": "System Auditing",
+    "Goal": "Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity."
+  },
+  {
+    "Id": "AU_L2_3_3_2",
+    "CmmcId": "AU.L2-3.3.2",
+    "ShortDescription": "User Accountability",
+    "Goal": "Ensure that the actions of individual system users, can be uniquely traced to those users so they can be held accountable for their actions."
+  },
+  {
+    "Id": "AU_L2_3_3_3",
+    "CmmcId": "AU.L2-3.3.3",
+    "ShortDescription": "Event Review",
+    "Goal": "Review and update logged events."
+  },
+  {
+    "Id": "AU_L2_3_3_4",
+    "CmmcId": "AU.L2-3.3.4",
+    "ShortDescription": "Audit Failure Alerting",
+    "Goal": "Alert in the event of an audit logging process failure."
+  },
+  {
+    "Id": "AU_L2_3_3_5",
+    "CmmcId": "AU.L2-3.3.5",
+    "ShortDescription": "Audit Correlation",
+    "Goal": "Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity."
+  },
+  {
+    "Id": "AU_L2_3_3_6",
+    "CmmcId": "AU.L2-3.3.6",
+    "ShortDescription": "Reduction & Reporting",
+    "Goal": "Provide audit record reduction and report generation to support on-demand analysis and reporting."
+  },
+  {
+    "Id": "AU_L2_3_3_7",
+    "CmmcId": "AU.L2-3.3.7",
+    "ShortDescription": "Authoritative Time Source",
+    "Goal": "Provide a system capability that compares and synchronizes internal system clocks with an authoritative source to generate time stamps for audit records."
+  },
+  {
+    "Id": "AU_L2_3_3_8",
+    "CmmcId": "AU.L2-3.3.8",
+    "ShortDescription": "Audit Protection",
+    "Goal": "Protect audit information and audit logging tools from unauthorized access, modification, and deletion."
+  },
+  {
+    "Id": "AU_L2_3_3_9",
+    "CmmcId": "AU.L2-3.3.9",
+    "ShortDescription": "Audit Management",
+    "Goal": "Limit management of audit logging functionality to a subset of privileged users."
+  }
+]

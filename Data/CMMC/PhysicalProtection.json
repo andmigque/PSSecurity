@@ -1,0 +1,38 @@
+[
+  {
+    "Id": "PE_L2_3_10_1",
+    "CmmcId": "PE.L2-3.10.1",
+    "ShortDescription": "Limit Physical Access",
+    "Goal": "Limit physical access to organizational information systems, equipment, and the respective operating environments to authorized individuals."
+  },
+  {
+    "Id": "PE_L2_3_10_2",
+    "CmmcId": "PE.L2-3.10.2",
+    "ShortDescription": "Monitor Facility",
+    "Goal": "Protect and monitor the physical facility and support infrastructure for organizational systems."
+  },
+  {
+    "Id": "PE_L2_3_10_3",
+    "CmmcId": "PE.L2-3.10.3",
+    "ShortDescription": "Escort Visitors",
+    "Goal": "Escort visitors and monitor visitor activity."
+  },
+  {
+    "Id": "PE_L2_3_10_4",
+    "CmmcId": "PE.L2-3.10.4",
+    "ShortDescription": "Physical Access Logs",
+    "Goal": "Maintain audit logs of physical access."
+  },
+  {
+    "Id": "PE_L2_3_10_5",
+    "CmmcId": "PE.L2-3.10.5",
+    "ShortDescription": "Manage Physical Access",
+    "Goal": "Control and manage physical access devices."
+  },
+  {
+    "Id": "PE_L2_3_10_6",
+    "CmmcId": "PE.L2-3.10.6",
+    "ShortDescription": "Alternative Work Sites",
+    "Goal": "Enforce safeguarding measures for CUI at alternate work sites."
+  }
+]

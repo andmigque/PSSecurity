@@ -1,0 +1,18 @@
+{
+  "Kind": "record",
+  "Name": "Control",
+  "Fields": [
+    {
+      "Name": "Id",
+      "Type": "ControlEnum"
+    },
+    {
+      "Name": "ShortDescription",
+      "Type": "string"
+    },
+    {
+      "Name": "Goal",
+      "Type": "string"
+    }
+  ]
+}

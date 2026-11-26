@@ -1,0 +1,38 @@
+[
+  {
+    "Id": "MA_L2_3_7_1",
+    "CmmcId": "MA.L2-3.7.1",
+    "ShortDescription": "Perform Maintenance",
+    "Goal": "Perform maintenance on organizational systems."
+  },
+  {
+    "Id": "MA_L2_3_7_2",
+    "CmmcId": "MA.L2-3.7.2",
+    "ShortDescription": "System Maintenance Control",
+    "Goal": "Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance."
+  },
+  {
+    "Id": "MA_L2_3_7_3",
+    "CmmcId": "MA.L2-3.7.3",
+    "ShortDescription": "Equipment Sanitization",
+    "Goal": "Ensure equipment removed for off-site maintenance is sanitized of any CUI."
+  },
+  {
+    "Id": "MA_L2_3_7_4",
+    "CmmcId": "MA.L2-3.7.4",
+    "ShortDescription": "Media Inspection",
+    "Goal": "Check media containing diagnostic and test programs for malicious code before the media are used in organizational systems."
+  },
+  {
+    "Id": "MA_L2_3_7_5",
+    "CmmcId": "MA.L2-3.7.5",
+    "ShortDescription": "Nonlocal Maintenance",
+    "Goal": "Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when nonlocal maintenance is complete."
+  },
+  {
+    "Id": "MA_L2_3_7_6",
+    "CmmcId": "MA.L2-3.7.6",
+    "ShortDescription": "Maintenance Personnel",
+    "Goal": "Supervise the maintenance activities of maintenance personnel without required access authorization."
+  }
+]
