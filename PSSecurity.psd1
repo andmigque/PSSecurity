@@ -20,6 +20,7 @@
         'Get-AclItem'
         'Get-ApplicationSignatureAudit'
         'Get-EnumeratedDirectory'
+        'Get-EnumeratedDirectoryStream'
         'Get-ScheduledTaskAudit'
         'Get-SshdConfiguration'
         'Get-SudoersAudit'
